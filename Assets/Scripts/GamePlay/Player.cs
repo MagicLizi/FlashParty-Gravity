@@ -14,11 +14,11 @@ public class Player : MonoBehaviour
 
     public float CurXMoveSpeed = 0;
 
-    // public float CurYMoveSpeed = 0;
-
     public float MoveSpeed = 0;
 
     public float AirMoveSpeed = 0;
+
+    public float AirDrag = 0;
 
     public float JumpHeight = 2;
 
@@ -54,7 +54,17 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.velocity = new Vector2(CurXMoveSpeed, rb.velocity.y);
+        float targetSpeed = 0;
+        if (inAir)
+        {
+            targetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
+            Debug.Log($"AirDrag: {targetSpeed}");
+        }
+        else
+        {
+            targetSpeed = CurXMoveSpeed;
+        }
+        rb.velocity = new Vector2(targetSpeed, rb.velocity.y);
     }
 
     protected void PlayAnimByName(string name)
@@ -106,7 +116,7 @@ public class Player : MonoBehaviour
         else
         {
             CurXMoveSpeed = moveDirX * MoveSpeed;
-            // Debug.Log($"CurMoveSpeed: {CurMoveSpeed}");
+            Debug.Log($"CurMoveSpeed: {CurXMoveSpeed}");
             if (CurXMoveSpeed != 0)
             {
                 PlayAnimByName("Dash");
@@ -132,13 +142,30 @@ public class Player : MonoBehaviour
 
     void CheckInAir()
     {
-        // inAir = !IsGrounded();
+        inAir = !IsGrounded();
+        // Debug.Log($"inAir: {inAir} {CurAnimName}");
+        if (inAir)
+        {
+            PlayAnimByName("JumpStart");
+        }
+        else
+        {
+            if (CurAnimName.Contains("JumpStart"))
+            {
+                PlayAnimByName("Idle");
+            }
+        }
     }
 
     bool IsGrounded()
     {
-        float dist = 0.05f;
-        Vector2 origin = (Vector2)transform.position + new Vector2(0, -boxCollider.bounds.size.y * 0.5f + 0.02f);
-        return Physics2D.Raycast(origin, Vector2.down, dist, groundMask);
+        // groundRayCast = (Vector2)transform.position + new Vector2(0, -boxCollider.bounds.size.y * 0.5f + 0.02f);
+        return Physics2D.Raycast((Vector2)transform.position, Vector2.down, 0.05f, groundMask);
+    }
+
+    void OnDrawGizmos()
+    {
+        Vector2 origin = (Vector2)transform.position;
+        Debug.DrawLine(origin, origin + Vector2.down * 0.05f, Color.red);
     }
 }

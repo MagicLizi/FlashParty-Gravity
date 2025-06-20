@@ -8,6 +8,11 @@ using UnityEngine.InputSystem;
 public class InputManager : MonoSingleton<InputManager>
 {
     private GameInputActions _input;
+
+    private bool isMove = false;
+
+    InputAction moveAction;
+
     void Awake()
     {
         _input = new GameInputActions();
@@ -30,6 +35,10 @@ public class InputManager : MonoSingleton<InputManager>
     Action<InputAction.CallbackContext> endCallback = null)
     {
         var action = _input.FindAction(actionName);
+        if (actionName == "Move")
+        {
+            moveAction = action;
+        }
         if (action != null)
         {
             if (startCallback != null)
@@ -82,11 +91,19 @@ public class InputManager : MonoSingleton<InputManager>
         }
     }
 
+    void Update()
+    {
+        if (isMove)
+        {
+            EventManager.Instance.TriggerEvent(EventType.Move, moveAction.ReadValue<Vector2>());
+        }
+    }
 
     void OnMoveStart(InputAction.CallbackContext value)
     {
         // Debug.Log("StartMove: " + value.ReadValue<Vector2>());
         EventManager.Instance.TriggerEvent(EventType.Move, value.ReadValue<Vector2>());
+        isMove = true;
     }
 
     void OnMoving(InputAction.CallbackContext value)
@@ -99,6 +116,7 @@ public class InputManager : MonoSingleton<InputManager>
     {
         // Debug.Log("endMove: " + value.ReadValue<Vector2>());
         EventManager.Instance.TriggerEvent(EventType.Move, value.ReadValue<Vector2>());
+        isMove = false;
     }
 
     void OnJumpStart(InputAction.CallbackContext value)
@@ -130,8 +148,4 @@ public class InputManager : MonoSingleton<InputManager>
     {
         Debug.Log("endAction");
     }   
-    void Update()
-    {
-
-    }
 }
