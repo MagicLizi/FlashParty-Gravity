@@ -194,10 +194,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
-  CurMoveSpeed: 0
+  boxCollider: {fileID: 0}
+  CurXMoveSpeed: 0
   MoveSpeed: 12
   AirMoveSpeed: 0
+  JumpHeight: 2
   BaseMoveSpeed: 15
   rb: {fileID: 0}
   CurFaceDir: 2
   Name: SnowWhite
+  CurAnimName: Idle
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 0
