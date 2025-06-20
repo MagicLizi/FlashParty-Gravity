@@ -72,7 +72,7 @@ public class Unit : MonoBehaviour
     {
         if (CurMoveSpeed != 0)
         {
-            PlayAnimByName("Run");
+            PlayAnimByName("Dash");
             animator.speed = Mathf.Abs(CurMoveSpeed/ BaseMoveSpeed);
             transform.Translate(Vector3.right * CurMoveSpeed * Time.deltaTime);
         }
