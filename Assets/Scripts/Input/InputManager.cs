@@ -103,17 +103,17 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnJumpStart(InputAction.CallbackContext value)
     {
-        Debug.Log("StartJump");
+        EventManager.Instance.TriggerEvent(EventType.Jump);
     }
 
     void OnJumping(InputAction.CallbackContext value)
     {
-        Debug.Log("onJump");
+        
     }
 
     void OnJumpEnd(InputAction.CallbackContext value)
     {
-        Debug.Log("endJump");
+        
     }
 
     void OnActionStart(InputAction.CallbackContext value)
