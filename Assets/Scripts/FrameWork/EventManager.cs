@@ -6,20 +6,22 @@ using Lizi.FrameWork.Util;
 
 public enum EventType
 {
-    
+    Move,
+    Jump,
+    Action,
 }
 
 public class EventManager : SingleTon<EventManager>
 {
     // 事件字典，存储所有注册的事件
-    private Dictionary<string, Action<object>> eventDictionary = new Dictionary<string, Action<object>>();
+    private Dictionary<EventType, Action<object>> eventDictionary = new Dictionary<EventType, Action<object>>();
 
     /// <summary>
     /// 注册事件监听器
     /// </summary>
     /// <param name="eventName">事件名称</param>
     /// <param name="listener">监听器回调</param>
-    public void AddListener(string eventName, Action<object> listener)
+    public void AddListener(EventType eventName, Action<object> listener)
     {
         if (eventDictionary.ContainsKey(eventName))
         {
@@ -36,7 +38,7 @@ public class EventManager : SingleTon<EventManager>
     /// </summary>
     /// <param name="eventName">事件名称</param>
     /// <param name="listener">监听器回调</param>
-    public void RemoveListener(string eventName, Action<object> listener)
+    public void RemoveListener(EventType eventName, Action<object> listener)
     {
         if (eventDictionary.ContainsKey(eventName))
         {
@@ -55,7 +57,7 @@ public class EventManager : SingleTon<EventManager>
     /// </summary>
     /// <param name="eventName">事件名称</param>
     /// <param name="data">事件数据</param>
-    public void TriggerEvent(string eventName, object data = null)
+    public void TriggerEvent(EventType eventName, object data = null)
     {
         if (eventDictionary.ContainsKey(eventName))
         {
@@ -75,7 +77,7 @@ public class EventManager : SingleTon<EventManager>
     /// 清除指定事件
     /// </summary>
     /// <param name="eventName">事件名称</param>
-    public void ClearEvent(string eventName)
+    public void ClearEvent(EventType eventName)
     {
         if (eventDictionary.ContainsKey(eventName))
         {
