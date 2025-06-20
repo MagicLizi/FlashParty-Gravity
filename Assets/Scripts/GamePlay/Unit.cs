@@ -63,6 +63,7 @@ public class Unit : MonoBehaviour
     {
         if (CurMoveSpeed == 0)
         {
+            animator.speed = 1;
             PlayAnimByName("Idle");
         }
     }
