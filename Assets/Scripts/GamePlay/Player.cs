@@ -36,6 +36,8 @@ public class Player : MonoBehaviour
 
     public LayerMask groundMask;
 
+    private Vector2 additionSpeed = Vector2.zero;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -63,7 +65,7 @@ public class Player : MonoBehaviour
             targetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
             if(targetSpeed * (int)CurFaceDir < 0 || Mathf.Abs(rb.velocity.x) < Mathf.Abs(CurXMoveSpeed))
             {
-                Debug.Log("空中转向");
+                // Debug.Log("空中转向");
                 targetSpeed = CurXMoveSpeed;
             }
             // Debug.Log($"No Speed AirDrag: {rb.velocity.x} {CurXMoveSpeed} {targetSpeed}");
@@ -72,7 +74,7 @@ public class Player : MonoBehaviour
         {
             targetSpeed = CurXMoveSpeed;
         }
-        rb.velocity = new Vector2(targetSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(targetSpeed, rb.velocity.y) + additionSpeed;
     }
 
     protected void PlayAnimByName(string name)
@@ -203,5 +205,10 @@ public class Player : MonoBehaviour
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOn, OnPlatformEnter);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOff, OnPlatformExit);
         }
+    }
+
+    public void AddSpeed(Vector2 speedVec)
+    {
+        additionSpeed = speedVec;
     }
 }
