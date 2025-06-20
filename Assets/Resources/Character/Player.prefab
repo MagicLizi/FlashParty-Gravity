@@ -180,7 +180,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!114 &3911124674337581693
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,6 +196,7 @@ MonoBehaviour:
   animator: {fileID: 0}
   CurMoveSpeed: 0
   MoveSpeed: 12
+  AirMoveSpeed: 0
   BaseMoveSpeed: 15
+  rb: {fileID: 0}
   CurFaceDir: 2
-  JumpForce: 20
