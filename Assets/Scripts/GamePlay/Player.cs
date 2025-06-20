@@ -44,6 +44,9 @@ public class Player : MonoBehaviour
         PlayAnimByName("Idle");
         EventManager.Instance.AddListener(EventType.Move, OnMove);
         EventManager.Instance.AddListener(EventType.Jump, OnJump);
+        // 添加平台事件监听
+        EventManager.Instance.AddListener(EventType.PlatformPlayerOn, OnPlatformEnter);
+        EventManager.Instance.AddListener(EventType.PlatformPlayerOff, OnPlatformExit);
     }
 
     void Update()
@@ -167,5 +170,35 @@ public class Player : MonoBehaviour
     {
         Vector2 origin = (Vector2)transform.position;
         Debug.DrawLine(origin, origin + Vector2.down * 0.05f, Color.red);
+    }
+    
+    void OnPlatformEnter(object data)
+    {
+        if (data is Player player && player == this)
+        {
+            Debug.Log("Player entered moving platform");
+            // 可以在这里添加进入平台的特殊逻辑，比如改变状态或播放音效
+        }
+    }
+    
+    void OnPlatformExit(object data)
+    {
+        if (data is Player player && player == this)
+        {
+            Debug.Log("Player left moving platform");
+            // 可以在这里添加离开平台的特殊逻辑
+        }
+    }
+    
+    void OnDestroy()
+    {
+        // 清理事件监听，避免内存泄漏
+        if (EventManager.Instance != null)
+        {
+            EventManager.Instance.RemoveListener(EventType.Move, OnMove);
+            EventManager.Instance.RemoveListener(EventType.Jump, OnJump);
+            EventManager.Instance.RemoveListener(EventType.PlatformPlayerOn, OnPlatformEnter);
+            EventManager.Instance.RemoveListener(EventType.PlatformPlayerOff, OnPlatformExit);
+        }
     }
 }

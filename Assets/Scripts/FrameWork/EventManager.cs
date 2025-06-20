@@ -9,6 +9,12 @@ public enum EventType
     Move,
     Jump,
     Action,
+    // 平台相关事件
+    PlatformTrigger,        // 平台触发
+    PlatformStartMove,      // 平台开始移动
+    PlatformStopMove,       // 平台停止移动
+    PlatformPlayerOn,       // 玩家上平台
+    PlatformPlayerOff,      // 玩家离开平台
 }
 
 public class EventManager : SingleTon<EventManager>
