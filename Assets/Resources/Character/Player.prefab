@@ -195,6 +195,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
   CurMoveSpeed: 0
-  MoveSpeed: 10
-  BaseMoveSpeed: 4.5
+  MoveSpeed: 12
+  BaseMoveSpeed: 15
   CurFaceDir: 2
+  JumpForce: 20
