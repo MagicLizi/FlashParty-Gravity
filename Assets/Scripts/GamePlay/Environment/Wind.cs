@@ -22,22 +22,27 @@ public class Wind : MonoBehaviour
         }
     }
 
+    void OnTriggerEnter2D(Collider2D other)
+    {
+       AddPlayerWind(other);
+    }
+
     private void OnTriggerStay2D(Collider2D other)
     {
-        // 检查进入触发器的是否是Player
-        Player player = other.GetComponent<Player>();
-        if (player != null)
-        {
-            player.AddSpeed(windDirection.normalized * windSpeed);
-        }
+         AddPlayerWind(other);
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
+        AddPlayerWind(other, -1);
+    }
+
+    void AddPlayerWind(Collider2D other, int direct = 1)
+    {
         Player player = other.GetComponent<Player>();
         if (player != null)
         {
-            player.AddSpeed(Vector2.zero);
+            player.SetWindSpeed(windDirection.normalized * windSpeed * direct);
         }
     }
 

@@ -36,7 +36,7 @@ public class Player : MonoBehaviour
 
     public LayerMask groundMask;
 
-    private Vector2 additionSpeed = Vector2.zero;
+    private Vector2 AdditionWindSpeed = Vector2.zero;
 
     void Awake()
     {
@@ -74,7 +74,7 @@ public class Player : MonoBehaviour
         {
             targetSpeed = CurXMoveSpeed;
         }
-        rb.velocity = new Vector2(targetSpeed, rb.velocity.y) + additionSpeed;
+        rb.velocity = new Vector2(targetSpeed, rb.velocity.y) + AdditionWindSpeed;
     }
 
     protected void PlayAnimByName(string name)
@@ -207,8 +207,8 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void AddSpeed(Vector2 speedVec)
+    public void SetWindSpeed(Vector2 speedVec)
     {
-        additionSpeed = speedVec;
+        AdditionWindSpeed = AdditionWindSpeed + speedVec;
     }
 }
