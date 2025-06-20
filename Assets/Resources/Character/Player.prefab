@@ -170,7 +170,7 @@ Rigidbody2D:
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: b58b849436cb6414695e31e947b0f376, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -198,6 +198,7 @@ MonoBehaviour:
   CurXMoveSpeed: 0
   MoveSpeed: 12
   AirMoveSpeed: 0
+  AirDrag: 0
   JumpHeight: 2
   BaseMoveSpeed: 15
   rb: {fileID: 0}
