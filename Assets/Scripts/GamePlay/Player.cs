@@ -2,8 +2,8 @@ using UnityEngine;
 
 public enum FaceDir
 {
-    Left = 1,
-    Right = 2,
+    Left = -1,
+    Right = 1,
 }
 
 public class Player : MonoBehaviour
@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
 
     public float AirDrag = 0;
 
-    public float JumpHeight = 2;
+    public float JumpSpeed = 4;
 
     public float BaseMoveSpeed = 4.5f; //基准值
 
@@ -57,11 +57,16 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        float targetSpeed = 0;
+        float targetSpeed;
         if (inAir)
         {
             targetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
-            Debug.Log($"AirDrag: {targetSpeed}");
+            if(targetSpeed * (int)CurFaceDir < 0)
+            {
+                Debug.Log("空中转向");
+                targetSpeed = CurXMoveSpeed;
+            }
+            // Debug.Log($"No Speed AirDrag: {rb.velocity.x} {CurXMoveSpeed} {targetSpeed}");
         }
         else
         {
@@ -119,7 +124,7 @@ public class Player : MonoBehaviour
         else
         {
             CurXMoveSpeed = moveDirX * MoveSpeed;
-            Debug.Log($"CurMoveSpeed: {CurXMoveSpeed}");
+            // Debug.Log($"CurMoveSpeed: {CurXMoveSpeed}");
             if (CurXMoveSpeed != 0)
             {
                 PlayAnimByName("Dash");
@@ -138,9 +143,7 @@ public class Player : MonoBehaviour
 
     void OnJump(object data)
     {
-        float g = Mathf.Abs(Physics2D.gravity.y) * rb.gravityScale;
-        float vyJump = Mathf.Sqrt(2f * g * JumpHeight);
-        rb.velocity = new Vector2(rb.velocity.x, vyJump);
+        rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
     }
 
     void CheckInAir()
@@ -171,7 +174,7 @@ public class Player : MonoBehaviour
         Vector2 origin = (Vector2)transform.position;
         Debug.DrawLine(origin, origin + Vector2.down * 0.05f, Color.red);
     }
-    
+
     void OnPlatformEnter(object data)
     {
         if (data is Player player && player == this)
@@ -180,7 +183,7 @@ public class Player : MonoBehaviour
             // 可以在这里添加进入平台的特殊逻辑，比如改变状态或播放音效
         }
     }
-    
+
     void OnPlatformExit(object data)
     {
         if (data is Player player && player == this)
@@ -189,7 +192,7 @@ public class Player : MonoBehaviour
             // 可以在这里添加离开平台的特殊逻辑
         }
     }
-    
+
     void OnDestroy()
     {
         // 清理事件监听，避免内存泄漏

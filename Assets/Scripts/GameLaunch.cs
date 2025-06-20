@@ -7,11 +7,13 @@ public class GameLaunch : MonoBehaviour
 {
     void Awake()
     {
-       InputManager.Instance.Startup();
+        Time.fixedDeltaTime  = 1/60f;
+        Application.targetFrameRate = 60;
+        InputManager.Instance.Startup();
     }
 
     void Destroy()
     {
-        
+
     }
 }

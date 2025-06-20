@@ -169,7 +169,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 2
   m_Material: {fileID: 6200000, guid: b58b849436cb6414695e31e947b0f376, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
@@ -197,9 +197,9 @@ MonoBehaviour:
   boxCollider: {fileID: 0}
   CurXMoveSpeed: 0
   MoveSpeed: 12
-  AirMoveSpeed: 0
-  AirDrag: 0
-  JumpHeight: 2
+  AirMoveSpeed: 6
+  AirDrag: 0.01
+  JumpSpeed: 8
   BaseMoveSpeed: 15
   rb: {fileID: 0}
   CurFaceDir: 2
@@ -207,4 +207,4 @@ MonoBehaviour:
   CurAnimName: Idle
   groundMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
