@@ -61,7 +61,7 @@ public class Player : MonoBehaviour
         if (inAir)
         {
             targetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
-            if(targetSpeed * (int)CurFaceDir < 0)
+            if(targetSpeed * (int)CurFaceDir < 0 || Mathf.Abs(rb.velocity.x) < Mathf.Abs(CurXMoveSpeed))
             {
                 Debug.Log("空中转向");
                 targetSpeed = CurXMoveSpeed;
@@ -86,7 +86,7 @@ public class Player : MonoBehaviour
         // Debug.Log($"当前播放的动画: {currentAnimName}");
         if (!currentAnimName.Equals(CurAnimName))
         {
-            Debug.Log($"当前播放的动画: {currentAnimName} 需要切换到 {CurAnimName}");
+            // Debug.Log($"当前播放的动画: {currentAnimName} 需要切换到 {CurAnimName}");
             animator.Play(CurAnimName);
         }
     }
