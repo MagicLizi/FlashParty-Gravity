@@ -10,11 +10,17 @@ public class Player : MonoBehaviour
 {
     public Animator animator;
 
-    public float CurMoveSpeed = 0;
+    public BoxCollider2D boxCollider;
+
+    public float CurXMoveSpeed = 0;
+
+    // public float CurYMoveSpeed = 0;
 
     public float MoveSpeed = 0;
 
     public float AirMoveSpeed = 0;
+
+    public float JumpHeight = 2;
 
     public float BaseMoveSpeed = 4.5f; //基准值
 
@@ -28,10 +34,13 @@ public class Player : MonoBehaviour
 
     public string CurAnimName = "Idle";
 
+    public LayerMask groundMask;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        boxCollider = GetComponent<BoxCollider2D>();
         PlayAnimByName("Idle");
         EventManager.Instance.AddListener(EventType.Move, OnMove);
         EventManager.Instance.AddListener(EventType.Jump, OnJump);
@@ -39,8 +48,13 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        CheckInAir();
         CheckAnimPlay();
-        rb.velocity = new Vector2(CurMoveSpeed, rb.velocity.y);
+    }
+
+    void FixedUpdate()
+    {
+        rb.velocity = new Vector2(CurXMoveSpeed, rb.velocity.y);
     }
 
     protected void PlayAnimByName(string name)
@@ -61,12 +75,12 @@ public class Player : MonoBehaviour
 
     void CheckFaceDir()
     {
-        if (CurMoveSpeed > 0)
+        if (CurXMoveSpeed > 0)
         {
             CurFaceDir = FaceDir.Right;
             transform.localScale = new Vector3(1, 1, 1);
         }
-        else if (CurMoveSpeed < 0)
+        else if (CurXMoveSpeed < 0)
         {
             CurFaceDir = FaceDir.Left;
             transform.localScale = new Vector3(-1, 1, 1);
@@ -76,24 +90,28 @@ public class Player : MonoBehaviour
     void OnMove(object data)
     {
         Vector2 moveDir = (Vector2)data;
-        int moveDirX = moveDir.x < 0 ? -1 : 1;
-        if (moveDir.x == 0)
+        int moveDirX = 0;
+        if (moveDir.x > 0)
         {
-            moveDirX = 0;
+            moveDirX = 1;
+        }
+        else if (moveDir.x < 0)
+        {
+            moveDirX = -1;
         }
         if (inAir)
         {
-            CurMoveSpeed = moveDirX * AirMoveSpeed;
+            CurXMoveSpeed = moveDirX * AirMoveSpeed;
         }
         else
         {
-            CurMoveSpeed = moveDirX * MoveSpeed;
+            CurXMoveSpeed = moveDirX * MoveSpeed;
             // Debug.Log($"CurMoveSpeed: {CurMoveSpeed}");
-            if (CurMoveSpeed != 0)
+            if (CurXMoveSpeed != 0)
             {
                 PlayAnimByName("Dash");
-                CurMoveSpeed = moveDirX * MoveSpeed;
-                animator.speed = Mathf.Abs(CurMoveSpeed / BaseMoveSpeed);
+                CurXMoveSpeed = moveDirX * MoveSpeed;
+                animator.speed = Mathf.Abs(CurXMoveSpeed / BaseMoveSpeed);
             }
             else
             {
@@ -107,6 +125,20 @@ public class Player : MonoBehaviour
 
     void OnJump(object data)
     {
+        float g = Mathf.Abs(Physics2D.gravity.y) * rb.gravityScale;
+        float vyJump = Mathf.Sqrt(2f * g * JumpHeight);
+        rb.velocity = new Vector2(rb.velocity.x, vyJump);
+    }
 
+    void CheckInAir()
+    {
+        // inAir = !IsGrounded();
+    }
+
+    bool IsGrounded()
+    {
+        float dist = 0.05f;
+        Vector2 origin = (Vector2)transform.position + new Vector2(0, -boxCollider.bounds.size.y * 0.5f + 0.02f);
+        return Physics2D.Raycast(origin, Vector2.down, dist, groundMask);
     }
 }
