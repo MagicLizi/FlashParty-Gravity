@@ -26,6 +26,8 @@ public class Player : MonoBehaviour
 
     public string Name = "SnowWhite";
 
+    public string CurAnimName = "Idle";
+
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -35,20 +37,26 @@ public class Player : MonoBehaviour
         EventManager.Instance.AddListener(EventType.Jump, OnJump);
     }
 
-    void FixedUpdate()
+    void Update()
     {
+        CheckAnimPlay();
         rb.velocity = new Vector2(CurMoveSpeed, rb.velocity.y);
-    }
-
-    void LateUpdate()
-    {
-
     }
 
     protected void PlayAnimByName(string name)
     {
-        string animName = string.Format("{0}@{1}", Name, name);
-        animator.Play(animName);
+        CurAnimName = string.Format("{0}@{1}", Name, name);
+    }
+
+    void CheckAnimPlay()
+    {
+        string currentAnimName = animator.GetCurrentAnimatorClipInfo(0)[0].clip.name;
+        // Debug.Log($"当前播放的动画: {currentAnimName}");
+        if (!currentAnimName.Equals(CurAnimName))
+        {
+            Debug.Log($"当前播放的动画: {currentAnimName} 需要切换到 {CurAnimName}");
+            animator.Play(CurAnimName);
+        }
     }
 
     void CheckFaceDir()
@@ -68,23 +76,30 @@ public class Player : MonoBehaviour
     void OnMove(object data)
     {
         Vector2 moveDir = (Vector2)data;
+        int moveDirX = moveDir.x < 0 ? -1 : 1;
+        if (moveDir.x == 0)
+        {
+            moveDirX = 0;
+        }
         if (inAir)
         {
-            CurMoveSpeed = moveDir.x * AirMoveSpeed;
+            CurMoveSpeed = moveDirX * AirMoveSpeed;
         }
         else
         {
-            CurMoveSpeed = moveDir.x * MoveSpeed;
+            CurMoveSpeed = moveDirX * MoveSpeed;
+            // Debug.Log($"CurMoveSpeed: {CurMoveSpeed}");
             if (CurMoveSpeed != 0)
             {
                 PlayAnimByName("Dash");
-                CurMoveSpeed = moveDir.x * MoveSpeed;
+                CurMoveSpeed = moveDirX * MoveSpeed;
                 animator.speed = Mathf.Abs(CurMoveSpeed / BaseMoveSpeed);
             }
             else
             {
                 PlayAnimByName("Idle");
                 animator.speed = 1;
+                rb.velocity = new Vector2(0, rb.velocity.y);
             }
         }
         CheckFaceDir();
@@ -92,5 +107,6 @@ public class Player : MonoBehaviour
 
     void OnJump(object data)
     {
+
     }
 }
