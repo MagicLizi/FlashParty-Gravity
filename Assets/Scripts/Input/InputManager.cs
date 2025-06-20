@@ -85,17 +85,20 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnMoveStart(InputAction.CallbackContext value)
     {
-        Debug.Log("StartMove: " + value.ReadValue<Vector2>());
+        // Debug.Log("StartMove: " + value.ReadValue<Vector2>());
+        EventManager.Instance.TriggerEvent(EventType.Move, value.ReadValue<Vector2>());
     }
 
     void OnMoving(InputAction.CallbackContext value)
     {
-        Debug.Log("onMove: " + value.ReadValue<Vector2>());
+        // Debug.Log("onMove: " + value.ReadValue<Vector2>());
+        EventManager.Instance.TriggerEvent(EventType.Move, value.ReadValue<Vector2>());
     }
 
     void OnMoveEnd(InputAction.CallbackContext value)
     {
-        Debug.Log("endMove: " + value.ReadValue<Vector2>());
+        // Debug.Log("endMove: " + value.ReadValue<Vector2>());
+        EventManager.Instance.TriggerEvent(EventType.Move, value.ReadValue<Vector2>());
     }
 
     void OnJumpStart(InputAction.CallbackContext value)
