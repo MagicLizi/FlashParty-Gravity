@@ -351,7 +351,7 @@ public class Player : MonoBehaviour
         isLoseGravity = lose;
     }
 
-    public void Dead(Vector2 rebornPos)
+    public void Dead(GameObject rebornPt)
     {
         if (isDead) return;
         isDead = true;
@@ -365,7 +365,7 @@ public class Player : MonoBehaviour
             // 创建闪烁动画，透明度在0.3和1之间变化，持续0.2秒，重复-1次（无限循环）
             Shine(true);
             // 使用DOTween移动角色到指定位置
-            transform.DOMove(rebornPos, 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
+            transform.DOMove(rebornPt.transform.position, 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
             {
                 Shine(false);
                 isDead = false;
