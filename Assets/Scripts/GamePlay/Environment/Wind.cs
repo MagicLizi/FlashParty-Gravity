@@ -41,18 +41,7 @@ public class Wind : MonoBehaviour
     {
         if (isOpen)
         {
-            Player player = other.GetComponent<Player>();
-            if (player != null)
-            {
-                player.AnimateSetTrigger("Jump");
-                player.AddWindSpeed(windDirection.normalized * windSpeed);
-            }
-
-            Ball ball = other.GetComponent<Ball>();
-            if(ball != null)
-            {
-                ball.AddWindSpeed(windDirection.normalized * ballWindSpeed);
-            }
+            ApplyWind(other);
         }
     }
 
@@ -100,28 +89,49 @@ public class Wind : MonoBehaviour
     //     }
     // }
 
+    private void ApplyWind(Collider2D other)
+    {
+        // 将本地风向转换为世界坐标系下的方向
+        Vector2 worldWindDirection = transform.TransformDirection(windDirection.normalized);
+
+        Player player = other.GetComponent<Player>();
+        if (player != null)
+        {
+            player.AddWindSpeed(worldWindDirection * windSpeed);
+            return;
+        }
+
+        Ball ball = other.GetComponent<Ball>();
+        if (ball != null)
+        {
+            ball.AddWindSpeed(worldWindDirection * ballWindSpeed);
+        }
+    }
+
     private void OnDrawGizmos()
     {
-        // if (windZone == null)
-        // {
-        //     windZone = GetComponent<BoxCollider2D>();
-        // }
+        if (windZone == null)
+        {
+            windZone = GetComponent<BoxCollider2D>();
+        }
 
-        // // 在Scene视图中绘制风向的箭头以方便调试
-        // Gizmos.color = Color.cyan;
-        // Vector3 center = transform.position + (Vector3)windZone.offset;
-        // Vector3 direction = windDirection.normalized;
+        // 在Scene视图中绘制风向的箭头以方便调试
+        Gizmos.color = Color.cyan;
+        Vector3 center = transform.position + (Vector3)windZone.offset;
+        
+        // Gizmos需要世界坐标系方向
+        Vector3 direction = transform.TransformDirection(windDirection.normalized);
 
-        // float arrowHeadLength = 0.25f;
-        // float arrowHeadAngle = 20.0f;
+        float arrowHeadLength = 0.25f;
+        float arrowHeadAngle = 20.0f;
 
-        // // 绘制风向主干线
-        // Gizmos.DrawLine(center, center + (Vector3)direction * 2);
+        // 绘制风向主干线
+        Gizmos.DrawLine(center, center + direction * 2);
 
-        // // 绘制箭头
-        // Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 + arrowHeadAngle, 0) * new Vector3(0, 0, 1);
-        // Vector3 left = Quaternion.LookRotation(direction) * Quaternion.Euler(0, 180 - arrowHeadAngle, 0) * new Vector3(0, 0, 1);
-        // Gizmos.DrawRay(center + (Vector3)direction * 2, right * arrowHeadLength);
-        // Gizmos.DrawRay(center + (Vector3)direction * 2, left * arrowHeadLength);
+        // 绘制箭头
+        Vector3 right = Quaternion.LookRotation(direction) * Quaternion.Euler(0,180+arrowHeadAngle,0) * new Vector3(0,0,1);
+        Vector3 left = Quaternion.LookRotation(direction) * Quaternion.Euler(0,180-arrowHeadAngle,0) * new Vector3(0,0,1);
+        Gizmos.DrawRay(center + direction * 2, right * arrowHeadLength);
+        Gizmos.DrawRay(center + direction * 2, left * arrowHeadLength);
     }
 }
