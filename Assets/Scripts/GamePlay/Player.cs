@@ -55,6 +55,8 @@ public class Player : MonoBehaviour
 
     public bool isInAtk = false;
 
+    public bool isInSkill = false;
+
     public bool isInAirAtk = false;
 
     public GameObject AtkCollider;
@@ -96,6 +98,7 @@ public class Player : MonoBehaviour
         AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
         isInAtk = currentState.IsName("SnowWhite@Attack");
         isInAirAtk = currentState.IsName("SnowWhite@AttackAir");
+        isInSkill = currentState.IsName("SnowWhite@Skill");
         AtkCollider.gameObject.SetActive(isInAtk);
         AirAtkCollider.gameObject.SetActive(isInAirAtk);
     }
@@ -135,7 +138,7 @@ public class Player : MonoBehaviour
         {
             velocity = new Vector2(0, 0);
         }
-        if (isInAtk)
+        if (isInAtk || isInSkill)
         {
             velocity = new Vector2(0, rb.velocity.y);
         }
@@ -200,7 +203,7 @@ public class Player : MonoBehaviour
     private bool startJump = false;
     void OnJump(object data)
     {
-        if (CurJumpCnt > 0 && !isInAtk)
+        if (CurJumpCnt > 0)
         {
             rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
             AnimateSetTrigger("Jump");
@@ -309,11 +312,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    void OnSpecial(object data)
-    {
-
-    }
-
     void OnDestroy()
     {
         // 清理事件监听，避免内存泄漏
@@ -395,6 +393,12 @@ public class Player : MonoBehaviour
     void OnAction(object data)
     {
         AnimateSetTrigger("Attack");
+    }
+
+    void OnSpecial(object data)
+    {
+        Debug.Log("OnSpecial");
+        AnimateSetTrigger("Skill");
     }
 
     public void AnimateSetBool(string triggerName, bool trigger)
