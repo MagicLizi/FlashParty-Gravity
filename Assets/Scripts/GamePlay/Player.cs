@@ -76,6 +76,7 @@ public class Player : MonoBehaviour
         EventManager.Instance.AddListener(EventType.Move, OnMove);
         EventManager.Instance.AddListener(EventType.Jump, OnJump);
         EventManager.Instance.AddListener(EventType.Action, OnAction);
+        EventManager.Instance.AddListener(EventType.Special, OnSpecial);
         // 添加平台事件监听
         EventManager.Instance.AddListener(EventType.PlatformPlayerOn, OnPlatformEnter);
         EventManager.Instance.AddListener(EventType.PlatformPlayerOff, OnPlatformExit);
@@ -306,6 +307,11 @@ public class Player : MonoBehaviour
         }
     }
 
+    void OnSpecial(object data)
+    {
+
+    }
+
     void OnDestroy()
     {
         // 清理事件监听，避免内存泄漏
@@ -314,6 +320,7 @@ public class Player : MonoBehaviour
             EventManager.Instance.RemoveListener(EventType.Move, OnMove);
             EventManager.Instance.RemoveListener(EventType.Jump, OnJump);
             EventManager.Instance.RemoveListener(EventType.Action, OnAction);
+            EventManager.Instance.RemoveListener(EventType.Special, OnSpecial);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOn, OnPlatformEnter);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOff, OnPlatformExit);
         }

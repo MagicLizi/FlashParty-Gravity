@@ -33,6 +33,7 @@ public class InputManager : MonoSingleton<InputManager>
         AddInputCallback("Move", OnMoveStart, OnMoving, OnMoveEnd);
         AddInputCallback("Jump", OnJumpStart, OnJumping, OnJumpEnd);
         AddInputCallback("Action", OnActionStart, OnAction, OnActionEnd);
+        AddInputCallback("Special", OnSpecialStart, OnSpecial, OnSpecialEnd);
         Enable(true);
     }
 
@@ -181,5 +182,20 @@ public class InputManager : MonoSingleton<InputManager>
     void OnActionEnd(InputAction.CallbackContext value)
     {
         // Debug.Log("endAction");
+    }
+
+    void OnSpecialStart(InputAction.CallbackContext value)
+    {
+        EventManager.Instance.TriggerEvent(EventType.Special);
+    }
+
+    void OnSpecial(InputAction.CallbackContext value)
+    {
+        
+    }
+
+    void OnSpecialEnd(InputAction.CallbackContext value)
+    {
+
     }
 }
