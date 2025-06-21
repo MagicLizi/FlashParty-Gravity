@@ -304,6 +304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurPlayer: {fileID: 3911124674337581693}
+  AtkTime: 1
 --- !u!1 &7514191595442725621
 GameObject:
   m_ObjectHideFlags: 0
@@ -395,3 +396,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurPlayer: {fileID: 3911124674337581693}
+  AtkTime: 0.67
