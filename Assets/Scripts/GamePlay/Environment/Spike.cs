@@ -3,6 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class Spike : MonoBehaviour
 {
+    [Tooltip("重生点")]
+    public Vector2 RebornPos;
+
     private void Awake()
     {
         // 确保碰撞体是触发器，这样它就不会在物理上阻挡玩家
@@ -18,7 +21,7 @@ public class Spike : MonoBehaviour
         Player player = other.GetComponent<Player>();
         if (player != null)
         {
-            player.Dead();
+            player.Dead(RebornPos);
         }
     }
 } 

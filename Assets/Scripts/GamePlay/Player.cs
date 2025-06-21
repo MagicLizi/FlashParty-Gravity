@@ -272,7 +272,7 @@ public class Player : MonoBehaviour
         AdditionWindSpeed = AdditionWindSpeed + speedVec;
     }
 
-    public void Dead()
+    public void Dead(Vector2 rebornPos)
     {
         if (isDead) return;
         isDead = true;
@@ -289,7 +289,7 @@ public class Player : MonoBehaviour
             // 创建闪烁动画，透明度在0.3和1之间变化，持续0.2秒，重复-1次（无限循环）
             TweenerCore<Color, Color, ColorOptions> fadeTween = spriteRenderer.DOFade(0.3f, 0.1f).SetLoops(-1, LoopType.Yoyo);
             // 使用DOTween移动角色到指定位置
-            transform.DOMove(new Vector3(-8f, -4.33f, 0f), 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
+            transform.DOMove(rebornPos, 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
             {
                 spriteRenderer.DOFade(1, 0.1f);
                 fadeTween.Kill();
