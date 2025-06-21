@@ -4,7 +4,7 @@ using UnityEngine;
 public class Spike : MonoBehaviour
 {
     [Tooltip("重生点")]
-    public Vector2 RebornPos;
+    public GameObject RebornPt;
 
     private void Awake()
     {
@@ -21,7 +21,7 @@ public class Spike : MonoBehaviour
         Player player = other.GetComponent<Player>();
         if (player != null)
         {
-            player.Dead(RebornPos);
+            player.Dead(RebornPt);
         }
     }
 } 
