@@ -1,6 +1,8 @@
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.Events;
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
 
 public class LevelRotator : MonoBehaviour
 {
@@ -26,6 +28,8 @@ public class LevelRotator : MonoBehaviour
     public float BackGVProgress = 0.9f;
 
     private bool hasBackGV = false;
+
+     TweenerCore<Color, Color, ColorOptions> fadeTween;
 
     void Awake()
     {
@@ -76,6 +80,8 @@ public class LevelRotator : MonoBehaviour
                 {
                     hasBackGV = true;
                     curPlayer.LoseGravity(false);
+                    curPlayer.AnimateSetBool("LossG", false);
+                    curPlayer.Shine(false);
                 }
             })
             .OnComplete(() =>
@@ -96,10 +102,14 @@ public class LevelRotator : MonoBehaviour
         {
             curPlayer = atk.CurPlayer;
             hasBackGV = false;
-            InputManager.Instance.Enable(false);
-            DOVirtual.DelayedCall(0.3f, () =>
+            curPlayer.LoseGravity(true);
+            DOVirtual.DelayedCall(atk.AtkTime - 0.35f, () =>
             {
-                curPlayer.LoseGravity(true);
+                curPlayer.Shine(true);
+            });
+            DOVirtual.DelayedCall(atk.AtkTime, () =>
+            {
+                curPlayer.AnimateSetBool("LossG", true);
                 Vector2 pivotPos = curPlayer.transform.position + new Vector3(0, curPlayer.boxCollider.bounds.size.y / 2);
                 TriggerRotation(pivotPos);
             });
