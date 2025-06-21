@@ -96,10 +96,16 @@ public class LevelRotator : MonoBehaviour
         {
             curPlayer = atk.CurPlayer;
             hasBackGV = false;
-
-            curPlayer.LoseGravity(true);
-            Vector2 pivotPos = curPlayer.transform.position + new Vector3(0, curPlayer.boxCollider.bounds.size.y / 2);
-            TriggerRotation(pivotPos);
+            InputManager.Instance.Enable(false);
+            DOVirtual.DelayedCall(0.3f, () =>
+            {
+                curPlayer.LoseGravity(true);
+                Vector2 pivotPos = curPlayer.transform.position + new Vector3(0, curPlayer.boxCollider.bounds.size.y / 2);
+                TriggerRotation(pivotPos);
+            });
+            // curPlayer.LoseGravity(true);
+            // Vector2 pivotPos = curPlayer.transform.position + new Vector3(0, curPlayer.boxCollider.bounds.size.y / 2);
+            // TriggerRotation(pivotPos);
         }
     }
 }
