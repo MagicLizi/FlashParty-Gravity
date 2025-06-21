@@ -1,3 +1,6 @@
+using DG.Tweening;
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
 using UnityEngine;
 
 public enum FaceDir
@@ -38,6 +41,8 @@ public class Player : MonoBehaviour
 
     public LayerMask groundMask;
 
+    private bool isDead = false;
+
     private Vector2 AdditionWindSpeed = Vector2.zero;
 
     private float rayLength = 0.1f;
@@ -63,6 +68,11 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (isDead)
+        {
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            return;
+        }
         float targetSpeed;
         if (inAir)
         {
@@ -209,7 +219,7 @@ public class Player : MonoBehaviour
             Vector2 direction = Vector2.zero;
             if (CurFaceDir == FaceDir.Right)
             {
-                direction =  Vector2.right;
+                direction = Vector2.right;
             }
             else
             {
@@ -260,5 +270,32 @@ public class Player : MonoBehaviour
     public void SetWindSpeed(Vector2 speedVec)
     {
         AdditionWindSpeed = AdditionWindSpeed + speedVec;
+    }
+
+    public void Dead()
+    {
+        if (isDead) return;
+        isDead = true;
+        InputManager.Instance.Enable(false);
+        PlayAnimByName("Idle");
+        // PlayAnimByName("Dead");
+        // 可以在此处添加更多死亡逻辑，例如禁用输入、延迟后重新加载场景等
+        Debug.Log("Player has died.");
+        // this.enabled = false; // 禁用Player脚本，停止Update和FixedUpdate
+        // 使用DOTween创建闪烁效果
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            // 创建闪烁动画，透明度在0.3和1之间变化，持续0.2秒，重复-1次（无限循环）
+            TweenerCore<Color, Color, ColorOptions> fadeTween = spriteRenderer.DOFade(0.3f, 0.1f).SetLoops(-1, LoopType.Yoyo);
+            // 使用DOTween移动角色到指定位置
+            transform.DOMove(new Vector3(-8f, -4.33f, 0f), 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
+            {
+                spriteRenderer.DOFade(1, 0.1f);
+                fadeTween.Kill();
+                isDead = false;
+                InputManager.Instance.Enable(true);
+            });
+        }
     }
 }
