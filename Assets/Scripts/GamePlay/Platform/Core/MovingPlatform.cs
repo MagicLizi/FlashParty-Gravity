@@ -12,9 +12,7 @@ namespace FlashParty.Platform
         [SerializeField] private PlatformConfig config = new PlatformConfig();
         
         [Header("路径设置")]
-        [SerializeField] private bool useTransformWaypoints = false;
-        [SerializeField] private Transform[] transformWaypoints = new Transform[0];
-        [SerializeField] private Vector3[] positionWaypoints = new Vector3[2] { Vector3.left * 2, Vector3.right * 2 };
+        [SerializeField] private Transform[] waypoints = new Transform[0];
         
         [Header("自动开始")]
         [SerializeField] private bool autoStart = true;
@@ -25,7 +23,7 @@ namespace FlashParty.Platform
         
         // 属性访问器
         public PlatformConfig Config => config;
-        public Transform[] Waypoints => GetWaypointTransforms();
+        public Transform[] Waypoints => waypoints;
         public Vector3[] WaypointPositions => GetWaypointPositions();
         public IMovementStrategy MovementStrategy => movementStrategy;
         public bool IsMoving => movementStrategy?.IsMoving ?? false;
@@ -75,6 +73,9 @@ namespace FlashParty.Platform
                 case MovementType.Trigger:
                     movementStrategy = new TriggerMovementStrategy();
                     break;
+                case MovementType.Gravity:
+                    movementStrategy = new GravityMovementStrategy();
+                    break;
                 default:
                     Debug.LogError($"Unsupported movement type: {config.movementType}");
                     break;
@@ -86,74 +87,38 @@ namespace FlashParty.Platform
         /// </summary>
         private Vector3[] GetWaypointPositions()
         {
-            if (useTransformWaypoints)
+            if (waypoints == null || waypoints.Length == 0)
+                return new Vector3[0];
+            
+            Vector3[] positions = new Vector3[waypoints.Length];
+            for (int i = 0; i < waypoints.Length; i++)
             {
-                if (transformWaypoints == null || transformWaypoints.Length == 0)
-                    return new Vector3[0];
-                
-                Vector3[] positions = new Vector3[transformWaypoints.Length];
-                for (int i = 0; i < transformWaypoints.Length; i++)
-                {
-                    positions[i] = transformWaypoints[i] != null ? transformWaypoints[i].position : Vector3.zero;
-                }
-                return positions;
+                positions[i] = waypoints[i] != null ? waypoints[i].position : Vector3.zero;
             }
-            else
-            {
-                return positionWaypoints ?? new Vector3[0];
-            }
+            return positions;
         }
         
-        /// <summary>
-        /// 获取路径点Transform数组（为了兼容性）
-        /// </summary>
-        private Transform[] GetWaypointTransforms()
-        {
-            if (useTransformWaypoints)
-            {
-                return transformWaypoints ?? new Transform[0];
-            }
-            else
-            {
-                // 如果使用位置坐标，创建临时的Transform数组
-                Vector3[] positions = GetWaypointPositions();
-                Transform[] transforms = new Transform[positions.Length];
-                for (int i = 0; i < positions.Length; i++)
-                {
-                    GameObject tempWaypoint = new GameObject($"TempWaypoint_{i}");
-                    tempWaypoint.transform.position = positions[i];
-                    tempWaypoint.transform.SetParent(transform);
-                    tempWaypoint.hideFlags = HideFlags.HideInHierarchy;
-                    transforms[i] = tempWaypoint.transform;
-                }
-                return transforms;
-            }
-        }
+
         
         /// <summary>
         /// 验证平台设置
         /// </summary>
         private bool ValidateSetup()
         {
-            Vector3[] positions = GetWaypointPositions();
-            
             // 检查路径点
-            if (positions == null || positions.Length < 2)
+            if (waypoints == null || waypoints.Length < 2)
             {
                 Debug.LogError("Moving platform requires at least 2 waypoints");
                 return false;
             }
             
-            // 如果使用Transform方式，检查Transform是否有效
-            if (useTransformWaypoints)
+            // 检查Transform是否有效
+            for (int i = 0; i < waypoints.Length; i++)
             {
-                for (int i = 0; i < transformWaypoints.Length; i++)
+                if (waypoints[i] == null)
                 {
-                    if (transformWaypoints[i] == null)
-                    {
-                        Debug.LogError($"Transform waypoint {i} is null");
-                        return false;
-                    }
+                    Debug.LogError($"Waypoint {i} is null");
+                    return false;
                 }
             }
             
@@ -239,8 +204,7 @@ namespace FlashParty.Platform
                 StopMovement();
             }
             
-            useTransformWaypoints = true;
-            transformWaypoints = newWaypoints;
+            waypoints = newWaypoints;
             
             // 如果之前在移动，重新开始
             if (wasMoving)
@@ -249,34 +213,7 @@ namespace FlashParty.Platform
             }
         }
         
-        /// <summary>
-        /// 设置新的路径点（位置方式）
-        /// </summary>
-        /// <param name="newPositions">新的位置数组</param>
-        public void SetWaypointPositions(Vector3[] newPositions)
-        {
-            if (newPositions == null || newPositions.Length < 2)
-            {
-                Debug.LogError("Invalid positions array");
-                return;
-            }
-            
-            // 如果正在移动，先停止
-            bool wasMoving = IsMoving;
-            if (wasMoving)
-            {
-                StopMovement();
-            }
-            
-            useTransformWaypoints = false;
-            positionWaypoints = newPositions;
-            
-            // 如果之前在移动，重新开始
-            if (wasMoving)
-            {
-                StartMovement();
-            }
-        }
+
         
         /// <summary>
         /// 更新平台配置
@@ -334,7 +271,9 @@ namespace FlashParty.Platform
             Vector3[] positions = GetWaypointPositions();
             if (positions.Length > 0)
             {
-                transform.position = positions[0];
+                // 使用本地坐标重置位置
+                Vector3 targetLocalPos = transform.parent.InverseTransformPoint(positions[0]);
+                transform.localPosition = targetLocalPos;
             }
             
             // 如果是触发类型，重置触发状态
@@ -342,6 +281,55 @@ namespace FlashParty.Platform
             {
                 triggerStrategy.ResetPlatform();
             }
+            // 如果是重力类型，重置到最近的路径点
+            else if (movementStrategy is GravityMovementStrategy gravityStrategy)
+            {
+                gravityStrategy.ResetToNearestWaypoint();
+            }
+        }
+        
+        /// <summary>
+        /// 获取重力移动策略（如果是重力平台）
+        /// </summary>
+        public GravityMovementStrategy GetGravityStrategy()
+        {
+            return movementStrategy as GravityMovementStrategy;
+        }
+        
+        /// <summary>
+        /// 检查当前重力移动条件（仅重力平台有效）
+        /// </summary>
+        public bool CanMoveWithGravity()
+        {
+            if (movementStrategy is GravityMovementStrategy gravityStrategy)
+            {
+                return gravityStrategy.CanMoveNow();
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// 获取当前重力方向（仅重力平台有效）
+        /// </summary>
+        public Vector3 GetCurrentGravityDirection()
+        {
+            if (movementStrategy is GravityMovementStrategy gravityStrategy)
+            {
+                return gravityStrategy.GetCurrentGravityDirection();
+            }
+            return Vector3.zero;
+        }
+        
+        /// <summary>
+        /// 获取下一步移动方向（仅重力平台有效）
+        /// </summary>
+        public Vector3 GetNextMoveDirection()
+        {
+            if (movementStrategy is GravityMovementStrategy gravityStrategy)
+            {
+                return gravityStrategy.GetNextMoveDirection();
+            }
+            return Vector3.zero;
         }
         
         void OnDestroy()
