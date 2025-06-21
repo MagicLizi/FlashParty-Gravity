@@ -55,7 +55,6 @@ namespace FlashParty.Platform
         public bool returnToStart = false;
         
         [Header("重力移动设置")]
-        public LayerMask obstacleLayerMask = -1;        // 阻挡层级
         public float obstacleCheckDistance = 0.5f;      // 阻挡检测距离
         public float gravityCheckInterval = 0.1f;       // 重力检测间隔
         public float gravityTolerance = 15f;            // 重力方向容差角度
