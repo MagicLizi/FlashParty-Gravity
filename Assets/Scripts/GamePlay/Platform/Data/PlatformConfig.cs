@@ -9,7 +9,8 @@ namespace FlashParty.Platform
     public enum MovementType
     {
         Loop,       // 循环移动
-        Trigger     // 触发移动
+        Trigger,    // 触发移动
+        Gravity     // 重力移动
     }
     
     /// <summary>
@@ -20,6 +21,15 @@ namespace FlashParty.Platform
         Linear,         // 直线
         CatmullRom,     // 曲线
         Custom          // 自定义
+    }
+    
+    /// <summary>
+    /// 触发模式
+    /// </summary>
+    public enum TriggerMode
+    {
+        SinglePath,     // 单段路径：每次触发移动到下一个路径点
+        FullPath        // 完整路径：每次触发移动完整路径
     }
     
     /// <summary>
@@ -39,9 +49,16 @@ namespace FlashParty.Platform
         public bool reverseOnComplete = true;
         
         [Header("触发移动设置")]
+        public TriggerMode triggerMode = TriggerMode.SinglePath;
         public bool canTriggerMultipleTimes = true;
         public float triggerCooldown = 1f;
         public bool returnToStart = false;
+        
+        [Header("重力移动设置")]
+        public LayerMask obstacleLayerMask = -1;        // 阻挡层级
+        public float obstacleCheckDistance = 0.5f;      // 阻挡检测距离
+        public float gravityCheckInterval = 0.1f;       // 重力检测间隔
+        public float gravityTolerance = 15f;            // 重力方向容差角度
         
         [Header("路径设置")]
         public PathType pathType = PathType.Linear;

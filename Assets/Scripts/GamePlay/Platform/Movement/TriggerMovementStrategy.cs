@@ -4,7 +4,7 @@ using DG.Tweening;
 namespace FlashParty.Platform
 {
     /// <summary>
-    /// 触发移动策略 - 平台响应机关控制移动
+    /// 触发移动策略 - 受机关控制的平台移动
     /// </summary>
     public class TriggerMovementStrategy : IMovementStrategy
     {
@@ -12,29 +12,23 @@ namespace FlashParty.Platform
         private Tweener moveTweener;
         private bool isInitialized = false;
         private bool isMoving = false;
-        private float lastTriggerTime = 0f;
         private int currentPathIndex = 0;
+        private float lastTriggerTime = 0f;
         private Vector3 originalPosition;
+        private bool wasPausedByRotation = false;
         
         public bool IsMoving => isMoving;
         
         public void Initialize(MovingPlatform platform)
         {
             this.platform = platform;
-            originalPosition = platform.transform.position;
             isInitialized = true;
             
-            // 注册触发事件
-            EventManager.Instance.AddListener(EventType.PlatformTrigger, OnTriggerActivated);
+            // 记录初始位置（本地坐标）
+            originalPosition = platform.transform.localPosition;
         }
         
         public void StartMovement()
-        {
-            // 触发移动策略不会自动开始移动，需要等待触发事件
-            Debug.Log("Trigger movement strategy is ready, waiting for trigger events");
-        }
-        
-        public void OnTriggerActivated(object triggerData)
         {
             if (!isInitialized || platform == null)
             {
@@ -42,117 +36,173 @@ namespace FlashParty.Platform
                 return;
             }
             
-            // 检查冷却时间
-            if (Time.time - lastTriggerTime < platform.Config.triggerCooldown)
-            {
-                Debug.Log("Platform trigger is on cooldown");
-                return;
-            }
-            
-            // 检查是否允许多次触发
-            if (!platform.Config.canTriggerMultipleTimes && currentPathIndex > 0)
-            {
-                Debug.Log("Platform can only be triggered once");
-                return;
-            }
-            
-            // 如果正在移动，根据配置决定是否中断
-            if (isMoving)
-            {
-                Debug.Log("Platform is already moving");
-                return;
-            }
-            
-            ExecuteTriggerMovement();
+            // Debug.Log("Trigger movement strategy initialized, waiting for trigger events");
         }
         
-        /// <summary>
-        /// 执行触发移动
-        /// </summary>
-        private void ExecuteTriggerMovement()
+        public void OnTriggerActivated(object triggerData)
         {
-            if (platform.Waypoints.Length < 2)
+            // 检查冷却时间
+            if (platform.Config.triggerCooldown > 0 && 
+                Time.time - lastTriggerTime < platform.Config.triggerCooldown)
             {
-                Debug.LogWarning("Insufficient waypoints for trigger movement");
+                // Debug.Log($"Trigger on cooldown, remaining: {platform.Config.triggerCooldown - (Time.time - lastTriggerTime):F1}s");
+                return;
+            }
+
+            // 检查是否在旋转中
+            if (Const.InRotation)
+            {
+                // Debug.Log("Scene is rotating, delaying platform trigger");
+                platform.StartCoroutine(WaitForRotationEndThenMove());
                 return;
             }
             
+            // 检查是否正在移动
+            if (isMoving)
+            {
+                // Debug.Log("Platform is already moving, ignoring trigger");
+                return;
+            }
+            
+            ExecuteMovement();
+        }
+
+        /// <summary>
+        /// 等待场景旋转结束然后移动
+        /// </summary>
+        private System.Collections.IEnumerator WaitForRotationEndThenMove()
+        {
+            while (Const.InRotation)
+            {
+                yield return null;
+            }
+            
+            // 旋转结束后执行移动
+            ExecuteMovement();
+        }
+
+        /// <summary>
+        /// 执行移动
+        /// </summary>
+        private void ExecuteMovement()
+        {
             lastTriggerTime = Time.time;
             
-            // 创建路径点数组
-            Vector3[] pathPoints = new Vector3[platform.Waypoints.Length];
-            for (int i = 0; i < platform.Waypoints.Length; i++)
+            Vector3[] pathPoints = GetCurrentPath();
+            if (pathPoints.Length == 0)
             {
-                pathPoints[i] = platform.Waypoints[i].position;
+                Debug.LogWarning("No valid path points for trigger movement");
+                return;
             }
             
             // 计算移动时间
             float totalDistance = CalculatePathDistance(pathPoints);
             float moveDuration = totalDistance / platform.Config.moveSpeed;
             
-            // 开始移动
-            StartTriggerMovement(pathPoints, moveDuration);
+            // 设置初始延迟
+            if (platform.Config.initialDelay > 0)
+            {
+                DOVirtual.DelayedCall(platform.Config.initialDelay, () => StartPathMovement(pathPoints, moveDuration));
+            }
+            else
+            {
+                StartPathMovement(pathPoints, moveDuration);
+            }
         }
         
         /// <summary>
-        /// 开始触发移动
+        /// 获取当前路径
         /// </summary>
-        private void StartTriggerMovement(Vector3[] pathPoints, float moveDuration)
+        private Vector3[] GetCurrentPath()
         {
+            if (platform.Waypoints.Length < 2) return new Vector3[0];
+            
+            Vector3[] pathPoints;
+            
+            if (platform.Config.triggerMode == TriggerMode.SinglePath)
+            {
+                // 单路径模式：从当前位置移动到下一个路径点
+                int nextIndex = (currentPathIndex + 1) % platform.Waypoints.Length;
+                pathPoints = new Vector3[2];
+                pathPoints[0] = platform.transform.parent.InverseTransformPoint(platform.transform.position);
+                pathPoints[1] = platform.transform.parent.InverseTransformPoint(platform.Waypoints[nextIndex].position);
+                currentPathIndex = nextIndex;
+            }
+            else
+            {
+                // 完整路径模式：移动完整路径
+                pathPoints = new Vector3[platform.Waypoints.Length];
+                for (int i = 0; i < platform.Waypoints.Length; i++)
+                {
+                    pathPoints[i] = platform.transform.parent.InverseTransformPoint(platform.Waypoints[i].position);
+                }
+            }
+            
+            return pathPoints;
+        }
+        
+        /// <summary>
+        /// 开始路径移动
+        /// </summary>
+        private void StartPathMovement(Vector3[] pathPoints, float moveDuration)
+        {
+            if (platform == null) return;
+            
             isMoving = true;
-            currentPathIndex++;
             EventManager.Instance.TriggerEvent(EventType.PlatformStartMove, platform);
             
             // 根据路径类型选择移动方式
             DG.Tweening.PathType pathType = ConvertPathType(platform.Config.pathType);
             
-            moveTweener = platform.transform.DOPath(pathPoints, moveDuration, pathType)
-                .SetEase(platform.Config.easeType)
-                .OnComplete(() => {
-                    OnMovementComplete();
-                });
-        }
-        
-        /// <summary>
-        /// 移动完成回调
-        /// </summary>
-        private void OnMovementComplete()
-        {
-            isMoving = false;
-            EventManager.Instance.TriggerEvent(EventType.PlatformStopMove, platform);
-            
-            // 如果设置了返回起始位置
-            if (platform.Config.returnToStart)
-            {
-                DOVirtual.DelayedCall(1f, () => ReturnToStart());
-            }
-        }
-        
-        /// <summary>
-        /// 返回起始位置
-        /// </summary>
-        private void ReturnToStart()
-        {
-            if (platform == null || isMoving) return;
-            
-            float returnDistance = Vector3.Distance(platform.transform.position, originalPosition);
-            float returnDuration = returnDistance / platform.Config.moveSpeed;
-            
-            isMoving = true;
-            EventManager.Instance.TriggerEvent(EventType.PlatformStartMove, platform);
-            
-            moveTweener = platform.transform.DOMove(originalPosition, returnDuration)
+            // 使用DOLocalPath移动本地坐标
+            moveTweener = platform.transform.DOLocalPath(pathPoints, moveDuration, pathType)
                 .SetEase(platform.Config.easeType)
                 .OnComplete(() => {
                     isMoving = false;
                     EventManager.Instance.TriggerEvent(EventType.PlatformStopMove, platform);
                     
-                    // 重置路径索引，允许再次触发
-                    if (platform.Config.canTriggerMultipleTimes)
+                    // 处理等待时间
+                    if (platform.Config.waitTimeAtWaypoint > 0)
                     {
-                        currentPathIndex = 0;
+                        DOVirtual.DelayedCall(platform.Config.waitTimeAtWaypoint, () => {
+                            // Debug.Log("Platform finished waiting at waypoint");
+                        });
                     }
                 });
+
+            // 添加Update回调来检查旋转状态
+            moveTweener.OnUpdate(() => {
+                CheckRotationStatus();
+            });
+            
+            // Debug.Log($"Platform started trigger movement, duration: {moveDuration:F2}s");
+        }
+
+        /// <summary>
+        /// 检查旋转状态并相应暂停/恢复
+        /// </summary>
+        private void CheckRotationStatus()
+        {
+            if (Const.InRotation && !wasPausedByRotation)
+            {
+                // 场景开始旋转，暂停移动
+                wasPausedByRotation = true;
+                if (moveTweener != null && moveTweener.IsActive() && moveTweener.IsPlaying())
+                {
+                    moveTweener.Pause();
+                    // Debug.Log("Platform movement paused due to scene rotation");
+                }
+            }
+            else if (!Const.InRotation && wasPausedByRotation)
+            {
+                // 场景旋转结束，恢复移动
+                wasPausedByRotation = false;
+                if (moveTweener != null && moveTweener.IsActive() && !moveTweener.IsPlaying())
+                {
+                    moveTweener.Play();
+                    // Debug.Log("Platform movement resumed after scene rotation");
+                }
+            }
         }
         
         /// <summary>
@@ -160,10 +210,10 @@ namespace FlashParty.Platform
         /// </summary>
         private float CalculatePathDistance(Vector3[] pathPoints)
         {
-            float totalDistance = 0;
-            for (int i = 1; i < pathPoints.Length; i++)
+            float totalDistance = 0f;
+            for (int i = 0; i < pathPoints.Length - 1; i++)
             {
-                totalDistance += Vector3.Distance(pathPoints[i - 1], pathPoints[i]);
+                totalDistance += Vector3.Distance(pathPoints[i], pathPoints[i + 1]);
             }
             return totalDistance;
         }
@@ -190,6 +240,7 @@ namespace FlashParty.Platform
             {
                 moveTweener.Kill();
                 isMoving = false;
+                wasPausedByRotation = false;
                 EventManager.Instance.TriggerEvent(EventType.PlatformStopMove, platform);
             }
         }
@@ -224,19 +275,13 @@ namespace FlashParty.Platform
         public void ResetPlatform()
         {
             StopMovement();
-            platform.transform.position = originalPosition;
+            platform.transform.localPosition = originalPosition;
             currentPathIndex = 0;
             lastTriggerTime = 0f;
         }
         
         public void OnDestroy()
         {
-            // 移除事件监听
-            if (EventManager.Instance != null)
-            {
-                EventManager.Instance.RemoveListener(EventType.PlatformTrigger, OnTriggerActivated);
-            }
-            
             if (moveTweener != null && moveTweener.IsActive())
             {
                 moveTweener.Kill();
