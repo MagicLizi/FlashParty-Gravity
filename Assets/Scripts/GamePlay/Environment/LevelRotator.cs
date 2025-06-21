@@ -23,12 +23,16 @@ public class LevelRotator : MonoBehaviour
     void Awake()
     {
         zone = GetComponent<BoxCollider2D>();
+        if (zone != null && !zone.isTrigger)
+        {
+            zone.isTrigger = true;
+        }
     }
 
     /// <summary>
     /// 触发旋转
     /// </summary>
-    public void TriggerRotation()
+    public void TriggerRotation(Transform pivotTransform)
     {
         if (isRotating || levelRoot == null)
         {
@@ -37,15 +41,28 @@ public class LevelRotator : MonoBehaviour
 
         isRotating = true;
 
+        // 1. 创建一个临时的GameObject作为旋转的轴心，位置在触发者处
+        GameObject pivot = new GameObject("LevelRotationPivot");
+        pivot.transform.position = pivotTransform.position;
+        
+        // 记录原始父节点
+        Transform originalParent = levelRoot.parent;
+
+        // 2. 将关卡根节点设置为轴心的子对象，这样旋转轴心时，关卡会围绕它旋转
+        levelRoot.SetParent(pivot.transform, true);
+
         float angleToRotate = clockwise ? -rotationAngle : rotationAngle;
-
-        Vector3 currentRotation = levelRoot.eulerAngles;
-        Vector3 targetRotation = new Vector3(currentRotation.x, currentRotation.y, currentRotation.z + angleToRotate);
-
-        levelRoot.DORotate(targetRotation, rotationDuration)
+        
+        // 3. 使用DOTween旋转轴心
+        // 使用RotateMode.LocalAxisAdd可以在当前旋转基础上增加旋转量
+        pivot.transform.DORotate(new Vector3(0, 0, angleToRotate), rotationDuration, RotateMode.LocalAxisAdd)
             .SetEase(Ease.InOutQuad)
             .OnComplete(() =>
             {
+                // 4. 旋转结束后，恢复关卡的父节点并销毁临时轴心
+                levelRoot.SetParent(originalParent, true);
+                Destroy(pivot);
+
                 isRotating = false;
                 Debug.Log("Rotation complete!");
             });
@@ -56,7 +73,7 @@ public class LevelRotator : MonoBehaviour
         Player player = other.GetComponent<Player>();
         if (player != null)
         {
-            TriggerRotation();
+            TriggerRotation(player.transform);
         }
     }
 }
