@@ -13,6 +13,12 @@ public enum FaceDir
 
 public class Player : MonoBehaviour
 {
+    public GameObject BallRes;
+
+    public GameObject BallCreater;
+
+    public Vector2 BallSpeed = Vector2.zero;
+
     public Animator animator;
 
     public BoxCollider2D boxCollider;
@@ -203,7 +209,7 @@ public class Player : MonoBehaviour
     private bool startJump = false;
     void OnJump(object data)
     {
-        if (CurJumpCnt > 0)
+        if (CurJumpCnt > 0 && !inAir)
         {
             rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
             AnimateSetTrigger("Jump");
@@ -264,34 +270,34 @@ public class Player : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (boxCollider != null)
-        {
-            Vector2 middle = (Vector2)transform.position;
-            Vector2 left = middle + new Vector2(-boxCollider.bounds.size.x / 2, 0);
-            Vector2 right = middle + new Vector2(boxCollider.bounds.size.x / 2, 0);
-            Debug.DrawLine(middle, middle + Vector2.down * rayLength, Color.red);
-            Debug.DrawLine(left, left + Vector2.down * rayLength, Color.red);
-            Debug.DrawLine(right, right + Vector2.down * rayLength, Color.red);
+        // if (boxCollider != null)
+        // {
+        //     Vector2 middle = (Vector2)transform.position;
+        //     Vector2 left = middle + new Vector2(-boxCollider.bounds.size.x / 2, 0);
+        //     Vector2 right = middle + new Vector2(boxCollider.bounds.size.x / 2, 0);
+        //     Debug.DrawLine(middle, middle + Vector2.down * rayLength, Color.red);
+        //     Debug.DrawLine(left, left + Vector2.down * rayLength, Color.red);
+        //     Debug.DrawLine(right, right + Vector2.down * rayLength, Color.red);
 
-            Vector2 direction = Vector2.zero;
-            if (CurFaceDir == FaceDir.Right)
-            {
-                direction = Vector2.right;
-            }
-            else
-            {
-                direction = Vector2.left;
-            }
+        //     Vector2 direction = Vector2.zero;
+        //     if (CurFaceDir == FaceDir.Right)
+        //     {
+        //         direction = Vector2.right;
+        //     }
+        //     else
+        //     {
+        //         direction = Vector2.left;
+        //     }
 
-            Vector2 middleOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y / 2);
-            Debug.DrawLine(middleOrigin, middleOrigin + direction * rayLength, Color.blue);
+        //     Vector2 middleOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y / 2);
+        //     Debug.DrawLine(middleOrigin, middleOrigin + direction * rayLength, Color.blue);
 
-            Vector2 downOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, 0);
-            Debug.DrawLine(downOrigin, downOrigin + direction * rayLength, Color.blue);
+        //     Vector2 downOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, 0);
+        //     Debug.DrawLine(downOrigin, downOrigin + direction * rayLength, Color.blue);
 
-            Vector2 upOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y);
-            Debug.DrawLine(upOrigin, upOrigin + direction * rayLength, Color.blue);
-        }
+        //     Vector2 upOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y);
+        //     Debug.DrawLine(upOrigin, upOrigin + direction * rayLength, Color.blue);
+        // }
     }
 
     void OnPlatformEnter(object data)
@@ -397,8 +403,18 @@ public class Player : MonoBehaviour
 
     void OnSpecial(object data)
     {
-        Debug.Log("OnSpecial");
-        AnimateSetTrigger("Skill");
+        if (!inAir)
+        {
+            AnimateSetTrigger("Skill");
+            DOVirtual.DelayedCall(0.25f, () =>
+            {
+                GameObject ball = Instantiate(BallRes, BallCreater.transform.position, Quaternion.identity);
+                Atk ballAtk = ball.GetComponent<Atk>();
+                ballAtk.CurPlayer = this;
+                ballAtk.AtkTime = 0;
+                ball.GetComponent<Rigidbody2D>().velocity = new Vector2(BallSpeed.x * (int)CurFaceDir, BallSpeed.y);
+            });
+        }
     }
 
     public void AnimateSetBool(string triggerName, bool trigger)
