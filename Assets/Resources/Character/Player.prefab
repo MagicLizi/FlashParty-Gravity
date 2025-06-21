@@ -228,6 +228,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BallRes: {fileID: 3001959681534229446, guid: 52c865efa19f0e24eaedf30d21e272b4, type: 3}
+  BallCreater: {fileID: 1892626570534207038}
+  BallSpeed: {x: 20, y: 15}
   animator: {fileID: 0}
   boxCollider: {fileID: 0}
   CurXMoveSpeed: 0

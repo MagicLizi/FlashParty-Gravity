@@ -9,10 +9,8 @@ public class Wind : MonoBehaviour
     [Tooltip("风力大小")]
     public float windSpeed = 5f;
 
-    [Tooltip("初始风力")]
-    public float initWindSpeed = 10f;
 
-    private float curWindSpeed = 0;
+    public float ballWindSpeed = 30f;
 
     private BoxCollider2D windZone;
 
@@ -49,6 +47,12 @@ public class Wind : MonoBehaviour
                 player.AnimateSetTrigger("Jump");
                 player.AddWindSpeed(windDirection.normalized * windSpeed);
             }
+
+            Ball ball = other.GetComponent<Ball>();
+            if(ball != null)
+            {
+                ball.AddWindSpeed(windDirection.normalized * ballWindSpeed);
+            }
         }
     }
 
@@ -68,6 +72,12 @@ public class Wind : MonoBehaviour
             if (player != null)
             {
                 player.AddWindSpeed(Vector2.zero);
+            }
+
+            Ball ball = other.GetComponent<Ball>();
+            if(ball != null)
+            {
+                ball.AddWindSpeed(Vector2.zero);
             }
         }
 
