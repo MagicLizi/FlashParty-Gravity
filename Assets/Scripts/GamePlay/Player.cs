@@ -77,6 +77,8 @@ public class Player : MonoBehaviour
 
     public Vector2 windSpeed = Vector2.zero;
 
+    public LevelRotator curLevelRotator = null;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -354,6 +356,7 @@ public class Player : MonoBehaviour
     public void Dead(GameObject rebornPt)
     {
         if (isDead) return;
+        AnimateSetBool("LossG", true);
         isDead = true;
         InputManager.Instance.Enable(false);
         // 可以在此处添加更多死亡逻辑，例如禁用输入、延迟后重新加载场景等
@@ -364,12 +367,22 @@ public class Player : MonoBehaviour
         {
             // 创建闪烁动画，透明度在0.3和1之间变化，持续0.2秒，重复-1次（无限循环）
             Shine(true);
-            // 使用DOTween移动角色到指定位置
-            transform.DOMove(rebornPt.transform.position, 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
+            LoseGravity(true);
+            float rotateAngle = 0 - curLevelRotator.transform.eulerAngles.z;
+            curLevelRotator.ResetRotation(transform.position, () =>
             {
-                Shine(false);
-                isDead = false;
-                InputManager.Instance.Enable(true);
+                DOVirtual.DelayedCall(0.6f, () =>
+                {
+                    // 使用DOTween移动角色到指定位置
+                    transform.DOMove(rebornPt.transform.position, 1.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
+                    {
+                        isDead = false;
+                        LoseGravity(false);
+                        AnimateSetBool("LossG", false);
+                        Shine(false);
+                        InputManager.Instance.Enable(true);
+                    });
+                });
             });
         }
     }
@@ -419,11 +432,19 @@ public class Player : MonoBehaviour
 
     public void AnimateSetBool(string triggerName, bool trigger)
     {
+        if (isDead)
+        {
+            return;
+        }
         animator.SetBool(triggerName, trigger);
     }
 
     public void AnimateSetTrigger(string triggerName)
     {
+        if (isDead)
+        {
+            return;
+        }
         animator.SetTrigger(triggerName);
     }
 }

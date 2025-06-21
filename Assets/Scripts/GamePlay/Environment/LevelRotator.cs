@@ -3,6 +3,7 @@ using DG.Tweening;
 using UnityEngine.Events;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
+using System;
 
 public class LevelRotator : MonoBehaviour
 {
@@ -92,6 +93,53 @@ public class LevelRotator : MonoBehaviour
 
                 Const.InRotation = false;
                 Debug.Log("Rotation complete!");
+            });
+    }
+
+    /// <summary>
+    /// 以传入的点为中心，将关卡旋转重置为0
+    /// </summary>
+    /// <param name="pivotPos">旋转的中心点</param>
+    public void ResetRotation(Vector2 pivotPos, Action onComplete)
+    {
+        if (Const.InRotation || levelRoot == null)
+        {
+            return;
+        }
+
+                // 计算回到0度需要旋转的角度
+        float angleToReset = -levelRoot.transform.eulerAngles.z;
+        if(angleToReset == 0)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        Const.InRotation = true;
+
+        GameObject pivot = new GameObject("LevelResetPivot");
+        pivot.transform.position = pivotPos;
+
+        Transform originalParent = levelRoot.parent;
+        levelRoot.SetParent(pivot.transform, true);
+
+        // 使用DOTween旋转轴心
+        pivot.transform.DORotate(new Vector3(0, 0, angleToReset), rotationDuration, RotateMode.LocalAxisAdd)
+            .SetEase(Ease.InOutQuad)
+            .OnComplete(() =>
+            {
+                // 恢复父节点
+                levelRoot.SetParent(originalParent, true);
+                
+                // 为避免浮点数误差，动画结束后直接将角度设置为0
+                levelRoot.eulerAngles = Vector3.zero;
+                
+                // 销毁临时轴心
+                Destroy(pivot);
+
+                Const.InRotation = false;
+                Debug.Log("Level rotation has been reset.");
+                onComplete?.Invoke();
             });
     }
 
