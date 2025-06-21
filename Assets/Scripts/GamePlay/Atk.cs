@@ -6,7 +6,7 @@ public class Atk : MonoBehaviour
 {
     public Player CurPlayer;
 
-    public float AtkTime = 0.3f;
+    public float AtkTime = 1;
 
     // Start is called before the first frame update
     void Start()

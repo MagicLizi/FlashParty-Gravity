@@ -63,11 +63,14 @@ public class Player : MonoBehaviour
 
     public GameObject AirAtkCollider;
 
+    SpriteRenderer spriteRenderer;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         EventManager.Instance.AddListener(EventType.Move, OnMove);
         EventManager.Instance.AddListener(EventType.Jump, OnJump);
         EventManager.Instance.AddListener(EventType.Action, OnAction);
@@ -314,7 +317,6 @@ public class Player : MonoBehaviour
             rb.gravityScale = originGvS;
         }
         isLoseGravity = lose;
-        AnimateSetBool("LossG", lose);
     }
 
     public void Dead(Vector2 rebornPos)
@@ -326,28 +328,48 @@ public class Player : MonoBehaviour
         Debug.Log("Player has died.");
         // this.enabled = false; // 禁用Player脚本，停止Update和FixedUpdate
         // 使用DOTween创建闪烁效果
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
             // 创建闪烁动画，透明度在0.3和1之间变化，持续0.2秒，重复-1次（无限循环）
-            TweenerCore<Color, Color, ColorOptions> fadeTween = spriteRenderer.DOFade(0.3f, 0.1f).SetLoops(-1, LoopType.Yoyo);
+            Shine(true);
             // 使用DOTween移动角色到指定位置
             transform.DOMove(rebornPos, 0.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
             {
-                spriteRenderer.DOFade(1, 0.1f);
-                fadeTween.Kill();
+                Shine(false);
                 isDead = false;
                 InputManager.Instance.Enable(true);
             });
         }
     }
+    TweenerCore<Color, Color, ColorOptions> fadeTween;
+    public void Shine(bool shine)
+    {
+        if (shine)
+        {
+            if (fadeTween == null)
+            {
+                // 创建闪烁动画，透明度在0.3和1之间变化，持续0.2秒，重复-1次（无限循环）
+                fadeTween = spriteRenderer.DOFade(0.3f, 0.1f).SetLoops(-1, LoopType.Yoyo);
+            }
+        }
+        else
+        {
+            if (fadeTween != null)
+            {
+                spriteRenderer.DOFade(1, 0.1f);
+                fadeTween.Kill();
+                fadeTween = null;
+            }
+        }
+    }
+
 
     void OnAction(object data)
     {
         AnimateSetTrigger("Attack");
     }
 
-    void AnimateSetBool(string triggerName, bool trigger)
+    public void AnimateSetBool(string triggerName, bool trigger)
     {
         animator.SetBool(triggerName, trigger);
     }
