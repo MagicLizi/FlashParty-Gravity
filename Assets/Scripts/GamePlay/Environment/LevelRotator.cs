@@ -20,6 +20,8 @@ public class LevelRotator : MonoBehaviour
 
     private BoxCollider2D zone;
 
+    private Player curPlayer;
+
     void Awake()
     {
         zone = GetComponent<BoxCollider2D>();
@@ -40,6 +42,7 @@ public class LevelRotator : MonoBehaviour
         }
 
         Const.InRotation = true;
+
 
         // 1. 创建一个临时的GameObject作为旋转的轴心，位置在触发者处
         GameObject pivot = new GameObject("LevelRotationPivot");
@@ -65,17 +68,18 @@ public class LevelRotator : MonoBehaviour
 
                 Const.InRotation = false;
                 Debug.Log("Rotation complete!");
+                curPlayer.LoseGravity(false);
             });
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Player player = other.GetComponent<Player>();
-        if (player != null)
+        curPlayer = other.GetComponent<Player>();
+        if (curPlayer != null)
         {
-            Vector2 pivotPos = player.transform.position + new Vector3(0, player.boxCollider.bounds.size.y / 2);
+            Vector2 pivotPos = curPlayer.transform.position + new Vector3(0, curPlayer.boxCollider.bounds.size.y / 2);
             TriggerRotation(pivotPos);
-            player.StopSpeed();
+            curPlayer.LoseGravity(true);
         }
     }
 }

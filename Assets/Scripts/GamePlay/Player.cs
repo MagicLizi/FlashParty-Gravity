@@ -47,7 +47,11 @@ public class Player : MonoBehaviour
 
     private float rayLength = 0.1f;
 
-    private bool stopSpeed = false;
+    public bool StopSpeed = false;
+
+    private float originGvS = 1;
+
+    private bool isLoseGravity = false;
 
     void Awake()
     {
@@ -60,6 +64,7 @@ public class Player : MonoBehaviour
         // 添加平台事件监听
         EventManager.Instance.AddListener(EventType.PlatformPlayerOn, OnPlatformEnter);
         EventManager.Instance.AddListener(EventType.PlatformPlayerOff, OnPlatformExit);
+        originGvS = rb.gravityScale;
     }
 
     void Update()
@@ -95,10 +100,9 @@ public class Player : MonoBehaviour
             targetSpeed = CurXMoveSpeed;
         }
         Vector2 velocity = new Vector2(targetSpeed, rb.velocity.y) + AdditionWindSpeed;
-        if(stopSpeed)
+        if(isLoseGravity)
         {
-            velocity = new Vector2(0, 0);
-            stopSpeed = false;
+            velocity = new Vector2(velocity.x, 0);
         }
         rb.velocity = velocity;
     }
@@ -280,9 +284,17 @@ public class Player : MonoBehaviour
         AdditionWindSpeed = AdditionWindSpeed + speedVec;
     }
 
-    public void StopSpeed()
+    public void LoseGravity(bool lose)
     {
-        stopSpeed = true;
+        if(lose)
+        {
+            rb.gravityScale = 0;
+        }
+        else
+        {
+            rb.gravityScale = originGvS;
+        }
+        isLoseGravity = lose;
     }
 
     public void Dead(Vector2 rebornPos)
