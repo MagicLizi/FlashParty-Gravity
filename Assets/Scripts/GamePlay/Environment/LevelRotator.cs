@@ -22,6 +22,11 @@ public class LevelRotator : MonoBehaviour
 
     private Player curPlayer;
 
+    [Tooltip("重新获取重力时机")]
+    public float BackGVProgress = 0.9f;
+
+    private bool hasBackGV = false;
+
     void Awake()
     {
         zone = GetComponent<BoxCollider2D>();
@@ -58,8 +63,19 @@ public class LevelRotator : MonoBehaviour
 
         // 3. 使用DOTween旋转轴心
         // 使用RotateMode.LocalAxisAdd可以在当前旋转基础上增加旋转量
+
         pivot.transform.DORotate(new Vector3(0, 0, angleToRotate), rotationDuration, RotateMode.LocalAxisAdd)
             .SetEase(Ease.InOutQuad)
+            .OnUpdate(() =>
+            {
+                float progress = pivot.transform.eulerAngles.z / angleToRotate;
+                Debug.Log("Rotation progress: " + progress);
+                if (progress >= BackGVProgress && !hasBackGV)
+                {
+                    hasBackGV = true;
+                    curPlayer.LoseGravity(false);
+                }
+            })
             .OnComplete(() =>
             {
                 // 4. 旋转结束后，恢复关卡的父节点并销毁临时轴心
@@ -68,7 +84,6 @@ public class LevelRotator : MonoBehaviour
 
                 Const.InRotation = false;
                 Debug.Log("Rotation complete!");
-                curPlayer.LoseGravity(false);
             });
     }
 
@@ -77,9 +92,10 @@ public class LevelRotator : MonoBehaviour
         curPlayer = other.GetComponent<Player>();
         if (curPlayer != null)
         {
+            hasBackGV = false;
+            curPlayer.LoseGravity(true);
             Vector2 pivotPos = curPlayer.transform.position + new Vector3(0, curPlayer.boxCollider.bounds.size.y / 2);
             TriggerRotation(pivotPos);
-            curPlayer.LoseGravity(true);
         }
     }
 }
