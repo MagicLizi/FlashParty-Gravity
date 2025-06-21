@@ -68,9 +68,11 @@ public class LevelRotator : MonoBehaviour
             .SetEase(Ease.Linear)
             .OnUpdate(() =>
             {
-                float progress = pivot.transform.eulerAngles.z / angleToRotate;
-                Debug.Log("Rotation progress: " + progress);
-                if (Mathf.Abs(progress) >= BackGVProgress && !hasBackGV)
+                Debug.Log(pivot.transform.eulerAngles.z);
+                float curAngle = clockwise ? 360 - pivot.transform.eulerAngles.z : pivot.transform.eulerAngles.z;
+                float progress = Mathf.Abs(curAngle / angleToRotate);
+                Debug.Log($"Rotation progress: {progress}");
+                if (progress >= BackGVProgress && !hasBackGV)
                 {
                     hasBackGV = true;
                     curPlayer.LoseGravity(false);
