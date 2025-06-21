@@ -57,6 +57,12 @@ public class Player : MonoBehaviour
 
     private bool isInAtk = false;
 
+    private bool isInAirAtk = false;
+
+    public GameObject AtkCollider;
+
+    public GameObject AirAtkCollider;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -81,6 +87,9 @@ public class Player : MonoBehaviour
     {
         AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
         isInAtk = currentState.IsName("SnowWhite@Attack");
+        isInAirAtk = currentState.IsName("SnowWhite@AttackAir");
+        AtkCollider.gameObject.SetActive(isInAtk);
+        AirAtkCollider.gameObject.SetActive(isInAirAtk);
     }
 
     void FixedUpdate()
@@ -109,11 +118,11 @@ public class Player : MonoBehaviour
         {
             targetSpeed = CurXMoveSpeed;
         }
-        AnimateSetTrigger("CanMove", targetSpeed != 0);
+        AnimateSetBool("CanMove", targetSpeed != 0);
         Vector2 velocity = new Vector2(targetSpeed, rb.velocity.y) + AdditionWindSpeed;
         if (isLoseGravity)
         {
-            velocity = new Vector2(velocity.x, 0);
+            velocity = new Vector2(0, 0);
         }
         if (isInAtk)
         {
@@ -182,7 +191,7 @@ public class Player : MonoBehaviour
     void CheckInAir()
     {
         inAir = !IsGrounded();
-        AnimateSetTrigger("inAir", inAir);
+        AnimateSetBool("inAir", inAir);
         // Debug.Log($"inAir: {inAir} {CurAnimName}");
         if (inAir)
         {
@@ -198,7 +207,12 @@ public class Player : MonoBehaviour
     bool IsGrounded()
     {
         // groundRayCast = (Vector2)transform.position + new Vector2(0, -boxCollider.bounds.size.y * 0.5f + 0.02f);
-        return Physics2D.Raycast((Vector2)transform.position, Vector2.down, rayLength, groundMask);
+        Vector2 middle = (Vector2)transform.position;
+        Vector2 left = middle + new Vector2(-boxCollider.bounds.size.x / 2, 0);
+        Vector2 right = middle + new Vector2(boxCollider.bounds.size.x / 2, 0);
+        return Physics2D.Raycast(middle, Vector2.down, rayLength, groundMask) ||
+                 Physics2D.Raycast(left, Vector2.down, rayLength, groundMask) ||
+                Physics2D.Raycast(right, Vector2.down, rayLength, groundMask);
     }
 
     bool IsTouchWall()
@@ -223,10 +237,15 @@ public class Player : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        Vector2 origin = (Vector2)transform.position;
-        Debug.DrawLine(origin, origin + Vector2.down * rayLength, Color.red);
         if (boxCollider != null)
         {
+            Vector2 middle = (Vector2)transform.position;
+            Vector2 left = middle + new Vector2(-boxCollider.bounds.size.x / 2, 0);
+            Vector2 right = middle + new Vector2(boxCollider.bounds.size.x / 2, 0);
+            Debug.DrawLine(middle, middle + Vector2.down * rayLength, Color.red);
+            Debug.DrawLine(left, left + Vector2.down * rayLength, Color.red);
+            Debug.DrawLine(right, right + Vector2.down * rayLength, Color.red);
+
             Vector2 direction = Vector2.zero;
             if (CurFaceDir == FaceDir.Right)
             {
@@ -295,6 +314,7 @@ public class Player : MonoBehaviour
             rb.gravityScale = originGvS;
         }
         isLoseGravity = lose;
+        AnimateSetBool("LossG", lose);
     }
 
     public void Dead(Vector2 rebornPos)
@@ -327,7 +347,7 @@ public class Player : MonoBehaviour
         AnimateSetTrigger("Attack");
     }
 
-    void AnimateSetTrigger(string triggerName, bool trigger)
+    void AnimateSetBool(string triggerName, bool trigger)
     {
         animator.SetBool(triggerName, trigger);
     }

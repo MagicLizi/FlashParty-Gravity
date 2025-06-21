@@ -65,12 +65,12 @@ public class LevelRotator : MonoBehaviour
         // 使用RotateMode.LocalAxisAdd可以在当前旋转基础上增加旋转量
 
         pivot.transform.DORotate(new Vector3(0, 0, angleToRotate), rotationDuration, RotateMode.LocalAxisAdd)
-            .SetEase(Ease.InOutQuad)
+            .SetEase(Ease.Linear)
             .OnUpdate(() =>
             {
                 float progress = pivot.transform.eulerAngles.z / angleToRotate;
                 Debug.Log("Rotation progress: " + progress);
-                if (progress >= BackGVProgress && !hasBackGV)
+                if (Mathf.Abs(progress) >= BackGVProgress && !hasBackGV)
                 {
                     hasBackGV = true;
                     curPlayer.LoseGravity(false);
@@ -89,10 +89,12 @@ public class LevelRotator : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        curPlayer = other.GetComponent<Player>();
-        if (curPlayer != null)
+        Atk atk = other.GetComponent<Atk>();
+        if (atk != null)
         {
+            curPlayer = atk.CurPlayer;
             hasBackGV = false;
+
             curPlayer.LoseGravity(true);
             Vector2 pivotPos = curPlayer.transform.position + new Vector3(0, curPlayer.boxCollider.bounds.size.y / 2);
             TriggerRotation(pivotPos);

@@ -210,6 +210,9 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 64
+  StopSpeed: 0
+  AtkCollider: {fileID: 7514191595442725621}
+  AirAtkCollider: {fileID: 6750943884495305963}
 --- !u!1 &6750943884495305963
 GameObject:
   m_ObjectHideFlags: 0
@@ -220,13 +223,14 @@ GameObject:
   m_Component:
   - component: {fileID: 6519352062584625423}
   - component: {fileID: 3179621735629799188}
-  m_Layer: 7
+  - component: {fileID: 5744515824476113195}
+  m_Layer: 9
   m_Name: SnowWhite@AttackAir
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6519352062584625423
 Transform:
   m_ObjectHideFlags: 0
@@ -249,7 +253,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6750943884495305963}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -287,6 +291,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.8735666, y: 2.52065}
   m_EdgeRadius: 0
+--- !u!114 &5744515824476113195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6750943884495305963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073f937fcbfefb545aa955d1710c50d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurPlayer: {fileID: 3911124674337581693}
 --- !u!1 &7514191595442725621
 GameObject:
   m_ObjectHideFlags: 0
@@ -297,13 +314,14 @@ GameObject:
   m_Component:
   - component: {fileID: 1467117116247811080}
   - component: {fileID: 3162242235829863500}
-  m_Layer: 7
+  - component: {fileID: 7464481336333669508}
+  m_Layer: 9
   m_Name: SnowWhite@Attack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1467117116247811080
 Transform:
   m_ObjectHideFlags: 0
@@ -326,7 +344,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7514191595442725621}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -364,3 +382,16 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.8088579, y: 2.2941701}
   m_EdgeRadius: 0
+--- !u!114 &7464481336333669508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7514191595442725621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073f937fcbfefb545aa955d1710c50d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurPlayer: {fileID: 3911124674337581693}
