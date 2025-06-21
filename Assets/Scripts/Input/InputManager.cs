@@ -5,6 +5,20 @@ using Lizi.FrameWork.Util;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public enum MoveType
+{
+    MoveStart,
+    Move,
+    MoveEnd
+}
+
+
+public class MoveData
+{
+    public Vector2 moveDir;
+    public MoveType moveType;
+}
+
 public class InputManager : MonoSingleton<InputManager>
 {
     private GameInputActions _input;
@@ -95,27 +109,47 @@ public class InputManager : MonoSingleton<InputManager>
     {
         if (isMove)
         {
-            EventManager.Instance.TriggerEvent(EventType.Move, moveAction.ReadValue<Vector2>());
+            MoveData moveData = new MoveData()
+            {
+                moveDir = moveAction.ReadValue<Vector2>(),
+                moveType = MoveType.Move
+            };
+            EventManager.Instance.TriggerEvent(EventType.Move, moveData);
         }
     }
 
     void OnMoveStart(InputAction.CallbackContext value)
     {
         // Debug.Log("StartMove: " + value.ReadValue<Vector2>());
-        EventManager.Instance.TriggerEvent(EventType.Move, value.ReadValue<Vector2>());
+        MoveData moveData = new MoveData()
+        {
+            moveDir = value.ReadValue<Vector2>(),
+            moveType = MoveType.MoveStart
+        };
+        EventManager.Instance.TriggerEvent(EventType.Move, moveData);
         isMove = true;
     }
 
     void OnMoving(InputAction.CallbackContext value)
     {
         // Debug.Log("onMove: " + value.ReadValue<Vector2>());
-        EventManager.Instance.TriggerEvent(EventType.Move, value.ReadValue<Vector2>());
+        MoveData moveData = new MoveData()
+        {
+            moveDir = value.ReadValue<Vector2>(),
+            moveType = MoveType.Move
+        };
+        EventManager.Instance.TriggerEvent(EventType.Move, moveData);
     }
 
     void OnMoveEnd(InputAction.CallbackContext value)
     {
         // Debug.Log("endMove: " + value.ReadValue<Vector2>());
-        EventManager.Instance.TriggerEvent(EventType.Move, value.ReadValue<Vector2>());
+        MoveData moveData = new MoveData()
+        {
+            moveDir = value.ReadValue<Vector2>(),
+            moveType = MoveType.MoveEnd
+        };
+        EventManager.Instance.TriggerEvent(EventType.Move, moveData);
         isMove = false;
     }
 
@@ -126,26 +160,26 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnJumping(InputAction.CallbackContext value)
     {
-        
+
     }
 
     void OnJumpEnd(InputAction.CallbackContext value)
     {
-        
+
     }
 
     void OnActionStart(InputAction.CallbackContext value)
     {
-        Debug.Log("StartAction");
+        EventManager.Instance.TriggerEvent(EventType.Action);
     }
 
     void OnAction(InputAction.CallbackContext value)
     {
-        Debug.Log("onAction");
+        // Debug.Log("onAction");
     }
 
     void OnActionEnd(InputAction.CallbackContext value)
     {
-        Debug.Log("endAction");
-    }   
+        // Debug.Log("endAction");
+    }
 }

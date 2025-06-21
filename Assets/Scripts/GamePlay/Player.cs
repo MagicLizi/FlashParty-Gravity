@@ -1,6 +1,8 @@
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum FaceDir
@@ -53,14 +55,16 @@ public class Player : MonoBehaviour
 
     private bool isLoseGravity = false;
 
+    private bool isInAtk = false;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
-        PlayAnimByName("Idle");
         EventManager.Instance.AddListener(EventType.Move, OnMove);
         EventManager.Instance.AddListener(EventType.Jump, OnJump);
+        EventManager.Instance.AddListener(EventType.Action, OnAction);
         // 添加平台事件监听
         EventManager.Instance.AddListener(EventType.PlatformPlayerOn, OnPlatformEnter);
         EventManager.Instance.AddListener(EventType.PlatformPlayerOff, OnPlatformExit);
@@ -70,7 +74,13 @@ public class Player : MonoBehaviour
     void Update()
     {
         CheckInAir();
-        CheckAnimPlay();
+        CheckInAtk();
+    }
+
+    private void CheckInAtk()
+    {
+        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
+        isInAtk = currentState.IsName("SnowWhite@Attack");
     }
 
     void FixedUpdate()
@@ -99,28 +109,17 @@ public class Player : MonoBehaviour
         {
             targetSpeed = CurXMoveSpeed;
         }
+        AnimateSetTrigger("CanMove", targetSpeed != 0);
         Vector2 velocity = new Vector2(targetSpeed, rb.velocity.y) + AdditionWindSpeed;
-        if(isLoseGravity)
+        if (isLoseGravity)
         {
             velocity = new Vector2(velocity.x, 0);
         }
-        rb.velocity = velocity;
-    }
-
-    protected void PlayAnimByName(string name)
-    {
-        CurAnimName = string.Format("{0}@{1}", Name, name);
-    }
-
-    void CheckAnimPlay()
-    {
-        string currentAnimName = animator.GetCurrentAnimatorClipInfo(0)[0].clip.name;
-        // Debug.Log($"当前播放的动画: {currentAnimName}");
-        if (!currentAnimName.Equals(CurAnimName))
+        if (isInAtk)
         {
-            // Debug.Log($"当前播放的动画: {currentAnimName} 需要切换到 {CurAnimName}");
-            animator.Play(CurAnimName);
+            velocity = new Vector2(0, rb.velocity.y);
         }
+        rb.velocity = velocity;
     }
 
     void CheckFaceDir()
@@ -139,7 +138,8 @@ public class Player : MonoBehaviour
 
     void OnMove(object data)
     {
-        Vector2 moveDir = (Vector2)data;
+        MoveData moveData = (MoveData)data;
+        Vector2 moveDir = moveData.moveDir;
         int moveDirX = 0;
         if (moveDir.x > 0)
         {
@@ -159,13 +159,12 @@ public class Player : MonoBehaviour
             // Debug.Log($"CurMoveSpeed: {CurXMoveSpeed}");
             if (CurXMoveSpeed != 0)
             {
-                PlayAnimByName("Dash");
                 CurXMoveSpeed = moveDirX * MoveSpeed;
                 animator.speed = Mathf.Abs(CurXMoveSpeed / BaseMoveSpeed);
+                // AnimateSetTrigger("CanMove", true);
             }
             else
             {
-                PlayAnimByName("Idle");
                 animator.speed = 1;
                 rb.velocity = new Vector2(0, rb.velocity.y);
             }
@@ -173,26 +172,26 @@ public class Player : MonoBehaviour
         CheckFaceDir();
     }
 
+    bool startJump = false;
     void OnJump(object data)
     {
         rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
+        AnimateSetTrigger("Jump");
     }
 
     void CheckInAir()
     {
         inAir = !IsGrounded();
+        AnimateSetTrigger("inAir", inAir);
         // Debug.Log($"inAir: {inAir} {CurAnimName}");
         if (inAir)
         {
-            PlayAnimByName("JumpStart");
             inAirTouchWall = IsTouchWall();
+            startJump = false;
         }
         else
         {
-            if (CurAnimName.Contains("JumpStart"))
-            {
-                PlayAnimByName("Idle");
-            }
+
         }
     }
 
@@ -274,6 +273,7 @@ public class Player : MonoBehaviour
         {
             EventManager.Instance.RemoveListener(EventType.Move, OnMove);
             EventManager.Instance.RemoveListener(EventType.Jump, OnJump);
+            EventManager.Instance.RemoveListener(EventType.Action, OnAction);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOn, OnPlatformEnter);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOff, OnPlatformExit);
         }
@@ -286,7 +286,7 @@ public class Player : MonoBehaviour
 
     public void LoseGravity(bool lose)
     {
-        if(lose)
+        if (lose)
         {
             rb.gravityScale = 0;
         }
@@ -302,8 +302,6 @@ public class Player : MonoBehaviour
         if (isDead) return;
         isDead = true;
         InputManager.Instance.Enable(false);
-        PlayAnimByName("Idle");
-        // PlayAnimByName("Dead");
         // 可以在此处添加更多死亡逻辑，例如禁用输入、延迟后重新加载场景等
         Debug.Log("Player has died.");
         // this.enabled = false; // 禁用Player脚本，停止Update和FixedUpdate
@@ -322,5 +320,20 @@ public class Player : MonoBehaviour
                 InputManager.Instance.Enable(true);
             });
         }
+    }
+
+    void OnAction(object data)
+    {
+        AnimateSetTrigger("Attack");
+    }
+
+    void AnimateSetTrigger(string triggerName, bool trigger)
+    {
+        animator.SetBool(triggerName, trigger);
+    }
+
+    void AnimateSetTrigger(string triggerName)
+    {
+        animator.SetTrigger(triggerName);
     }
 }
