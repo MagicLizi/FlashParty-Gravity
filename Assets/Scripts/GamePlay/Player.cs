@@ -65,6 +65,8 @@ public class Player : MonoBehaviour
 
     SpriteRenderer spriteRenderer;
 
+    public int CurJumpCnt = 1;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -136,15 +138,18 @@ public class Player : MonoBehaviour
 
     void CheckFaceDir()
     {
-        if (CurXMoveSpeed > 0)
+        if (!isInAtk)
         {
-            CurFaceDir = FaceDir.Right;
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-        else if (CurXMoveSpeed < 0)
-        {
-            CurFaceDir = FaceDir.Left;
-            transform.localScale = new Vector3(-1, 1, 1);
+            if (CurXMoveSpeed > 0)
+            {
+                CurFaceDir = FaceDir.Right;
+                transform.localScale = new Vector3(1, 1, 1);
+            }
+            else if (CurXMoveSpeed < 0)
+            {
+                CurFaceDir = FaceDir.Left;
+                transform.localScale = new Vector3(-1, 1, 1);
+            }
         }
     }
 
@@ -184,10 +189,16 @@ public class Player : MonoBehaviour
         CheckFaceDir();
     }
 
+
+    private bool startJump = false;
     void OnJump(object data)
     {
-        rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
-        AnimateSetTrigger("Jump");
+        if (CurJumpCnt > 0 && !isInAtk)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
+            AnimateSetTrigger("Jump");
+            startJump = true;
+        }
     }
 
     void CheckInAir()
@@ -198,7 +209,15 @@ public class Player : MonoBehaviour
         if (inAir)
         {
             inAirTouchWall = IsTouchWall();
-            
+            if (startJump)
+            {
+                startJump = false;
+                CurJumpCnt--;
+            }
+        }
+        else
+        {
+            CurJumpCnt = 1;
         }
     }
 
