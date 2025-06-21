@@ -9,8 +9,8 @@ public class Wind : MonoBehaviour
     [Tooltip("风力大小")]
     public float windSpeed = 5f;
 
-    [Tooltip("风力最大值")]
-    public float windSpeedMax = 10f;
+    [Tooltip("初始风力")]
+    public float initWindSpeed = 10f;
 
     private float curWindSpeed = 0;
 
@@ -43,39 +43,52 @@ public class Wind : MonoBehaviour
     {
         if (isOpen)
         {
-            AddPlayerWind(other);
+            Player player = other.GetComponent<Player>();
+            if (player != null)
+            {
+                player.AnimateSetTrigger("Jump");
+                player.AddWindSpeed(windDirection.normalized * windSpeed);
+            }
         }
     }
 
-    private void OnTriggerStay2D(Collider2D other)
-    {
-        if (isOpen)
-        {
-            AddPlayerWind(other);
-        }
-    }
+    // private void OnTriggerStay2D(Collider2D other)
+    // {
+    //     if (isOpen)
+    //     {
+    //         AddPlayerWind(other, windSpeed, 2);
+    //     }
+    // }
 
     void OnTriggerExit2D(Collider2D other)
     {
         if (isOpen)
         {
-            AddPlayerWind(other, -1);
+            Player player = other.GetComponent<Player>();
+            if (player != null)
+            {
+                player.AddWindSpeed(Vector2.zero);
+            }
         }
+
     }
 
-    void AddPlayerWind(Collider2D other, int direct = 1)
-    {
-        Player player = other.GetComponent<Player>();
-        if (player != null)
-        {
-            curWindSpeed = curWindSpeed + windSpeed;
-            if (curWindSpeed > windSpeedMax)
-            {
-                curWindSpeed = windSpeedMax;
-            }
-            player.SetWindSpeed(windDirection.normalized * curWindSpeed * direct);
-        }
-    }
+    // void AddPlayerWind(Collider2D other, float speed, int type)
+    // {
+    //     Player player = other.GetComponent<Player>();
+    //     if (player != null)
+    //     {
+    //         if(type == 1 || type == 2)
+    //         {
+    //             player.isInWind = this;
+    //         }
+    //         else if(type == 3)
+    //         {
+    //             player.isInWind = null;
+    //         }
+    //         player.SetWindSpeed(windDirection.normalized * speed);
+    //     }
+    // }
 
     private void OnDrawGizmos()
     {

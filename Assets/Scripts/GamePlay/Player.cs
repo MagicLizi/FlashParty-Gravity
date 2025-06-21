@@ -29,9 +29,9 @@ public class Player : MonoBehaviour
 
     public float BaseMoveSpeed = 4.5f; //基准值
 
-    private bool inAir = false;
+    public bool inAir = false;
 
-    private bool inAirTouchWall = false;
+    public bool inAirTouchWall = false;
 
     public Rigidbody2D rb;
 
@@ -45,8 +45,6 @@ public class Player : MonoBehaviour
 
     private bool isDead = false;
 
-    private Vector2 AdditionWindSpeed = Vector2.zero;
-
     private float rayLength = 0.2f;
 
     public bool StopSpeed = false;
@@ -55,9 +53,9 @@ public class Player : MonoBehaviour
 
     private bool isLoseGravity = false;
 
-    private bool isInAtk = false;
+    public bool isInAtk = false;
 
-    private bool isInAirAtk = false;
+    public bool isInAirAtk = false;
 
     public GameObject AtkCollider;
 
@@ -66,6 +64,10 @@ public class Player : MonoBehaviour
     SpriteRenderer spriteRenderer;
 
     public int CurJumpCnt = 1;
+
+    public Wind isInWind = null;
+
+    public Vector2 windSpeed = Vector2.zero;
 
     void Awake()
     {
@@ -128,7 +130,7 @@ public class Player : MonoBehaviour
             targetSpeed = CurXMoveSpeed;
         }
         AnimateSetBool("CanMove", targetSpeed != 0);
-        Vector2 velocity = new Vector2(targetSpeed, rb.velocity.y) + AdditionWindSpeed;
+        Vector2 velocity = new Vector2(targetSpeed, rb.velocity.y);
         if (isLoseGravity)
         {
             velocity = new Vector2(0, 0);
@@ -137,7 +139,7 @@ public class Player : MonoBehaviour
         {
             velocity = new Vector2(0, rb.velocity.y);
         }
-        rb.velocity = velocity;
+        rb.velocity = velocity + windSpeed;
         // Debug.Log($"rb.velocity y1: {rb.velocity.y}");
     }
 
@@ -326,9 +328,10 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void SetWindSpeed(Vector2 speedVec)
+    public void AddWindSpeed(Vector2 speedVec)
     {
-        AdditionWindSpeed = speedVec;
+        Debug.Log($"AddWindSpeed: {speedVec}");
+        windSpeed = speedVec;
     }
 
     public void LoseGravity(bool lose)
@@ -399,7 +402,7 @@ public class Player : MonoBehaviour
         animator.SetBool(triggerName, trigger);
     }
 
-    void AnimateSetTrigger(string triggerName)
+    public void AnimateSetTrigger(string triggerName)
     {
         animator.SetTrigger(triggerName);
     }
