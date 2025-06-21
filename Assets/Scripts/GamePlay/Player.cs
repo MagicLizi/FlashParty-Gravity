@@ -35,6 +35,8 @@ public class Player : MonoBehaviour
 
     public float BaseMoveSpeed = 4.5f; //基准值
 
+    public float maxFallSpeed = -10f; //最大下落速度（负值）
+
     public bool inAir = false;
 
     public bool inAirTouchWall = false;
@@ -151,6 +153,13 @@ public class Player : MonoBehaviour
             velocity = new Vector2(0, rb.velocity.y);
         }
         rb.velocity = velocity + windSpeed;
+        
+        // 限制Y轴下落速度，防止从高处落下时速度过快
+        if (rb.velocity.y < maxFallSpeed)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, maxFallSpeed);
+        }
+        
         // Debug.Log($"rb.velocity y1: {rb.velocity.y}");
     }
 

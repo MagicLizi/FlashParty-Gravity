@@ -238,6 +238,7 @@ MonoBehaviour:
   AirDrag: 0.7
   JumpSpeed: 15
   BaseMoveSpeed: 15
+  maxFallSpeed: -30
   inAir: 0
   inAirTouchWall: 0
   rb: {fileID: 0}
@@ -256,6 +257,7 @@ MonoBehaviour:
   CurJumpCnt: 1
   isInWind: {fileID: 0}
   windSpeed: {x: 0, y: 0}
+  curLevelRotator: {fileID: 0}
 --- !u!1 &6750943884495305963
 GameObject:
   m_ObjectHideFlags: 0
