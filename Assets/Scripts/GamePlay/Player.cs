@@ -47,7 +47,7 @@ public class Player : MonoBehaviour
 
     private Vector2 AdditionWindSpeed = Vector2.zero;
 
-    private float rayLength = 0.1f;
+    private float rayLength = 0.2f;
 
     public bool StopSpeed = false;
 
@@ -104,6 +104,7 @@ public class Player : MonoBehaviour
             rb.velocity = new Vector2(0, rb.velocity.y);
             return;
         }
+        Debug.Log($"rb.velocity y: {rb.velocity.y}");
         float targetSpeed;
         if (inAir)
         {
@@ -114,9 +115,11 @@ public class Player : MonoBehaviour
                 targetSpeed = CurXMoveSpeed;
             }
             // Debug.Log($"No Speed AirDrag: {rb.velocity.x} {CurXMoveSpeed} {targetSpeed}");
-            if (inAirTouchWall && targetSpeed * (int)CurFaceDir > 0)
+            // Debug.Log($"inAirTouchWall: {inAirTouchWall} {targetSpeed * (int)CurFaceDir}");
+            if (inAirTouchWall && targetSpeed * (int)CurFaceDir >= 0)
             {
                 targetSpeed = 0;
+                Debug.Log("蜘蛛侠设置速度为0");
             }
         }
         else
@@ -134,6 +137,7 @@ public class Player : MonoBehaviour
             velocity = new Vector2(0, rb.velocity.y);
         }
         rb.velocity = velocity;
+        Debug.Log($"rb.velocity y1: {rb.velocity.y}");
     }
 
     void CheckFaceDir()
