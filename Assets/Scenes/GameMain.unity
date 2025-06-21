@@ -357,7 +357,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 1.3333334, y: 1.3333334}
+    oldSize: {x: 1.3333334, y: 1.875}
     newSize: {x: 0.34, y: 0.34}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -773,7 +773,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 1.3333334, y: 1.3333334}
+    oldSize: {x: 1.3333334, y: 1.875}
     newSize: {x: 0.34, y: 0.34}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -1429,7 +1429,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 1.3333334, y: 1.3333334}
+    oldSize: {x: 1.3333334, y: 1.875}
     newSize: {x: 0.34, y: 0.34}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -32086,7 +32086,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 1.3333334, y: 1.3333334}
+    oldSize: {x: 1.3333334, y: 1.875}
     newSize: {x: 0.34, y: 0.34}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -32234,7 +32234,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 1.3333334, y: 1.3333334}
+    oldSize: {x: 1.3333334, y: 1.875}
     newSize: {x: 0.34, y: 0.34}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -32557,6 +32557,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Level-03 Wind-01
       objectReference: {fileID: 0}
+    - target: {fileID: 5327085214174395766, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5774340779288770501, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 1767194705}
     - target: {fileID: 5774340779288770501, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
       propertyPath: windSpeed
       value: 0.02
@@ -32568,6 +32576,14 @@ PrefabInstance:
     - target: {fileID: 7159110735992517900, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
       propertyPath: m_Color.a
       value: 0.49019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 8457097023318125865, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+      propertyPath: m_Size.y
+      value: 3.85
+      objectReference: {fileID: 0}
+    - target: {fileID: 8457097023318125865, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+      propertyPath: m_Offset.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8860040603510177040, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
       propertyPath: m_LocalScale.x
@@ -32646,6 +32662,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e5ebe16cc5d31541a1a152402257d4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &1767194705 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5327085214174395766, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+  m_PrefabInstance: {fileID: 1767194702}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1783078443
 GameObject:
   m_ObjectHideFlags: 0

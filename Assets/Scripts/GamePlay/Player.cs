@@ -76,6 +76,7 @@ public class Player : MonoBehaviour
         EventManager.Instance.AddListener(EventType.Move, OnMove);
         EventManager.Instance.AddListener(EventType.Jump, OnJump);
         EventManager.Instance.AddListener(EventType.Action, OnAction);
+        EventManager.Instance.AddListener(EventType.Special, OnSpecial);
         // 添加平台事件监听
         EventManager.Instance.AddListener(EventType.PlatformPlayerOn, OnPlatformEnter);
         EventManager.Instance.AddListener(EventType.PlatformPlayerOff, OnPlatformExit);
@@ -104,7 +105,7 @@ public class Player : MonoBehaviour
             rb.velocity = new Vector2(0, rb.velocity.y);
             return;
         }
-        Debug.Log($"rb.velocity y: {rb.velocity.y}");
+        // Debug.Log($"rb.velocity y: {rb.velocity.y}");
         float targetSpeed;
         if (inAir)
         {
@@ -119,7 +120,7 @@ public class Player : MonoBehaviour
             if (inAirTouchWall && targetSpeed * (int)CurFaceDir >= 0)
             {
                 targetSpeed = 0;
-                Debug.Log("蜘蛛侠设置速度为0");
+                // Debug.Log("蜘蛛侠设置速度为0");
             }
         }
         else
@@ -137,7 +138,7 @@ public class Player : MonoBehaviour
             velocity = new Vector2(0, rb.velocity.y);
         }
         rb.velocity = velocity;
-        Debug.Log($"rb.velocity y1: {rb.velocity.y}");
+        // Debug.Log($"rb.velocity y1: {rb.velocity.y}");
     }
 
     void CheckFaceDir()
@@ -306,6 +307,11 @@ public class Player : MonoBehaviour
         }
     }
 
+    void OnSpecial(object data)
+    {
+
+    }
+
     void OnDestroy()
     {
         // 清理事件监听，避免内存泄漏
@@ -314,6 +320,7 @@ public class Player : MonoBehaviour
             EventManager.Instance.RemoveListener(EventType.Move, OnMove);
             EventManager.Instance.RemoveListener(EventType.Jump, OnJump);
             EventManager.Instance.RemoveListener(EventType.Action, OnAction);
+            EventManager.Instance.RemoveListener(EventType.Special, OnSpecial);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOn, OnPlatformEnter);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOff, OnPlatformExit);
         }
@@ -321,7 +328,7 @@ public class Player : MonoBehaviour
 
     public void SetWindSpeed(Vector2 speedVec)
     {
-        AdditionWindSpeed = AdditionWindSpeed + speedVec;
+        AdditionWindSpeed = speedVec;
     }
 
     public void LoseGravity(bool lose)
