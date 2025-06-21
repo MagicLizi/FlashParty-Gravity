@@ -73,7 +73,7 @@ public class Player : MonoBehaviour
                 targetSpeed = CurXMoveSpeed;
             }
             // Debug.Log($"No Speed AirDrag: {rb.velocity.x} {CurXMoveSpeed} {targetSpeed}");
-            if(inAirTouchWall && targetSpeed * (int)CurFaceDir > 0)
+            if (inAirTouchWall && targetSpeed * (int)CurFaceDir > 0)
             {
                 targetSpeed = 0;
             }
@@ -182,17 +182,21 @@ public class Player : MonoBehaviour
 
     bool IsTouchWall()
     {
+        Vector2 downOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, 0);
         Vector2 middleOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y / 2);
-        Vector2 direction =  Vector2.zero;
+        Vector2 upOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y);
+        Vector2 direction = Vector2.zero;
         if (CurFaceDir == FaceDir.Right)
         {
             direction = Vector2.right;
         }
         else
-        { 
+        {
             direction = Vector2.left;
         }
-        return Physics2D.Raycast(middleOrigin,direction, rayLength, groundMask);
+        return Physics2D.Raycast(middleOrigin, direction, rayLength, groundMask) ||
+                Physics2D.Raycast(downOrigin, direction, rayLength, groundMask) ||
+                Physics2D.Raycast(upOrigin, direction, rayLength, groundMask);
     }
 
 
@@ -202,15 +206,24 @@ public class Player : MonoBehaviour
         Debug.DrawLine(origin, origin + Vector2.down * rayLength, Color.red);
         if (boxCollider != null)
         {
-            Vector2 middleOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y / 2);
+            Vector2 direction = Vector2.zero;
             if (CurFaceDir == FaceDir.Right)
             {
-                Debug.DrawLine(middleOrigin, middleOrigin + Vector2.right * rayLength, Color.blue);
+                direction =  Vector2.right;
             }
             else
             {
-                Debug.DrawLine(middleOrigin, middleOrigin + Vector2.left * rayLength, Color.blue);
+                direction = Vector2.left;
             }
+
+            Vector2 middleOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y / 2);
+            Debug.DrawLine(middleOrigin, middleOrigin + direction * rayLength, Color.blue);
+
+            Vector2 downOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, 0);
+            Debug.DrawLine(downOrigin, downOrigin + direction * rayLength, Color.blue);
+
+            Vector2 upOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y);
+            Debug.DrawLine(upOrigin, upOrigin + direction * rayLength, Color.blue);
         }
     }
 
