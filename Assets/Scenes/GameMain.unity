@@ -473,13 +473,37 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9102571048026125461, guid: f6b676d60b5487044bfbf0e27cf9a7b9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 68925346}
   m_SourcePrefab: {fileID: 100100000, guid: f6b676d60b5487044bfbf0e27cf9a7b9, type: 3}
 --- !u!4 &68925344 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2045674510109578139, guid: f6b676d60b5487044bfbf0e27cf9a7b9, type: 3}
   m_PrefabInstance: {fileID: 68925343}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &68925345 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9102571048026125461, guid: f6b676d60b5487044bfbf0e27cf9a7b9, type: 3}
+  m_PrefabInstance: {fileID: 68925343}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &68925346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68925345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e5fbfa6583d6014cadc151d79dc049b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetObject: {fileID: 556461269}
+  spriteOn: {fileID: 922823694, guid: 8fa9afceed96c3b428c4dd599ad9f639, type: 3}
+  spriteOff: {fileID: 1249252270, guid: 8fa9afceed96c3b428c4dd599ad9f639, type: 3}
+  startsOn: 0
 --- !u!1 &100583387
 GameObject:
   m_ObjectHideFlags: 0
@@ -1771,6 +1795,22 @@ MonoBehaviour:
   m_CameraActivatedEvent:
     m_PersistentCalls:
       m_Calls: []
+--- !u!95 &556461268 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5327085214174395766, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+  m_PrefabInstance: {fileID: 6754182512556575537}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &556461269 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5774340779288770501, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+  m_PrefabInstance: {fileID: 6754182512556575537}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e5ebe16cc5d31541a1a152402257d4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &656024711
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16028,6 +16068,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wind
       objectReference: {fileID: 0}
+    - target: {fileID: 1945362559966635912, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5327085214174395766, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5774340779288770501, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 556461268}
     - target: {fileID: 8860040603510177040, guid: 9303bfb0a87e6434ea49ec50856b3aa7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.71

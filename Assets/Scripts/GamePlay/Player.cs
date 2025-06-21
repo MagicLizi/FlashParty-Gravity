@@ -184,7 +184,6 @@ public class Player : MonoBehaviour
         CheckFaceDir();
     }
 
-    bool startJump = false;
     void OnJump(object data)
     {
         rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
@@ -199,11 +198,7 @@ public class Player : MonoBehaviour
         if (inAir)
         {
             inAirTouchWall = IsTouchWall();
-            startJump = false;
-        }
-        else
-        {
-
+            
         }
     }
 
