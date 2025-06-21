@@ -15,6 +15,7 @@ public enum EventType
     PlatformStopMove,       // 平台停止移动
     PlatformPlayerOn,       // 玩家上平台
     PlatformPlayerOff,      // 玩家离开平台
+    LevelRotation,        // 触发旋转
 }
 
 public class EventManager : SingleTon<EventManager>
