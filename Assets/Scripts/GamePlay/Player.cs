@@ -26,6 +26,8 @@ public class Player : MonoBehaviour
 
     private bool inAir = false;
 
+    private bool inAirTouchWall = false;
+
     public Rigidbody2D rb;
 
     public FaceDir CurFaceDir = FaceDir.Right;
@@ -37,6 +39,8 @@ public class Player : MonoBehaviour
     public LayerMask groundMask;
 
     private Vector2 AdditionWindSpeed = Vector2.zero;
+
+    private float rayLength = 0.1f;
 
     void Awake()
     {
@@ -63,12 +67,16 @@ public class Player : MonoBehaviour
         if (inAir)
         {
             targetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
-            if(targetSpeed * (int)CurFaceDir < 0 || Mathf.Abs(rb.velocity.x) < Mathf.Abs(CurXMoveSpeed))
+            if (targetSpeed * (int)CurFaceDir < 0 || Mathf.Abs(rb.velocity.x) < Mathf.Abs(CurXMoveSpeed))
             {
                 // Debug.Log("空中转向");
                 targetSpeed = CurXMoveSpeed;
             }
             // Debug.Log($"No Speed AirDrag: {rb.velocity.x} {CurXMoveSpeed} {targetSpeed}");
+            if(inAirTouchWall && targetSpeed * (int)CurFaceDir > 0)
+            {
+                targetSpeed = 0;
+            }
         }
         else
         {
@@ -155,6 +163,7 @@ public class Player : MonoBehaviour
         if (inAir)
         {
             PlayAnimByName("JumpStart");
+            inAirTouchWall = IsTouchWall();
         }
         else
         {
@@ -168,13 +177,41 @@ public class Player : MonoBehaviour
     bool IsGrounded()
     {
         // groundRayCast = (Vector2)transform.position + new Vector2(0, -boxCollider.bounds.size.y * 0.5f + 0.02f);
-        return Physics2D.Raycast((Vector2)transform.position, Vector2.down, 0.05f, groundMask);
+        return Physics2D.Raycast((Vector2)transform.position, Vector2.down, rayLength, groundMask);
     }
+
+    bool IsTouchWall()
+    {
+        Vector2 middleOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y / 2);
+        Vector2 direction =  Vector2.zero;
+        if (CurFaceDir == FaceDir.Right)
+        {
+            direction = Vector2.right;
+        }
+        else
+        { 
+            direction = Vector2.left;
+        }
+        return Physics2D.Raycast(middleOrigin,direction, rayLength, groundMask);
+    }
+
 
     void OnDrawGizmos()
     {
         Vector2 origin = (Vector2)transform.position;
-        Debug.DrawLine(origin, origin + Vector2.down * 0.05f, Color.red);
+        Debug.DrawLine(origin, origin + Vector2.down * rayLength, Color.red);
+        if (boxCollider != null)
+        {
+            Vector2 middleOrigin = (Vector2)transform.position + new Vector2(((int)CurFaceDir) * boxCollider.bounds.size.x / 2, boxCollider.bounds.size.y / 2);
+            if (CurFaceDir == FaceDir.Right)
+            {
+                Debug.DrawLine(middleOrigin, middleOrigin + Vector2.right * rayLength, Color.blue);
+            }
+            else
+            {
+                Debug.DrawLine(middleOrigin, middleOrigin + Vector2.left * rayLength, Color.blue);
+            }
+        }
     }
 
     void OnPlatformEnter(object data)
