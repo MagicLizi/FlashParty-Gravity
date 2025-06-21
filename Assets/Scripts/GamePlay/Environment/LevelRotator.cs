@@ -16,7 +16,7 @@ public class LevelRotator : MonoBehaviour
     [Tooltip("顺时针旋转")]
     public bool clockwise = true;
 
-    private bool isRotating = false;
+    // private bool isRotating = false;
 
     private BoxCollider2D zone;
 
@@ -32,19 +32,19 @@ public class LevelRotator : MonoBehaviour
     /// <summary>
     /// 触发旋转
     /// </summary>
-    public void TriggerRotation(Transform pivotTransform)
+    public void TriggerRotation(Vector2 pivotPos)
     {
-        if (isRotating || levelRoot == null)
+        if (Const.InRotation || levelRoot == null)
         {
             return;
         }
 
-        isRotating = true;
+        Const.InRotation = true;
 
         // 1. 创建一个临时的GameObject作为旋转的轴心，位置在触发者处
         GameObject pivot = new GameObject("LevelRotationPivot");
-        pivot.transform.position = pivotTransform.position;
-        
+        pivot.transform.position = pivotPos;
+
         // 记录原始父节点
         Transform originalParent = levelRoot.parent;
 
@@ -52,7 +52,7 @@ public class LevelRotator : MonoBehaviour
         levelRoot.SetParent(pivot.transform, true);
 
         float angleToRotate = clockwise ? -rotationAngle : rotationAngle;
-        
+
         // 3. 使用DOTween旋转轴心
         // 使用RotateMode.LocalAxisAdd可以在当前旋转基础上增加旋转量
         pivot.transform.DORotate(new Vector3(0, 0, angleToRotate), rotationDuration, RotateMode.LocalAxisAdd)
@@ -63,7 +63,7 @@ public class LevelRotator : MonoBehaviour
                 levelRoot.SetParent(originalParent, true);
                 Destroy(pivot);
 
-                isRotating = false;
+                Const.InRotation = false;
                 Debug.Log("Rotation complete!");
             });
     }
@@ -73,7 +73,9 @@ public class LevelRotator : MonoBehaviour
         Player player = other.GetComponent<Player>();
         if (player != null)
         {
-            TriggerRotation(player.transform);
+            Vector2 pivotPos = player.transform.position + new Vector3(0, player.boxCollider.bounds.size.y / 2);
+            TriggerRotation(pivotPos);
+            player.StopSpeed();
         }
     }
 }

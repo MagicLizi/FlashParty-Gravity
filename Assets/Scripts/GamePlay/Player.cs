@@ -47,6 +47,8 @@ public class Player : MonoBehaviour
 
     private float rayLength = 0.1f;
 
+    private bool stopSpeed = false;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -92,7 +94,13 @@ public class Player : MonoBehaviour
         {
             targetSpeed = CurXMoveSpeed;
         }
-        rb.velocity = new Vector2(targetSpeed, rb.velocity.y) + AdditionWindSpeed;
+        Vector2 velocity = new Vector2(targetSpeed, rb.velocity.y) + AdditionWindSpeed;
+        if(stopSpeed)
+        {
+            velocity = new Vector2(0, 0);
+            stopSpeed = false;
+        }
+        rb.velocity = velocity;
     }
 
     protected void PlayAnimByName(string name)
@@ -270,6 +278,11 @@ public class Player : MonoBehaviour
     public void SetWindSpeed(Vector2 speedVec)
     {
         AdditionWindSpeed = AdditionWindSpeed + speedVec;
+    }
+
+    public void StopSpeed()
+    {
+        stopSpeed = true;
     }
 
     public void Dead(Vector2 rebornPos)
