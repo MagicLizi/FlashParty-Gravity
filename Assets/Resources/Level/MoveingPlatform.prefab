@@ -546,6 +546,9 @@ MonoBehaviour:
     obstacleCheckDistance: 0.1
     gravityCheckInterval: 1
     gravityTolerance: 15
+    obstacleLayerMask:
+      serializedVersion: 2
+      m_Bits: 4294967295
     pathType: 0
     isLooping: 0
     showPath: 1

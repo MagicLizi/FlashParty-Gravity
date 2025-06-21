@@ -1761,6 +1761,14 @@ PrefabInstance:
       propertyPath: waypoints.Array.data[1]
       value: 
       objectReference: {fileID: 2039458412}
+    - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: config.obstacleCheckDistance
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: config.obstacleLayerMask.m_Bits
+      value: 192
+      objectReference: {fileID: 0}
     - target: {fileID: 5722414257350838127, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 82.53
@@ -2468,7 +2476,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.699982, y: -8, z: -10}
+  m_LocalPosition: {x: 11.7, y: -5.76, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5532,7 +5540,7 @@ Transform:
   m_GameObject: {fileID: 1423094118}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 128.35, y: -18.5, z: 0}
+  m_LocalPosition: {x: 128.35, y: -18.44, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6467,6 +6475,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 415914417}
     m_Modifications:
     - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: config.showPath
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: waypoints.Array.data[0]
       value: 
       objectReference: {fileID: 1423094119}
@@ -6474,17 +6486,37 @@ PrefabInstance:
       propertyPath: waypoints.Array.data[1]
       value: 
       objectReference: {fileID: 1629867677}
+    - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: config.obstacleCheckDistance
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: config.obstacleLayerMask.m_Bits
+      value: 192
+      objectReference: {fileID: 0}
+    - target: {fileID: 3541871774364002679, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: m_Size.y
+      value: 0.7192018
+      objectReference: {fileID: 0}
+    - target: {fileID: 3541871774364002679, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3541871774364002679, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.14039911
+      objectReference: {fileID: 0}
     - target: {fileID: 5722414257350838127, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: m_LocalScale.x
       value: 2.55
       objectReference: {fileID: 0}
     - target: {fileID: 5722414257350838127, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 127.2
+      value: 122.82
       objectReference: {fileID: 0}
     - target: {fileID: 5722414257350838127, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -18.41
+      value: -18.44
       objectReference: {fileID: 0}
     - target: {fileID: 5722414257350838127, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6709,7 +6741,7 @@ Transform:
   m_GameObject: {fileID: 1629867676}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 115, y: -18.5, z: 0}
+  m_LocalPosition: {x: 115, y: -18.44, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7124,6 +7156,14 @@ PrefabInstance:
       propertyPath: waypoints.Array.data[1]
       value: 
       objectReference: {fileID: 1169738354}
+    - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: config.obstacleCheckDistance
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: config.obstacleLayerMask.m_Bits
+      value: 192
+      objectReference: {fileID: 0}
     - target: {fileID: 5722414257350838127, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.3
@@ -7134,7 +7174,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5722414257350838127, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -14.02
+      value: -12.15
       objectReference: {fileID: 0}
     - target: {fileID: 5722414257350838127, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -8179,6 +8219,14 @@ PrefabInstance:
       propertyPath: waypoints.Array.data[1]
       value: 
       objectReference: {fileID: 244497719}
+    - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: config.obstacleCheckDistance
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1234839548735517188, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
+      propertyPath: config.obstacleLayerMask.m_Bits
+      value: 192
+      objectReference: {fileID: 0}
     - target: {fileID: 5722414257350838127, guid: 39d308c048161f24cbc7f1f83b13d49e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 22.75

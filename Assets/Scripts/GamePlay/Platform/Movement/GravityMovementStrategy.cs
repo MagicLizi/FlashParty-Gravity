@@ -16,6 +16,7 @@ namespace FlashParty.Platform
         private int currentWaypointIndex = 0;
         private Coroutine gravityCheckCoroutine;
         private bool wasPausedByRotation = false;
+        private bool wasInRotation = false;
         
         public bool IsMoving => isMoving;
         
@@ -24,6 +25,7 @@ namespace FlashParty.Platform
             this.platform = platform;
             isInitialized = true;
             currentWaypointIndex = 0;
+            wasInRotation = Const.InRotation; // 初始化旋转状态
         }
         
         public void StartMovement()
@@ -50,9 +52,17 @@ namespace FlashParty.Platform
         {
             while (true)
             {
-                // 检查是否在旋转中，如果是则暂停检测
-                if (Const.InRotation)
+                // 检查旋转状态变化
+                bool currentlyInRotation = Const.InRotation;
+                bool justFinishedRotation = wasInRotation && !currentlyInRotation;
+                wasInRotation = currentlyInRotation;
+                
+                Debug.Log($"GravityCheckLoop: InRotation={currentlyInRotation}, JustFinished={justFinishedRotation}, IsMoving={isMoving}");
+                
+                // 如果在旋转中，暂停检测
+                if (currentlyInRotation)
                 {
+                    Debug.Log("Skipping gravity check - in rotation");
                     yield return null;
                     continue;
                 }
@@ -60,11 +70,12 @@ namespace FlashParty.Platform
                 // 如果不在移动状态，检查是否可以移动
                 if (!isMoving && CanMoveToNextWaypoint())
                 {
-                    // Debug.Log("Gravity platform conditions met, starting movement");
+                    Debug.Log("Gravity platform conditions met, starting movement");
                     MoveToNextWaypoint();
                 }
                 else if (!isMoving)
                 {
+                    Debug.Log("Platform not moving, checking conditions...");
                     // 调试信息：为什么不能移动
                     Vector3 gravityDir = GetCurrentGravityDirection();
                     int targetIndex = GetTargetWaypointByGravity();
@@ -76,30 +87,83 @@ namespace FlashParty.Platform
                         float distanceToTarget = Vector3.Distance(platform.transform.position, targetPos);
                         bool canMove = CanMoveToNextWaypoint();
                         
-                        // Debug.Log($"Gravity platform waiting - GravityDir: {gravityDir}, TargetWaypoint: {targetIndex}, Distance: {distanceToTarget:F2}, HasObstacle: {hasObstacle}, CanMove: {canMove}");
+                        Debug.Log($"Gravity platform waiting - GravityDir: {gravityDir}, TargetWaypoint: {targetIndex}, Distance: {distanceToTarget:F2}, HasObstacle: {hasObstacle}, CanMove: {canMove}");
                         
                         // 详细分析为什么不能移动
-                        // if (distanceToTarget < 0.05f)
-                        // {
-                        //     Debug.Log("Reason: Too close to target (distance < 0.05)");
-                        // }
-                        // else if (hasObstacle)
-                        // {
-                        //     Debug.Log("Reason: Obstacle detected in path");
-                        // }
-                        // else
-                        // {
-                        //     Debug.Log("Reason: Unknown - should be able to move!");
-                        // }
-                    }
-                    else
+                        if (distanceToTarget < 0.05f)
+                        {
+                            Debug.Log("Reason: Too close to target (distance < 0.05)");
+                        }
+                        else if (hasObstacle)
+                        {
+                            Debug.Log("Reason: Obstacle detected in path");
+                        }
+                        else
+                        {
+                            Debug.Log("Reason: Unknown - should be able to move!");
+                        }
+                                    }
+                else
+                {
+                    Debug.Log($"Gravity platform waiting - GravityDir: {gravityDir}, No matching waypoint found");
+                }
+            }
+            else if (isMoving)
+            {
+                Debug.Log("Platform is currently moving, checking tweener status...");
+                if (moveTweener != null)
+                {
+                    Debug.Log($"Tweener status: IsActive={moveTweener.IsActive()}, IsPlaying={moveTweener.IsPlaying()}");
+                    
+                    // 检查是否需要处理旋转状态
+                    if (moveTweener.IsActive() && !moveTweener.IsPlaying())
                     {
-                        // Debug.Log($"Gravity platform waiting - GravityDir: {gravityDir}, No matching waypoint found");
+                        Debug.Log("Tweener is paused, checking if we need to resume or stop...");
+                        
+                        // 如果不在旋转中，检查是否应该恢复或停止移动
+                        if (!currentlyInRotation)
+                        {
+                            // 检查当前重力方向是否还匹配目标
+                            int currentTargetIndex = GetTargetWaypointByGravity();
+                            Debug.Log($"Current target waypoint while paused: {currentTargetIndex}");
+                            
+                            if (currentTargetIndex == -1)
+                            {
+                                // 重力方向不再匹配，停止移动
+                                Debug.Log("Gravity direction no longer matches, stopping movement");
+                                moveTweener.Kill();
+                                isMoving = false;
+                                wasPausedByRotation = false;
+                                EventManager.Instance.TriggerEvent(EventType.PlatformStopMove, platform);
+                            }
+                            else
+                            {
+                                // 重力方向仍然匹配，恢复移动
+                                Debug.Log("Gravity direction still matches, resuming movement");
+                                moveTweener.Play();
+                                wasPausedByRotation = false;
+                            }
+                        }
                     }
                 }
-                
-                // 等待一小段时间再次检查
+                else
+                {
+                    Debug.Log("Tweener is null but isMoving=true - this is a bug!");
+                    isMoving = false; // 修复状态不一致
+                }
+            }
+            
+            // 如果刚完成旋转，立即重新检查（不等待）
+            if (justFinishedRotation)
+            {
+                Debug.Log("Just finished rotation, checking immediately...");
+                yield return null; // 只等待一帧
+            }
+            else
+            {
+                // 正常情况下等待检查间隔
                 yield return new WaitForSeconds(platform.Config.gravityCheckInterval);
+            }
             }
         }
         
@@ -135,8 +199,11 @@ namespace FlashParty.Platform
                 return false; // 已经非常接近目标位置
             }
             
-            // 检查路径上是否有阻挡
-            if (HasObstacleInPath(currentPos, targetPos))
+            // 检查前方一小段距离是否有阻挡（而不是检查到目标点的整个路径）
+            Vector3 direction = (targetPos - currentPos).normalized;
+            Vector3 checkEndPos = currentPos + direction * platform.Config.obstacleCheckDistance;
+            
+            if (HasObstacleInPath(currentPos, checkEndPos))
             {
                 return false;
             }
@@ -179,25 +246,25 @@ namespace FlashParty.Platform
             float angleToWaypoint0 = dirToWaypoint0.magnitude < 0.001f ? 999f : Vector3.Angle(gravityDirection, dirToWaypoint0);
             float angleToWaypoint1 = dirToWaypoint1.magnitude < 0.001f ? 999f : Vector3.Angle(gravityDirection, dirToWaypoint1);
             
-            // Debug.Log($"Gravity: {gravityDirection}, DirTo0: {dirToWaypoint0} (angle: {angleToWaypoint0}°), DirTo1: {dirToWaypoint1} (angle: {angleToWaypoint1}°), Tolerance: {platform.Config.gravityTolerance}°");
+            Debug.Log($"Gravity: {gravityDirection}, DirTo0: {dirToWaypoint0} (angle: {angleToWaypoint0}°), DirTo1: {dirToWaypoint1} (angle: {angleToWaypoint1}°), Tolerance: {platform.Config.gravityTolerance}°");
             
             // 选择角度最小且在容差范围内的路径点
-            // Debug.Log($"Checking waypoint selection: angle0={angleToWaypoint0}° <= tolerance={platform.Config.gravityTolerance}°? {angleToWaypoint0 <= platform.Config.gravityTolerance}");
-            // Debug.Log($"Checking waypoint selection: angle1={angleToWaypoint1}° <= tolerance={platform.Config.gravityTolerance}°? {angleToWaypoint1 <= platform.Config.gravityTolerance}");
+            Debug.Log($"Checking waypoint selection: angle0={angleToWaypoint0}° <= tolerance={platform.Config.gravityTolerance}°? {angleToWaypoint0 <= platform.Config.gravityTolerance}");
+            Debug.Log($"Checking waypoint selection: angle1={angleToWaypoint1}° <= tolerance={platform.Config.gravityTolerance}°? {angleToWaypoint1 <= platform.Config.gravityTolerance}");
             
             if (angleToWaypoint0 <= platform.Config.gravityTolerance && 
                 angleToWaypoint0 <= angleToWaypoint1)
             {
-                // Debug.Log($"Target waypoint: 0 (angle: {angleToWaypoint0}°)");
+                Debug.Log($"Target waypoint: 0 (angle: {angleToWaypoint0}°)");
                 return 0;
             }
             else if (angleToWaypoint1 <= platform.Config.gravityTolerance)
             {
-                // Debug.Log($"Target waypoint: 1 (angle: {angleToWaypoint1}°)");
+                Debug.Log($"Target waypoint: 1 (angle: {angleToWaypoint1}°)");
                 return 1;
             }
             
-            // Debug.Log($"No waypoint matches gravity direction within tolerance. Config tolerance: {platform.Config.gravityTolerance}°");
+            Debug.Log($"No waypoint matches gravity direction within tolerance. Config tolerance: {platform.Config.gravityTolerance}°");
             return -1; // 没有匹配的路径点
         }
         
@@ -278,46 +345,61 @@ namespace FlashParty.Platform
             // 从平台中心开始检测
             Vector2 origin = bounds.center;
             
-            // 执行BoxCast，使用Unity的物理层级交互设置
-            RaycastHit2D hit = Physics2D.BoxCast(
-                origin, boxSize, 0f, direction, distance);
+            // 执行BoxCastAll，获取所有碰撞的对象，使用配置的层级掩码
+            RaycastHit2D[] hits = Physics2D.BoxCastAll(
+                origin, boxSize, 0f, direction, distance, platform.Config.obstacleLayerMask);
             
-            // Debug.Log($"BoxCast: origin={origin}, boxSize={boxSize}, direction={direction}, distance={distance}");
+            Debug.Log($"BoxCast: origin={origin}, boxSize={boxSize}, direction={direction}, distance={distance}");
+            Debug.Log($"Using layer mask: {platform.Config.obstacleLayerMask.value} (binary: {System.Convert.ToString(platform.Config.obstacleLayerMask.value, 2)})");
+            Debug.Log($"Found {hits.Length} potential collisions");
             
-            if (hit.collider != null)
+            // 检查所有碰撞体，找到第一个不应该忽略的
+            foreach (RaycastHit2D hit in hits)
             {
-                // Debug.Log($"Hit detected: {hit.collider.name}, distance={hit.distance}, point={hit.point}");
+                if (hit.collider == null) continue;
+                
+                Debug.Log($"Checking hit: {hit.collider.name}, distance={hit.distance}, point={hit.point}");
                 
                 // 忽略平台自身和相关组件
                 if (hit.collider.gameObject == platform.gameObject)
                 {
-                    // Debug.Log("Ignoring platform itself");
-                    return false;
+                    Debug.Log("Ignoring platform itself");
+                    continue;
                 }
                 
                 // 忽略平台的子组件（如PlayerDetector）
                 if (hit.collider.transform.IsChildOf(platform.transform))
                 {
-                    // Debug.Log($"Ignoring platform child component: {hit.collider.name}");
-                    return false;
+                    Debug.Log($"Ignoring platform child component: {hit.collider.name}");
+                    continue;
+                }
+                
+                // 忽略所有PlayerDetector组件（不管属于哪个平台）
+                if (hit.collider.GetComponent<PlayerDetector>() != null)
+                {
+                    Debug.Log($"Ignoring PlayerDetector from other platform: {hit.collider.name}");
+                    continue;
                 }
                 
                 // 检查是否是路径点
+                bool isWaypoint = false;
                 foreach (Transform waypoint in platform.Waypoints)
                 {
                     if (hit.collider.gameObject == waypoint.gameObject)
                     {
-                        // Debug.Log($"Ignoring waypoint: {waypoint.name}");
-                        return false;
+                        Debug.Log($"Ignoring waypoint: {waypoint.name}");
+                        isWaypoint = true;
+                        break;
                     }
                 }
+                if (isWaypoint) continue;
                 
-                // 所有其他碰撞体（包括Player）都会阻挡平台移动
-                // Debug.Log($"Obstacle detected: {hit.collider.name} at distance {hit.distance}");
+                // 找到了真正的障碍物
+                Debug.Log($"Obstacle detected: {hit.collider.name} at distance {hit.distance}");
                 return true;
             }
             
-            // Debug.Log("No obstacle detected");
+            Debug.Log("No obstacle detected after checking all hits");
             return false;
             
             return false;
@@ -344,7 +426,7 @@ namespace FlashParty.Platform
             isMoving = true;
             // 重力平台不需要跟踪currentWaypointIndex，因为它总是根据重力方向选择目标
             
-            // Debug.Log($"Gravity platform moving to waypoint {targetIndex}");
+            Debug.Log($"Gravity platform moving to waypoint {targetIndex}");
             EventManager.Instance.TriggerEvent(EventType.PlatformStartMove, platform);
             
             // 使用DOLocalMove移动本地坐标
@@ -353,12 +435,13 @@ namespace FlashParty.Platform
                 .OnComplete(() => {
                     isMoving = false;
                     EventManager.Instance.TriggerEvent(EventType.PlatformStopMove, platform);
-                    // Debug.Log($"Gravity platform reached waypoint {targetIndex}");
+                    Debug.Log($"Gravity platform reached waypoint {targetIndex}");
                 });
 
-            // 添加Update回调来检查旋转状态
+            // 添加Update回调来检查旋转状态和碰撞检测
             moveTweener.OnUpdate(() => {
                 CheckRotationStatus();
+                CheckCollisionDuringMovement();
             });
         }
 
@@ -367,6 +450,7 @@ namespace FlashParty.Platform
         /// </summary>
         private void CheckRotationStatus()
         {
+            // 只处理暂停逻辑，恢复逻辑在重力检测循环中处理
             if (Const.InRotation && !wasPausedByRotation)
             {
                 // 场景开始旋转，暂停移动
@@ -374,18 +458,38 @@ namespace FlashParty.Platform
                 if (moveTweener != null && moveTweener.IsActive() && moveTweener.IsPlaying())
                 {
                     moveTweener.Pause();
-                    // Debug.Log("Platform movement paused due to scene rotation");
+                    Debug.Log("Platform movement paused due to scene rotation (OnUpdate)");
                 }
             }
-            else if (!Const.InRotation && wasPausedByRotation)
+        }
+        
+        /// <summary>
+        /// 在移动过程中检查碰撞
+        /// </summary>
+        private void CheckCollisionDuringMovement()
+        {
+            if (!isMoving || moveTweener == null || !moveTweener.IsActive() || !moveTweener.IsPlaying())
+                return;
+                
+            // 获取当前目标路径点
+            int targetIndex = GetTargetWaypointByGravity();
+            if (targetIndex == -1) return;
+            
+            Vector3[] waypoints = platform.WaypointPositions;
+            Vector3 targetPos = waypoints[targetIndex];
+            
+            // 检查前方一小段距离是否有障碍物（而不是检查到目标点的整个路径）
+            Vector3 currentPos = platform.transform.position;
+            Vector3 direction = (targetPos - currentPos).normalized;
+            Vector3 checkEndPos = currentPos + direction * platform.Config.obstacleCheckDistance;
+            
+            if (HasObstacleInPath(currentPos, checkEndPos))
             {
-                // 场景旋转结束，恢复移动
+                Debug.Log("Obstacle detected during movement, stopping platform");
+                moveTweener.Kill();
+                isMoving = false;
                 wasPausedByRotation = false;
-                if (moveTweener != null && moveTweener.IsActive() && !moveTweener.IsPlaying())
-                {
-                    moveTweener.Play();
-                    // Debug.Log("Platform movement resumed after scene rotation");
-                }
+                EventManager.Instance.TriggerEvent(EventType.PlatformStopMove, platform);
             }
         }
         
@@ -424,10 +528,13 @@ namespace FlashParty.Platform
         
         public void StopMovement()
         {
+            Debug.Log("GravityMovementStrategy.StopMovement() called");
+            
             if (gravityCheckCoroutine != null)
             {
                 platform.StopCoroutine(gravityCheckCoroutine);
                 gravityCheckCoroutine = null;
+                Debug.Log("Gravity check coroutine stopped");
             }
             
             if (moveTweener != null && moveTweener.IsActive())
@@ -436,6 +543,7 @@ namespace FlashParty.Platform
                 isMoving = false;
                 wasPausedByRotation = false;
                 EventManager.Instance.TriggerEvent(EventType.PlatformStopMove, platform);
+                Debug.Log("Move tweener killed");
             }
         }
         
