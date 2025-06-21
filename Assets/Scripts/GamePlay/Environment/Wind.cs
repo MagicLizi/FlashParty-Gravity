@@ -9,6 +9,11 @@ public class Wind : MonoBehaviour
     [Tooltip("风力大小")]
     public float windSpeed = 5f;
 
+    [Tooltip("风力最大值")]
+    public float windSpeedMax = 10f;
+
+    private float curWindSpeed = 0;
+
     private BoxCollider2D windZone;
 
     private bool isOpen = false;
@@ -44,7 +49,10 @@ public class Wind : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        AddPlayerWind(other);
+        if (isOpen)
+        {
+            AddPlayerWind(other);
+        }
     }
 
     void OnTriggerExit2D(Collider2D other)
@@ -60,7 +68,12 @@ public class Wind : MonoBehaviour
         Player player = other.GetComponent<Player>();
         if (player != null)
         {
-            player.SetWindSpeed(windDirection.normalized * windSpeed * direct);
+            curWindSpeed = curWindSpeed + windSpeed;
+            if (curWindSpeed > windSpeedMax)
+            {
+                curWindSpeed = windSpeedMax;
+            }
+            player.SetWindSpeed(windDirection.normalized * curWindSpeed * direct);
         }
     }
 
