@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2045674510109578139}
   - component: {fileID: 989675842191194961}
   - component: {fileID: 6441327043467692973}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: WindSwitch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
