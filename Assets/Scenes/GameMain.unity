@@ -7926,7 +7926,7 @@ GameObject:
   - component: {fileID: 1104962857}
   - component: {fileID: 1104962858}
   - component: {fileID: 1104962859}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: EndTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
