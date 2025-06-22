@@ -81,6 +81,8 @@ public class Player : MonoBehaviour
 
     public LevelRotator curLevelRotator = null;
 
+    public GameObject RebornSivi;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -396,6 +398,8 @@ public class Player : MonoBehaviour
             float rotateAngle = 0 - curLevelRotator.transform.eulerAngles.z;
             curLevelRotator.ResetRotation(transform.position, () =>
             {
+                Shine(false);
+                RebornSivi.SetActive(true);
                 DOVirtual.DelayedCall(0.6f, () =>
                 {
                     // 使用DOTween移动角色到指定位置
@@ -404,7 +408,8 @@ public class Player : MonoBehaviour
                         isDead = false;
                         LoseGravity(false);
                         AnimateSetBool("LossG", false);
-                        Shine(false);
+                        // Shine(false);
+                        RebornSivi.SetActive(false);
                         InputManager.Instance.Enable(true);
                     });
                 });

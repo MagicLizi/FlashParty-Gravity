@@ -15,6 +15,7 @@ public class LevelRotator : MonoBehaviour
 
     [Tooltip("旋转持续时间")]
     public float rotationDuration = 1.0f;
+    
 
     [Tooltip("顺时针旋转")]
     public bool clockwise = true;
@@ -82,7 +83,7 @@ public class LevelRotator : MonoBehaviour
                     hasBackGV = true;
                     curPlayer.LoseGravity(false);
                     curPlayer.AnimateSetBool("LossG", false);
-                    curPlayer.Shine(false);
+                    // curPlayer.Shine(false);
                 }
             })
             .OnComplete(() =>
@@ -111,9 +112,13 @@ public class LevelRotator : MonoBehaviour
         float angleToReset = -levelRoot.transform.eulerAngles.z;
         if(angleToReset == 0)
         {
-            onComplete?.Invoke();
+            DOVirtual.DelayedCall(rotationDuration, () =>
+            {
+                onComplete?.Invoke();
+            });
             return;
         }
+        Debug.Log($"ResetRotation {angleToReset}");
 
         Const.InRotation = true;
 
@@ -152,10 +157,10 @@ public class LevelRotator : MonoBehaviour
             curPlayer.AtkShow(gameObject);
             hasBackGV = false;
             curPlayer.LoseGravity(true);
-            DOVirtual.DelayedCall(atk.AtkTime - 0.35f, () =>
-            {
-                curPlayer.Shine(true);
-            });
+            // DOVirtual.DelayedCall(atk.AtkTime - 0.35f, () =>
+            // {
+            //     curPlayer.Shine(true);
+            // });
             DOVirtual.DelayedCall(atk.AtkTime, () =>
             {
                 curPlayer.AnimateSetBool("LossG", true);
