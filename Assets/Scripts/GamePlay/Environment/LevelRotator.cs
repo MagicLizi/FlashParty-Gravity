@@ -149,7 +149,7 @@ public class LevelRotator : MonoBehaviour
         if (atk != null && !Const.InRotation)
         {
             curPlayer = atk.CurPlayer;
-            curPlayer.AtkShow(atk.gameObject);
+            curPlayer.AtkShow(gameObject);
             hasBackGV = false;
             curPlayer.LoseGravity(true);
             DOVirtual.DelayedCall(atk.AtkTime - 0.35f, () =>

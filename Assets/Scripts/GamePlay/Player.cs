@@ -159,13 +159,13 @@ public class Player : MonoBehaviour
             velocity = new Vector2(0, rb.velocity.y);
         }
         rb.velocity = velocity + windSpeed;
-        
+
         // 限制Y轴下落速度，防止从高处落下时速度过快
         if (rb.velocity.y < maxFallSpeed)
         {
             rb.velocity = new Vector2(rb.velocity.x, maxFallSpeed);
         }
-        
+
         // Debug.Log($"rb.velocity y1: {rb.velocity.y}");
     }
 
@@ -479,16 +479,40 @@ public class Player : MonoBehaviour
     public GameObject AtkAudio;
     public void AtkShow(GameObject atkGo)
     {
-        if (AtkFx != null)
-        {
-            GameObject fx = Instantiate(AtkFx, atkGo.transform.position, Quaternion.identity);
-            Destroy(fx, 2f);
-        }
+        // if (AtkFx != null)
+        // {
+        //     GameObject fx = Instantiate(AtkFx, atkGo.transform.position, Quaternion.identity);
+        //     Destroy(fx, 2f);
+        // }
 
         if (AtkAudio != null)
         {
-             GameObject atkAudio = Instantiate(AtkAudio, atkGo.transform.position, Quaternion.identity);
-             Destroy(atkAudio, 2f);
+            GameObject atkAudio = Instantiate(AtkAudio, atkGo.transform.position, Quaternion.identity);
+            Destroy(atkAudio, 2f);
+        }
+
+        // 为被攻击对象添加闪烁动画
+        SpriteRenderer targetSpriteRenderer = atkGo.GetComponent<SpriteRenderer>();
+        if (targetSpriteRenderer != null)
+        {
+            // 创建闪烁动画序列
+            DG.Tweening.Sequence blinkSequence = DOTween.Sequence();
+
+            // 闪烁3次，每次透明度在0.3和1之间切换
+            for (int i = 0; i < 3; i++)
+            {
+                blinkSequence.Append(targetSpriteRenderer.DOFade(0.3f, 0.1f));
+                blinkSequence.Append(targetSpriteRenderer.DOFade(1f, 0.1f));
+            }
+
+            // 确保动画完成后透明度恢复正常
+            blinkSequence.OnComplete(() =>
+            {
+                targetSpriteRenderer.color = new Color(targetSpriteRenderer.color.r,
+                                                       targetSpriteRenderer.color.g,
+                                                       targetSpriteRenderer.color.b,
+                                                       1f);
+            });
         }
     }
 }

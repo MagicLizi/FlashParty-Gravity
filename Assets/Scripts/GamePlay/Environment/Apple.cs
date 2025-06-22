@@ -14,7 +14,7 @@ public class Apple : MonoBehaviour
         {
             DOVirtual.DelayedCall(atk.AtkTime, () =>
             {
-                atk.CurPlayer.AtkShow(atk.gameObject);
+                atk.CurPlayer.AtkShow(gameObject);
                 Transform successChild = transform.Find("Success");
                 if (successChild != null)
                 {
