@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,9 +8,12 @@ public class GameLaunch : MonoBehaviour
 {
     void Awake()
     {
-        Time.fixedDeltaTime  = 1/60f;
+        Time.fixedDeltaTime = 1 / 60f;
         Application.targetFrameRate = 60;
-        InputManager.Instance.Startup();
+        DOVirtual.DelayedCall(0.5f, () =>
+        {
+            InputManager.Instance.Startup();
+        });
     }
 
     void Destroy()
