@@ -112,7 +112,7 @@ public class LevelRotator : MonoBehaviour
         float angleToReset = -levelRoot.transform.eulerAngles.z;
         if(angleToReset == 0)
         {
-            DOVirtual.DelayedCall(rotationDuration, () =>
+            DOVirtual.DelayedCall(rotationDuration/1.5f, () =>
             {
                 onComplete?.Invoke();
             });
@@ -129,7 +129,7 @@ public class LevelRotator : MonoBehaviour
         levelRoot.SetParent(pivot.transform, true);
 
         // 使用DOTween旋转轴心
-        pivot.transform.DORotate(new Vector3(0, 0, angleToReset), rotationDuration, RotateMode.LocalAxisAdd)
+        pivot.transform.DORotate(new Vector3(0, 0, angleToReset), rotationDuration/1.5f, RotateMode.LocalAxisAdd)
             .SetEase(Ease.InOutQuad)
             .OnComplete(() =>
             {
