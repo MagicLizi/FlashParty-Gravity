@@ -14537,17 +14537,9 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 3911124674337581693, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: RebornSivi
-      value: 
-      objectReference: {fileID: 2097780570}
-    - target: {fileID: 3911124674337581693, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
       propertyPath: curLevelRotator
       value: 
       objectReference: {fileID: 1626895575}
-    - target: {fileID: 5918363636611341757, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7860327963028453502, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
       propertyPath: m_LocalPosition.x
       value: -18.3
@@ -14588,14 +14580,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 9001577162117734486, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 9001577162117734486, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 3.1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -14604,11 +14588,6 @@ PrefabInstance:
 --- !u!4 &2097780569 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7860327963028453502, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-  m_PrefabInstance: {fileID: 2097780568}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &2097780570 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5918363636611341757, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
   m_PrefabInstance: {fileID: 2097780568}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &2098901644
