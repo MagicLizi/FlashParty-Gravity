@@ -201,6 +201,11 @@ public class Player : MonoBehaviour
         {
             moveDirX = -1;
         }
+        if (Mathf.Abs(moveDir.x) < 0.3f)
+        {
+            moveDirX = 0;
+            Debug.Log("moveDirX 0");
+        }
         if (inAir)
         {
             CurXMoveSpeed = moveDirX * AirMoveSpeed;
