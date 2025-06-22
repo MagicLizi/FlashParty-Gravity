@@ -34,6 +34,7 @@ public class Switch : MonoBehaviour
         Atk atk = other.GetComponent<Atk>();
         if (atk != null)
         {
+            atk.CurPlayer.AtkShow(gameObject);
             startsOn = !startsOn;
             UpdateVisuals(startsOn);
         }
