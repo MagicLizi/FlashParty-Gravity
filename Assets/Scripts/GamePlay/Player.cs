@@ -472,4 +472,23 @@ public class Player : MonoBehaviour
         }
         animator.SetTrigger(triggerName);
     }
+
+    public GameObject AtkFx;
+
+
+    public GameObject AtkAudio;
+    public void AtkShow(GameObject atkGo)
+    {
+        if (AtkFx != null)
+        {
+            GameObject fx = Instantiate(AtkFx, atkGo.transform.position, Quaternion.identity);
+            Destroy(fx, 2f);
+        }
+
+        if (AtkAudio != null)
+        {
+             GameObject atkAudio = Instantiate(AtkAudio, atkGo.transform.position, Quaternion.identity);
+             Destroy(atkAudio, 2f);
+        }
+    }
 }

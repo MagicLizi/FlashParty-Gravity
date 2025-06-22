@@ -13,6 +13,7 @@ public class Box : MonoBehaviour
         {
             DOVirtual.DelayedCall(atk.AtkTime, () =>
             {
+                atk.CurPlayer.AtkShow(atk.gameObject);
                 BoxDead();
                 foreach (var box in Boxes)
                 {
