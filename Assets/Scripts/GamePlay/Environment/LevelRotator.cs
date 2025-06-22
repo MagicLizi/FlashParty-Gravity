@@ -52,7 +52,7 @@ public class LevelRotator : MonoBehaviour
         }
 
         Const.InRotation = true;
-
+        
 
         // 1. 创建一个临时的GameObject作为旋转的轴心，位置在触发者处
         GameObject pivot = new GameObject("LevelRotationPivot");
@@ -76,7 +76,7 @@ public class LevelRotator : MonoBehaviour
                 Debug.Log(pivot.transform.eulerAngles.z);
                 float curAngle = clockwise ? 360 - pivot.transform.eulerAngles.z : pivot.transform.eulerAngles.z;
                 float progress = Mathf.Abs(curAngle / angleToRotate);
-                Debug.Log($"Rotation progress: {progress}");
+                Debug.Log($"Rotation progress: {progress} {progress >= BackGVProgress} {hasBackGV}");
                 if (progress >= BackGVProgress && !hasBackGV)
                 {
                     hasBackGV = true;
@@ -146,7 +146,7 @@ public class LevelRotator : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         Atk atk = other.GetComponent<Atk>();
-        if (atk != null)
+        if (atk != null && !Const.InRotation)
         {
             curPlayer = atk.CurPlayer;
             hasBackGV = false;

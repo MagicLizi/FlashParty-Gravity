@@ -6,8 +6,10 @@ using UnityEngine.InputSystem;
 
 public class GameLaunch : MonoBehaviour
 {
+    public GameObject StartGo;
     void Awake()
     {
+        Const.LastReborn = StartGo;
         Time.fixedDeltaTime = 1 / 60f;
         Application.targetFrameRate = 60;
         DOVirtual.DelayedCall(0.5f, () =>

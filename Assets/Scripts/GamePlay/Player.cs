@@ -89,6 +89,7 @@ public class Player : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         EventManager.Instance.AddListener(EventType.Move, OnMove);
         EventManager.Instance.AddListener(EventType.Jump, OnJump);
+        EventManager.Instance.AddListener(EventType.Reset, OnReset);
         EventManager.Instance.AddListener(EventType.Action, OnAction);
         EventManager.Instance.AddListener(EventType.Special, OnSpecial);
         // 添加平台事件监听
@@ -228,6 +229,14 @@ public class Player : MonoBehaviour
         }
     }
 
+    void OnReset(object data)
+    {
+        if (Const.LastReborn != null)
+        {
+            Dead(Const.LastReborn);
+        }
+    }
+
     void CheckInAir()
     {
         inAir = !IsGrounded();
@@ -338,6 +347,7 @@ public class Player : MonoBehaviour
             EventManager.Instance.RemoveListener(EventType.Jump, OnJump);
             EventManager.Instance.RemoveListener(EventType.Action, OnAction);
             EventManager.Instance.RemoveListener(EventType.Special, OnSpecial);
+            EventManager.Instance.RemoveListener(EventType.Reset, OnReset);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOn, OnPlatformEnter);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOff, OnPlatformExit);
         }
@@ -365,6 +375,7 @@ public class Player : MonoBehaviour
     public void Dead(GameObject rebornPt)
     {
         if (isDead) return;
+        Const.LastReborn = rebornPt;
         AnimateSetBool("LossG", true);
         isDead = true;
         InputManager.Instance.Enable(false);

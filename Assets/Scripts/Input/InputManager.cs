@@ -34,6 +34,7 @@ public class InputManager : MonoSingleton<InputManager>
         AddInputCallback("Jump", OnJumpStart, OnJumping, OnJumpEnd);
         AddInputCallback("Action", OnActionStart, OnAction, OnActionEnd);
         AddInputCallback("Special", OnSpecialStart, OnSpecial, OnSpecialEnd);
+        AddInputCallback("Reset", OnReset);
         Enable(true);
     }
 
@@ -191,11 +192,16 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnSpecial(InputAction.CallbackContext value)
     {
-        
+
     }
 
     void OnSpecialEnd(InputAction.CallbackContext value)
     {
 
+    }
+
+    void OnReset(InputAction.CallbackContext value)
+    {
+        EventManager.Instance.TriggerEvent(EventType.Reset);
     }
 }

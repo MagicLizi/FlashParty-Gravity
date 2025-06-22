@@ -10,6 +10,8 @@ public enum EventType
     Jump,
     Action,
     Special,
+
+    Reset,
     // 平台相关事件
     PlatformTrigger,        // 平台触发
     PlatformStartMove,      // 平台开始移动
