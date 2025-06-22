@@ -6939,6 +6939,33 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 3}
   m_EdgeRadius: 0
+--- !u!50 &1105010563
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105010559}
+  m_BodyType: 2
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &1121309517 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9102571048026125461, guid: f6b676d60b5487044bfbf0e27cf9a7b9, type: 3}
@@ -11759,6 +11786,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 3911124674337581693, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
+      propertyPath: curLevelRotator
+      value: 
+      objectReference: {fileID: 1626895575}
     - target: {fileID: 7860327963028453502, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.55
@@ -19377,6 +19408,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8211630724641669309, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1105010562}
+    - targetCorrespondingSourceObject: {fileID: 8211630724641669309, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1105010563}
   m_SourcePrefab: {fileID: 100100000, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
 --- !u!212 &6496781180944591779
 SpriteRenderer:
