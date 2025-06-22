@@ -5,6 +5,7 @@ using UnityEngine;
 public class Apple : MonoBehaviour
 {
     
+    public GameObject Success;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -43,6 +44,7 @@ public class Apple : MonoBehaviour
                     // AudioManager.Instance?.PlaySound("victory");
                     }
             });
+            Success.SetActive(true);
         }
     }
 }
