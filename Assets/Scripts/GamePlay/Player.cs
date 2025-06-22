@@ -386,6 +386,10 @@ public class Player : MonoBehaviour
 
     public void Dead(GameObject rebornPt)
     {
+        if(Const.InRotation)
+        {
+            return;
+        }
         if (isDead) return;
         Const.LastReborn = rebornPt;
         AnimateSetBool("LossG", true);
