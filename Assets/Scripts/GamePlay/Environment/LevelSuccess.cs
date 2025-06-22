@@ -20,8 +20,9 @@ public class LevelSuccess : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        InputManager.Instance.Enable(false);
         Player player = other.GetComponent<Player>();
+        player.SetSuccess();
+
         if (player != null)
         {
             foreach (var item in List)

@@ -104,6 +104,11 @@ public class Player : MonoBehaviour
         CheckInAtk();
     }
 
+    public void SetSuccess()
+    {
+        InputManager.Instance.Enable(false);
+    }
+
     private void CheckInAtk()
     {
         AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
