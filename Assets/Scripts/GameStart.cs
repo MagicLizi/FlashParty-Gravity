@@ -18,7 +18,6 @@ public class GameStart : MonoBehaviour
     [Header("Settings")]
     public float blinkDuration = 2f; // 闪烁持续时间
     public float blinkInterval = 0.2f; // 闪烁间隔
-    public string promptMessage = "Press Any Key to Start"; // 提示文本内容
     
     private System.IDisposable anyKeySubscription;
     private bool isTransitioning = false; // 防止重复触发
@@ -35,40 +34,34 @@ public class GameStart : MonoBehaviour
     
     void InitializeUI()
     {
-        // 如果没有设置提示文本，尝试在场景中查找
+        // 检查是否配置了提示文本组件
         if (promptText == null)
         {
-            promptText = FindObjectOfType<Text>();
-        }
-        
-        // 设置提示文本内容
-        if (promptText != null)
-        {
-            promptText.text = promptMessage;
+            Debug.LogWarning("未配置提示文本组件，请在Inspector中设置promptText");
         }
         else
         {
-            Debug.LogWarning("未找到UI文本组件，请在Inspector中设置promptText或确保场景中有Text组件");
+            Debug.Log($"提示文本组件已配置: {promptText.name}");
         }
         
-        // 如果没有设置音效播放器，尝试获取或创建
+        // 检查是否配置了音效播放器
         if (audioSource == null)
         {
-            audioSource = GetComponent<AudioSource>();
-            if (audioSource == null)
-            {
-                audioSource = gameObject.AddComponent<AudioSource>();
-            }
+            Debug.LogWarning("未配置音效播放器，请在Inspector中设置audioSource");
+        }
+        else
+        {
+            Debug.Log($"音效播放器已配置: {audioSource.name}");
         }
         
-        // 如果没有设置音效，尝试从Resources加载
+        // 检查是否配置了音效文件
         if (startGameClip == null)
         {
-            startGameClip = Resources.Load<AudioClip>("22_Slash_04");
-            if (startGameClip == null)
-            {
-                Debug.LogWarning("未找到音效文件，请确保22_Slash_04.wav存在于Resources文件夹中");
-            }
+            Debug.LogWarning("未配置开始游戏音效，请在Inspector中设置startGameClip");
+        }
+        else
+        {
+            Debug.Log($"开始游戏音效已配置: {startGameClip.name}");
         }
     }
 
