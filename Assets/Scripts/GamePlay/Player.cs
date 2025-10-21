@@ -13,11 +13,11 @@ public enum FaceDir
 
 public class Player : MonoBehaviour
 {
-    public GameObject BallRes;
+    // public GameObject BallRes;
 
-    public GameObject BallCreater;
+    // public GameObject BallCreater;
 
-    public Vector2 BallSpeed = Vector2.zero;
+    // public Vector2 BallSpeed = Vector2.zero;
 
     public Animator animator;
 
@@ -93,7 +93,7 @@ public class Player : MonoBehaviour
         EventManager.Instance.AddListener(EventType.Jump, OnJump);
         EventManager.Instance.AddListener(EventType.Reset, OnReset);
         EventManager.Instance.AddListener(EventType.Action, OnAction);
-        EventManager.Instance.AddListener(EventType.Special, OnSpecial);
+        // EventManager.Instance.AddListener(EventType.Special, OnSpecial);
         // 添加平台事件监听
         EventManager.Instance.AddListener(EventType.PlatformPlayerOn, OnPlatformEnter);
         EventManager.Instance.AddListener(EventType.PlatformPlayerOff, OnPlatformExit);
@@ -358,7 +358,7 @@ public class Player : MonoBehaviour
             EventManager.Instance.RemoveListener(EventType.Move, OnMove);
             EventManager.Instance.RemoveListener(EventType.Jump, OnJump);
             EventManager.Instance.RemoveListener(EventType.Action, OnAction);
-            EventManager.Instance.RemoveListener(EventType.Special, OnSpecial);
+            // EventManager.Instance.RemoveListener(EventType.Special, OnSpecial);
             EventManager.Instance.RemoveListener(EventType.Reset, OnReset);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOn, OnPlatformEnter);
             EventManager.Instance.RemoveListener(EventType.PlatformPlayerOff, OnPlatformExit);
@@ -458,14 +458,14 @@ public class Player : MonoBehaviour
         if (!inAir)
         {
             AnimateSetTrigger("Skill");
-            DOVirtual.DelayedCall(0.25f, () =>
-            {
-                GameObject ball = Instantiate(BallRes, BallCreater.transform.position, Quaternion.identity);
-                Atk ballAtk = ball.GetComponent<Atk>();
-                ballAtk.CurPlayer = this;
-                ballAtk.AtkTime = 0;
-                ball.GetComponent<Rigidbody2D>().velocity = new Vector2(BallSpeed.x * (int)CurFaceDir, BallSpeed.y);
-            });
+            // DOVirtual.DelayedCall(0.25f, () =>
+            // {
+            //     GameObject ball = Instantiate(BallRes, BallCreater.transform.position, Quaternion.identity);
+            //     Atk ballAtk = ball.GetComponent<Atk>();
+            //     ballAtk.CurPlayer = this;
+            //     ballAtk.AtkTime = 0;
+            //     ball.GetComponent<Rigidbody2D>().velocity = new Vector2(BallSpeed.x * (int)CurFaceDir, BallSpeed.y);
+            // });
         }
     }
 

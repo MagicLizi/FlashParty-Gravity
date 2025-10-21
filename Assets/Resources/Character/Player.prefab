@@ -1,36 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1892626570534207038
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3859718242656948227}
-  m_Layer: 0
-  m_Name: BallCreater
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3859718242656948227
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1892626570534207038}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.39, y: 1.07, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7860327963028453502}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2312795928412890561
 GameObject:
   m_ObjectHideFlags: 0
@@ -65,7 +34,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3859718242656948227}
   - {fileID: 1467117116247811080}
   - {fileID: 6519352062584625423}
   - {fileID: 9001577162117734486}
@@ -112,7 +80,7 @@ SpriteRenderer:
   m_SortingLayerID: 333386829
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1573350068, guid: ca2b768351c654f47afb4831df9ddefa, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a06ff1a5be9d030409c5388ffa6ce972, type: 3}
   m_Color: {r: 0.9245283, g: 0.9245283, b: 0.9245283, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -180,7 +148,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 6.125, y: 4}
+    oldSize: {x: 6, y: 4}
     newSize: {x: 6.125, y: 4}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -228,8 +196,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a646412f1510824ca598297d7e51410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BallRes: {fileID: 3001959681534229446, guid: 52c865efa19f0e24eaedf30d21e272b4, type: 3}
-  BallCreater: {fileID: 1892626570534207038}
+  BallRes: {fileID: 0}
+  BallCreater: {fileID: 0}
   BallSpeed: {x: 20, y: 15}
   animator: {fileID: 0}
   boxCollider: {fileID: 0}
@@ -560,7 +528,7 @@ GameObject:
   - component: {fileID: 3179621735629799188}
   - component: {fileID: 5744515824476113195}
   m_Layer: 9
-  m_Name: SnowWhite@AttackAir
+  m_Name: Sandboy@AttackAir
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -652,7 +620,7 @@ GameObject:
   - component: {fileID: 3162242235829863500}
   - component: {fileID: 7464481336333669508}
   m_Layer: 9
-  m_Name: SnowWhite@Attack
+  m_Name: Sandboy@Attack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
