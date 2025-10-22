@@ -45,7 +45,7 @@ public class Player : MonoBehaviour
 
     public FaceDir CurFaceDir = FaceDir.Right;
 
-    public string Name = "SnowWhite";
+    public string Name = "Sandboy";
 
     public string CurAnimName = "Idle";
 
@@ -63,7 +63,7 @@ public class Player : MonoBehaviour
 
     public bool isInAtk = false;
 
-    public bool isInSkill = false;
+    //public bool isInSkill = false;
 
     public bool isInAirAtk = false;
 
@@ -114,9 +114,9 @@ public class Player : MonoBehaviour
     private void CheckInAtk()
     {
         AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
-        isInAtk = currentState.IsName("SnowWhite@Attack");
-        isInAirAtk = currentState.IsName("SnowWhite@AttackAir");
-        isInSkill = currentState.IsName("SnowWhite@Skill");
+        isInAtk = currentState.IsName("Sandboy@Attack");
+        isInAirAtk = currentState.IsName("Sandboy@AttackAir");
+        //isInSkill = currentState.IsName("Sandboy@Skill");
         AtkCollider.gameObject.SetActive(isInAtk);
         AirAtkCollider.gameObject.SetActive(isInAirAtk);
     }
@@ -156,7 +156,8 @@ public class Player : MonoBehaviour
         {
             velocity = new Vector2(0, 0);
         }
-        if (isInAtk || isInSkill)
+        //if (isInAtk || isInSkill)
+        if (isInAtk)
         {
             velocity = new Vector2(0, rb.velocity.y);
         }
