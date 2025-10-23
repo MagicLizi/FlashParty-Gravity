@@ -199,8 +199,8 @@ MonoBehaviour:
   animator: {fileID: 0}
   boxCollider: {fileID: 0}
   CurXMoveSpeed: 0
-  MoveSpeed: 12
-  AirMoveSpeed: 9
+  MoveSpeed: 11
+  AirMoveSpeed: 8
   AirDrag: 0.7
   JumpSpeed: 16
   BaseMoveSpeed: 15
