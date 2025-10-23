@@ -209,7 +209,7 @@ public class Player : MonoBehaviour
         if (Mathf.Abs(moveDir.x) < 0.3f)
         {
             moveDirX = 0;
-            Debug.Log("moveDirX 0");
+            //Debug.Log("moveDirX 0");
         }
         if (inAir)
         {
