@@ -15158,54 +15158,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 3162242235829863500, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_Size.x
-      value: 1.842001
-      objectReference: {fileID: 0}
-    - target: {fileID: 3162242235829863500, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_Size.y
-      value: 1.1500378
-      objectReference: {fileID: 0}
-    - target: {fileID: 3162242235829863500, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_Offset.x
-      value: 0.8516283
-      objectReference: {fileID: 0}
-    - target: {fileID: 3162242235829863500, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_Offset.y
-      value: 0.7387667
-      objectReference: {fileID: 0}
-    - target: {fileID: 3179621735629799188, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_Size.x
-      value: 2.2290573
-      objectReference: {fileID: 0}
-    - target: {fileID: 3179621735629799188, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_Size.y
-      value: 1.9886684
-      objectReference: {fileID: 0}
-    - target: {fileID: 3179621735629799188, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_Offset.x
-      value: 1.2902927
-      objectReference: {fileID: 0}
-    - target: {fileID: 3179621735629799188, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_Offset.y
-      value: 1.7902746
-      objectReference: {fileID: 0}
-    - target: {fileID: 3859718242656948227, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3911124674337581693, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: Name
-      value: Sandboy
-      objectReference: {fileID: 0}
     - target: {fileID: 3911124674337581693, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
       propertyPath: curLevelRotator
       value: 
       objectReference: {fileID: 1626895575}
-    - target: {fileID: 7514191595442725621, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7860327963028453502, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
       propertyPath: m_LocalPosition.x
       value: -23.09

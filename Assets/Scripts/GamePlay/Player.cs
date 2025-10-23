@@ -40,6 +40,12 @@ public class Player : MonoBehaviour
     public bool inAir = false;
 
     public bool inAirTouchWall = false;
+    
+    private int currentAirJumpCount = 0; // 当前已使用的空中跳跃次数
+    
+    public int maxAirJumpCount = 1; // 最大空中跳跃次数
+    
+    public float AirJumpSpeed = 4; // 空中跳跃速度（可以和地面跳跃速度不同）
 
     public Rigidbody2D rb;
 
@@ -72,8 +78,6 @@ public class Player : MonoBehaviour
     public GameObject AirAtkCollider;
 
     SpriteRenderer spriteRenderer;
-
-    public int CurJumpCnt = 1;
 
     public Wind isInWind = null;
 
@@ -231,14 +235,26 @@ public class Player : MonoBehaviour
     }
 
 
-    private bool startJump = false;
     void OnJump(object data)
     {
-        if (CurJumpCnt > 0 && !inAir)
+        // 攻击中不能跳跃
+        if (isInAtk || isInAirAtk)
         {
+            return;
+        }
+        
+        if (!inAir)
+        {
+            // 地面跳跃
             rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
             AnimateSetTrigger("Jump");
-            startJump = true;
+        }
+        else if (currentAirJumpCount < maxAirJumpCount)
+        {
+            // 空中跳跃（二段跳）
+            rb.velocity = new Vector2(rb.velocity.x, AirJumpSpeed);
+            AnimateSetTrigger("JumpAir");
+            currentAirJumpCount++;
         }
     }
 
@@ -254,19 +270,15 @@ public class Player : MonoBehaviour
     {
         inAir = !IsGrounded();
         AnimateSetBool("inAir", inAir);
-        // Debug.Log($"inAir: {inAir} {CurAnimName}");
+        
         if (inAir)
         {
             inAirTouchWall = IsTouchWall();
-            if (startJump)
-            {
-                startJump = false;
-                CurJumpCnt--;
-            }
         }
         else
         {
-            CurJumpCnt = 1;
+            // 落地后重置空中跳跃次数
+            currentAirJumpCount = 0;
         }
     }
 
@@ -451,7 +463,11 @@ public class Player : MonoBehaviour
 
     void OnAction(object data)
     {
-        AnimateSetTrigger("Attack");
+        // 只有不在攻击状态时才能攻击，防止 Trigger 缓冲
+        if (!isInAtk && !isInAirAtk)
+        {
+            AnimateSetTrigger("Attack");
+        }
     }
 
     void OnSpecial(object data)
