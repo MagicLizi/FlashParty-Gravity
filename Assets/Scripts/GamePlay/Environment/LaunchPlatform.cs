@@ -4,19 +4,19 @@ using UnityEngine;
 public class LaunchPlatform : MonoBehaviour
 {
     [Header("弹射设置")]
-    [Tooltip("垂直弹射力度")]
+    [Tooltip("主要弹射力度（垂直于平台表面的方向）")]
     public float launchPower = 15f;
     
-    [Tooltip("水平弹射力度系数（0-1，相对于垂直力度的比例）")]
+    [Tooltip("次要方向力度系数（0-1，沿着平台表面的方向，相对于主要力度的比例）")]
     [Range(0f, 1f)]
-    public float horizontalForceFactor = 0.5f;
+    public float tangentialForceFactor = 0.5f;
     
     [Tooltip("最大检测宽度（用于归一化计算，超出此范围的偏移会被限制，单位：米）")]
     public float maxDetectionWidth = 3f;
     
-    [Tooltip("垂直力衰减系数（0-1，越大衰减越明显）")]
+    [Tooltip("主要方向力度衰减系数（0-1，越大衰减越明显）")]
     [Range(0f, 0.5f)]
-    public float verticalDecay = 0.3f;
+    public float mainForceDecay = 0.3f;
     
     [Header("时间设置")]
     [Tooltip("触发后延迟多久弹射")]
@@ -113,42 +113,50 @@ public class LaunchPlatform : MonoBehaviour
     }
     
     /// <summary>
-    /// 计算弹射力（动态计算：中心垂直力最大，边缘垂直力衰减并增加水平力）
+    /// 计算弹射力（支持任意方向：使用平台的局部坐标系统）
     /// </summary>
     private Vector2 CalculateLaunchForce(Player player)
     {
-        // 从平台中心指向角色的方向
+        // 从平台中心指向角色的向量
         Vector2 platformPos = transform.position;
         Vector2 playerPos = player.transform.position;
         Vector2 offset = playerPos - platformPos;
         
+        // 获取平台的局部坐标系
+        Vector2 platformUp = transform.up;      // 主要弹射方向（垂直于平台表面）
+        Vector2 platformRight = transform.right; // 次要方向（沿着平台表面）
+        
+        // 将偏移投影到平台的 right 方向上，得到沿着平台表面的偏移量
+        float tangentialOffset = Vector2.Dot(offset, platformRight);
+        
         // 使用配置的最大检测宽度的一半作为归一化参考
-        float maxHorizontalRange = maxDetectionWidth * 0.5f;
+        float maxTangentialRange = maxDetectionWidth * 0.5f;
         
         // 归一化到 [-1, 1]
-        float normalizedX = Mathf.Clamp(offset.x / maxHorizontalRange, -1f, 1f);
-        float absNormalizedX = Mathf.Abs(normalizedX);
+        float normalizedTangential = Mathf.Clamp(tangentialOffset / maxTangentialRange, -1f, 1f);
+        float absNormalizedTangential = Mathf.Abs(normalizedTangential);
         
-        // 使用平方曲线计算水平力：小偏移时水平力很小，大偏移时才明显增加
-        // 例如：0.1 -> 0.01, 0.5 -> 0.25, 1.0 -> 1.0
-        float horizontalCurve = normalizedX * absNormalizedX; // 保留符号，应用平方
-        float horizontalForce = horizontalCurve * launchPower * horizontalForceFactor;
+        // 使用平方曲线计算次要方向力：小偏移时力很小，大偏移时才明显增加
+        float tangentialCurve = normalizedTangential * absNormalizedTangential; // 保留符号，应用平方
+        float tangentialForceMagnitude = tangentialCurve * launchPower * tangentialForceFactor;
         
-        // 垂直力随偏移增大而衰减：中心最强，边缘较弱
-        // verticalForce = launchPower * (1 - absNormalizedX * verticalDecay)
-        float verticalForce = launchPower * (1f - absNormalizedX * verticalDecay);
+        // 主要方向力随偏移增大而衰减：中心最强，边缘较弱
+        float mainForceMagnitude = launchPower * (1f - absNormalizedTangential * mainForceDecay);
+        
+        // 合成最终的力向量
+        Vector2 mainForce = platformUp * mainForceMagnitude;
+        Vector2 tangentialForce = platformRight * tangentialForceMagnitude;
+        Vector2 totalForce = mainForce + tangentialForce;
         
         Debug.Log($"[LaunchPlatform] 弹射计算 - " +
-                  $"平台位置: {platformPos}, " +
-                  $"角色位置: {playerPos}, " +
-                  $"偏移: {offset.x:F2}, " +
-                  $"最大范围: {maxHorizontalRange:F2}, " +
-                  $"归一化X: {normalizedX:F2} (abs: {absNormalizedX:F2}), " +
-                  $"水平曲线: {horizontalCurve:F2}, " +
-                  $"水平力: {horizontalForce:F2}, " +
-                  $"垂直力: {verticalForce:F2}");
+                  $"平台位置: {platformPos}, 角色位置: {playerPos}, " +
+                  $"平台朝向: up={platformUp}, right={platformRight}, " +
+                  $"切向偏移: {tangentialOffset:F2}, 最大范围: {maxTangentialRange:F2}, " +
+                  $"归一化: {normalizedTangential:F2}, 曲线: {tangentialCurve:F2}, " +
+                  $"主要力: {mainForceMagnitude:F2}, 次要力: {tangentialForceMagnitude:F2}, " +
+                  $"最终力向量: {totalForce}");
         
-        return new Vector2(horizontalForce, verticalForce);
+        return totalForce;
     }
     
     private void StartCooldown()
@@ -173,51 +181,73 @@ public class LaunchPlatform : MonoBehaviour
         });
     }
     
-    // 可选：Gizmos 显示弹射效果
+    // 可选：Gizmos 显示弹射效果（支持任意方向）
     private void OnDrawGizmosSelected()
     {
         Vector3 platformPos = transform.position;
+        Vector3 platformUp = transform.up;      // 主要弹射方向
+        Vector3 platformRight = transform.right; // 次要方向（沿着平台表面）
         float halfWidth = maxDetectionWidth * 0.5f;
         
-        // 绘制最大检测宽度范围（黄色半透明矩形）
-        Gizmos.color = new Color(1f, 1f, 0f, 0.2f);
-        Vector3 rangeSize = new Vector3(maxDetectionWidth, 0.2f, 0.1f);
-        Gizmos.DrawCube(platformPos, rangeSize);
+        // 绘制平台方向指示器（短箭头）
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(platformPos, platformPos + platformUp * 0.5f);
+        Gizmos.DrawSphere(platformPos + platformUp * 0.5f, 0.1f);
         
-        // 绘制中心位置的弹射力（最大垂直力，无水平力）
+        // 绘制最大检测宽度范围（沿着平台的 right 方向）
+        Gizmos.color = new Color(1f, 1f, 0f, 0.2f);
+        Vector3 leftBound = platformPos - platformRight * halfWidth;
+        Vector3 rightBound = platformPos + platformRight * halfWidth;
+        
+        // 绘制检测范围的线段
+        Gizmos.color = Color.yellow;
+        Vector3 boundOffset = platformUp * 0.1f; // 稍微偏移以便可见
+        Gizmos.DrawLine(leftBound + boundOffset, rightBound + boundOffset);
+        Gizmos.DrawLine(leftBound - boundOffset, rightBound - boundOffset);
+        
+        // 绘制边界标记
+        Gizmos.DrawLine(leftBound + boundOffset, leftBound - boundOffset);
+        Gizmos.DrawLine(rightBound + boundOffset, rightBound - boundOffset);
+        
+        float forceScale = 0.1f; // 力的可视化缩放
+        
+        // 绘制中心位置的弹射力（最大主要力，无次要力）
         Gizmos.color = Color.green;
-        float centerVertical = launchPower * 0.1f;
-        Vector3 centerEnd = platformPos + Vector3.up * centerVertical;
+        float centerMainForce = launchPower * forceScale;
+        Vector3 centerEnd = platformPos + platformUp * centerMainForce;
         Gizmos.DrawLine(platformPos, centerEnd);
         Gizmos.DrawSphere(centerEnd, 0.15f);
         
-        // 计算并绘制左边缘的弹射力（平方曲线）
-        float edgeHorizontalCurve = -1f * 1f; // normalizedX = -1, 平方后 = -1
-        float edgeHorizontalForce = edgeHorizontalCurve * launchPower * horizontalForceFactor * 0.1f;
-        float edgeVerticalForce = launchPower * (1f - 1f * verticalDecay) * 0.1f;
+        // 计算并绘制边缘的弹射力
+        float edgeTangentialCurve = -1f * 1f; // normalized = -1, 平方后 = -1
+        float edgeTangentialForce = edgeTangentialCurve * launchPower * tangentialForceFactor * forceScale;
+        float edgeMainForce = launchPower * (1f - 1f * mainForceDecay) * forceScale;
         
         // 左边缘
         Gizmos.color = new Color(1f, 0.5f, 0f, 0.7f); // 橙色
-        Vector3 leftPos = platformPos + Vector3.left * halfWidth;
-        Vector3 leftEnd = leftPos + new Vector3(edgeHorizontalForce, edgeVerticalForce, 0);
+        Vector3 leftPos = platformPos - platformRight * halfWidth;
+        Vector3 leftForce = platformUp * edgeMainForce + platformRight * edgeTangentialForce;
+        Vector3 leftEnd = leftPos + leftForce;
         Gizmos.DrawLine(leftPos, leftEnd);
         Gizmos.DrawWireSphere(leftEnd, 0.1f);
         
-        // 右边缘（水平力取反）
-        Vector3 rightPos = platformPos + Vector3.right * halfWidth;
-        Vector3 rightEnd = rightPos + new Vector3(-edgeHorizontalForce, edgeVerticalForce, 0);
+        // 右边缘（次要力取反）
+        Vector3 rightPos = platformPos + platformRight * halfWidth;
+        Vector3 rightForce = platformUp * edgeMainForce - platformRight * edgeTangentialForce;
+        Vector3 rightEnd = rightPos + rightForce;
         Gizmos.DrawLine(rightPos, rightEnd);
         Gizmos.DrawWireSphere(rightEnd, 0.1f);
         
         // 绘制中间位置示例（1/2位置）
         Gizmos.color = new Color(0.5f, 1f, 0.5f, 0.7f); // 浅绿
         float halfNormalized = 0.5f;
-        float halfHorizontalCurve = halfNormalized * halfNormalized; // 0.25
-        float halfHorizontalForce = halfHorizontalCurve * launchPower * horizontalForceFactor * 0.1f;
-        float halfVerticalForce = launchPower * (1f - halfNormalized * verticalDecay) * 0.1f;
+        float halfTangentialCurve = halfNormalized * halfNormalized; // 0.25
+        float halfTangentialForce = halfTangentialCurve * launchPower * tangentialForceFactor * forceScale;
+        float halfMainForce = launchPower * (1f - halfNormalized * mainForceDecay) * forceScale;
         
-        Vector3 halfRightPos = platformPos + Vector3.right * (halfWidth * 0.5f);
-        Vector3 halfRightEnd = halfRightPos + new Vector3(halfHorizontalForce, halfVerticalForce, 0);
+        Vector3 halfRightPos = platformPos + platformRight * (halfWidth * 0.5f);
+        Vector3 halfForce = platformUp * halfMainForce + platformRight * halfTangentialForce;
+        Vector3 halfRightEnd = halfRightPos + halfForce;
         Gizmos.DrawLine(halfRightPos, halfRightEnd);
         Gizmos.DrawWireSphere(halfRightEnd, 0.08f);
         
@@ -227,16 +257,6 @@ public class LaunchPlatform : MonoBehaviour
             Gizmos.color = new Color(0f, 1f, 1f, 0.3f); // 青色
             Gizmos.DrawWireCube(triggerCollider.bounds.center, triggerCollider.bounds.size);
         }
-        
-        // 绘制检测范围边界线
-        Gizmos.color = Color.yellow;
-        Vector3 topLeft = platformPos + new Vector3(-halfWidth, 0.1f, 0);
-        Vector3 bottomLeft = platformPos + new Vector3(-halfWidth, -0.1f, 0);
-        Gizmos.DrawLine(topLeft, bottomLeft);
-        
-        Vector3 topRight = platformPos + new Vector3(halfWidth, 0.1f, 0);
-        Vector3 bottomRight = platformPos + new Vector3(halfWidth, -0.1f, 0);
-        Gizmos.DrawLine(topRight, bottomRight);
     }
     
 }
