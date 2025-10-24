@@ -72,6 +72,17 @@ public class Player : MonoBehaviour
     //public bool isInSkill = false;
 
     public bool isInAirAtk = false;
+    
+    public bool isHitFlying = false; // 是否处于被击飞状态
+    
+    [Header("击飞状态的横向速度衰减")]
+    [Tooltip("被击飞时横向速度衰减率（0-1，越小衰减越快）")]
+    [Range(0.8f, 0.99f)]
+    public float hitFlyDamping = 0.95f; // 横向速度衰减率
+    
+    private Tween hitFlyTween; // 击飞计时器
+    private Vector2 pendingLaunchForce; // 待施加的击飞力
+    private bool hasPendingLaunch = false; // 是否有待处理的击飞
 
     public GameObject AtkCollider;
 
@@ -120,6 +131,8 @@ public class Player : MonoBehaviour
         AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
         isInAtk = currentState.IsName("Sandboy@Attack");
         isInAirAtk = currentState.IsName("Sandboy@AttackAir");
+        // isHitFlying 由代码逻辑控制（GetLaunched/EndHitFlying），不应该被动画状态机覆盖
+        // isHitFlying = currentState.IsName("Sandboy@HitFlying");
         //isInSkill = currentState.IsName("Sandboy@Skill");
         AtkCollider.gameObject.SetActive(isInAtk);
         AirAtkCollider.gameObject.SetActive(isInAirAtk);
@@ -132,6 +145,53 @@ public class Player : MonoBehaviour
             rb.velocity = new Vector2(0, rb.velocity.y);
             return;
         }
+        
+        // 被击飞状态下的特殊物理处理
+        if (isHitFlying)
+        {
+            // 如果有待施加的击飞力，先施加
+            if (hasPendingLaunch)
+            {
+                // Debug.Log($"[Player] FixedUpdate 准备施加击飞力 - isHitFlying: {isHitFlying}, hasPendingLaunch: {hasPendingLaunch}, force: {pendingLaunchForce}");
+                rb.velocity = pendingLaunchForce;
+                hasPendingLaunch = false;
+                // Debug.Log($"[Player] FixedUpdate 已施加击飞力，新速度: {rb.velocity}");
+                return; // 本帧只施加力，不做衰减
+            }
+            
+            // 检测是否接触地面或墙面，如果是则立即结束击飞
+            bool touchedGround = IsGrounded();
+            bool touchedWall = IsTouchWallAny(); // 使用双向墙壁检测，不受角色朝向限制
+            
+            if (touchedGround || touchedWall)
+            {
+                // Debug.Log($"[Player] 击飞中接触{(touchedGround ? "地面" : "墙面")}，立即结束击飞。当前速度: {rb.velocity}");
+                EndHitFlying();
+                // EndHitFlying 后 isHitFlying 变为 false，本帧不再处理击飞逻辑
+                // 下一帧会进入正常的地面/空中物理处理
+                return;
+            }
+            
+            Vector2 oldVelocity = rb.velocity;
+            
+            // 横向速度衰减（空气阻力）
+            rb.velocity = new Vector2(rb.velocity.x * hitFlyDamping, rb.velocity.y);
+            
+            // 限制Y轴下落速度
+            if (rb.velocity.y < maxFallSpeed)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, maxFallSpeed);
+            }
+            
+            // 只在前几帧输出日志
+            // if (Time.frameCount % 10 == 0)  // 每10帧输出一次
+            // {
+            //     Debug.Log($"[Player] FixedUpdate 击飞中 - 旧速度: {oldVelocity}, 新速度: {rb.velocity}, damping: {hitFlyDamping}");
+            // }
+            
+            return;
+        }
+        
         // Debug.Log($"rb.velocity y: {rb.velocity.y}");
         float targetSpeed;
         if (inAir)
@@ -195,6 +255,12 @@ public class Player : MonoBehaviour
 
     void OnMove(object data)
     {
+        // 被击飞状态下无法移动
+        if (isHitFlying)
+        {
+            return;
+        }
+        
         MoveData moveData = (MoveData)data;
         Vector2 moveDir = moveData.moveDir;
         int moveDirX = 0;
@@ -237,8 +303,8 @@ public class Player : MonoBehaviour
 
     void OnJump(object data)
     {
-        // 攻击中不能跳跃
-        if (isInAtk || isInAirAtk)
+        // 攻击中或被击飞状态下不能跳跃
+        if (isInAtk || isInAirAtk || isHitFlying)
         {
             return;
         }
@@ -310,6 +376,35 @@ public class Player : MonoBehaviour
         return Physics2D.Raycast(middleOrigin, direction, rayLength, groundMask) ||
                 Physics2D.Raycast(downOrigin, direction, rayLength, groundMask) ||
                 Physics2D.Raycast(upOrigin, direction, rayLength, groundMask);
+    }
+
+    /// <summary>
+    /// 检测左右两侧是否有墙壁（用于击飞状态，不受角色朝向限制）
+    /// </summary>
+    bool IsTouchWallAny()
+    {
+        float halfWidth = boxCollider.bounds.size.x / 2;
+        float height = boxCollider.bounds.size.y;
+        
+        // 检测左侧墙壁
+        Vector2 leftDown = (Vector2)transform.position + new Vector2(-halfWidth, 0);
+        Vector2 leftMiddle = (Vector2)transform.position + new Vector2(-halfWidth, height / 2);
+        Vector2 leftUp = (Vector2)transform.position + new Vector2(-halfWidth, height);
+        
+        bool leftWall = Physics2D.Raycast(leftMiddle, Vector2.left, rayLength, groundMask) ||
+                        Physics2D.Raycast(leftDown, Vector2.left, rayLength, groundMask) ||
+                        Physics2D.Raycast(leftUp, Vector2.left, rayLength, groundMask);
+        
+        // 检测右侧墙壁
+        Vector2 rightDown = (Vector2)transform.position + new Vector2(halfWidth, 0);
+        Vector2 rightMiddle = (Vector2)transform.position + new Vector2(halfWidth, height / 2);
+        Vector2 rightUp = (Vector2)transform.position + new Vector2(halfWidth, height);
+        
+        bool rightWall = Physics2D.Raycast(rightMiddle, Vector2.right, rayLength, groundMask) ||
+                         Physics2D.Raycast(rightDown, Vector2.right, rayLength, groundMask) ||
+                         Physics2D.Raycast(rightUp, Vector2.right, rayLength, groundMask);
+        
+        return leftWall || rightWall;
     }
 
 
@@ -463,8 +558,8 @@ public class Player : MonoBehaviour
 
     void OnAction(object data)
     {
-        // 只有不在攻击状态时才能攻击，防止 Trigger 缓冲
-        if (!isInAtk && !isInAirAtk)
+        // 只有不在攻击状态且不在被击飞状态时才能攻击，防止 Trigger 缓冲
+        if (!isInAtk && !isInAirAtk && !isHitFlying)
         {
             AnimateSetTrigger("Attack");
         }
@@ -545,5 +640,70 @@ public class Player : MonoBehaviour
                                                        1f);
             });
         }
+    }
+    
+    /// <summary>
+    /// 被弹射平台击飞
+    /// </summary>
+    /// <param name="force">弹射力</param>
+    /// <param name="hitFlyDuration">被击飞持续时间</param>
+    public void GetLaunched(Vector2 force, float hitFlyDuration)
+    {
+        // Debug.Log($"[Player] GetLaunched 被调用 - 施加力: {force}, 当前击飞状态: {isHitFlying}, 待处理: {hasPendingLaunch}");
+        
+        // 取消之前的击飞计时器（如果有）
+        if (hitFlyTween != null)
+        {
+            hitFlyTween.Kill();
+            hitFlyTween = null;
+            // Debug.Log($"[Player] 取消了之前的击飞计时器");
+        }
+        
+        // 立即进入被击飞状态
+        isHitFlying = true;
+        
+        // 保存要施加的力，等下一个 FixedUpdate 再施加
+        pendingLaunchForce = force;
+        hasPendingLaunch = true;
+        
+        // Debug.Log($"[Player] 设置击飞状态完成 - isHitFlying: {isHitFlying}, hasPendingLaunch: {hasPendingLaunch}, force: {pendingLaunchForce}");
+        
+        // 触发动画
+        AnimateSetTrigger("HitFlying");
+        
+        // 倒计时结束后触发结束 trigger
+        hitFlyTween = DOVirtual.DelayedCall(hitFlyDuration, () =>
+        {
+            // Debug.Log($"[Player] 击飞时间到，当前速度: {rb.velocity}");
+            EndHitFlying();
+        });
+    }
+    
+    /// <summary>
+    /// 结束击飞状态
+    /// </summary>
+    private void EndHitFlying()
+    {
+        if (!isHitFlying)
+        {
+            // Debug.Log($"[Player] EndHitFlying 被调用，但已经不在击飞状态");
+            return; // 已经结束了，不重复处理
+        }
+        
+        // Debug.Log($"[Player] EndHitFlying - 结束击飞状态");
+        
+        // 取消计时器
+        if (hitFlyTween != null)
+        {
+            hitFlyTween.Kill();
+            hitFlyTween = null;
+        }
+        
+        // 重置所有相关标记
+        isHitFlying = false;
+        hasPendingLaunch = false;
+        
+        // 触发结束被击飞状态的 trigger
+        AnimateSetTrigger("EndHitFlying");
     }
 }
