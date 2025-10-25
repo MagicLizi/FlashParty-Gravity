@@ -195,7 +195,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   launchPower: 35
-  sideUpwardForce: 10
+  sideUpwardForce: 15
   launchDelay: 0
   cooldownTime: 2
   hitFlyDuration: 0.5
