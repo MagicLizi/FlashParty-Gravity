@@ -62,6 +62,17 @@ public class Player : MonoBehaviour
     private float rayLength = 0.2f;
 
     public bool StopSpeed = false;
+    
+    [Header("斜面移动设置")]
+    [Tooltip("可行走的最大斜面角度")]
+    [Range(0f, 80f)]
+    public float maxSlopeAngle = 55f;
+    
+    private bool isOnSlope = false; // 是否在斜面上
+    private bool wasOnSlope = false; // 上一帧是否在斜面上
+    private Vector2 slopeNormal = Vector2.up; // 当前斜面的法线
+    private float slopeAngle = 0f; // 当前斜面角度
+    private bool justJumped = false; // 刚跳跃，用于防止立即进入斜面逻辑
 
     private float originGvS = 1;
 
@@ -260,7 +271,81 @@ public class Player : MonoBehaviour
             targetSpeed = CurXMoveSpeed;
         }
         AnimateSetBool("CanMove", targetSpeed != 0);
-        Vector2 velocity = new Vector2(targetSpeed, rb.velocity.y);
+        
+        // 检测从斜面过渡到平地（在地面上，刚从斜面离开）
+        bool justLeftSlope = wasOnSlope && !isOnSlope && !inAir;
+        
+        Vector2 velocity;
+        
+        // 如果刚跳跃，在真正离地前不进入斜面逻辑
+        if (justJumped && rb.velocity.y > 0.5f)
+        {
+            // 跳跃上升中，不处理斜面逻辑
+            velocity = new Vector2(targetSpeed, rb.velocity.y);
+            // 保持重力正常
+            if (rb.gravityScale != originGvS)
+            {
+                rb.gravityScale = originGvS;
+            }
+        }
+        // 在斜面上时，减小重力来防止下滑
+        else if (!inAir && isOnSlope)
+        {
+            // 临时减小重力，防止在斜面上下滑
+            rb.gravityScale = 0;
+            
+            // 重置跳跃标记（已经落地了）
+            justJumped = false;
+            
+            if (Mathf.Abs(targetSpeed) > 0.01f)
+            {
+                // 在斜面上移动：沿着斜面方向
+                Vector2 slopeDirection = new Vector2(slopeNormal.y, -slopeNormal.x);
+                
+                // 根据移动方向调整斜面方向
+                if (targetSpeed < 0)
+                {
+                    slopeDirection = -slopeDirection;
+                }
+                
+                // 沿着斜面移动（保持移动速度的大小）
+                velocity = slopeDirection.normalized * Mathf.Abs(targetSpeed);
+            }
+            else
+            {
+                // 在斜面上静止：直接设为0，不会下滑（因为重力已禁用）
+                velocity = Vector2.zero;
+            }
+        }
+        else
+        {
+            // 不在斜面上：恢复正常重力
+            if (rb.gravityScale != originGvS)
+            {
+                rb.gravityScale = originGvS;
+            }
+            
+            // 如果在空中，重置跳跃标记
+            if (inAir)
+            {
+                justJumped = false;
+            }
+            
+            // 平地或空中：正常水平移动
+            velocity = new Vector2(targetSpeed, rb.velocity.y);
+            
+            // 刚离开斜面进入平地：强制清除向上的Y速度分量，防止腾空
+            if (justLeftSlope)
+            {
+                // 如果有向上的速度（从斜面带来的），直接归零，确保贴地
+                velocity.y = Mathf.Min(velocity.y, 0f);
+                justJumped = false; // 落地了，重置跳跃标记
+            }
+        }
+        
+        // 更新wasOnSlope状态
+        wasOnSlope = isOnSlope;
+        
         if (isLoseGravity)
         {
             velocity = new Vector2(0, 0);
@@ -345,7 +430,9 @@ public class Player : MonoBehaviour
             else
             {
                 animator.speed = 1;
-                rb.velocity = new Vector2(0, rb.velocity.y);
+                // 不要在这里直接设置velocity，让FixedUpdate处理
+                // 特别是在斜面上，我们需要保持抵消重力的速度
+                // rb.velocity = new Vector2(0, rb.velocity.y);
             }
         }
         CheckFaceDir();
@@ -362,8 +449,24 @@ public class Player : MonoBehaviour
         
         if (!inAir)
         {
-            // 地面跳跃
-            rb.velocity = new Vector2(rb.velocity.x, JumpSpeed);
+            // 地面跳跃（包括斜面上的跳跃）
+            // 在斜面上跳跃时，保持当前的横向速度分量
+            float currentXVelocity = rb.velocity.x;
+            
+            // 如果在斜面上移动，保持移动速度；如果静止，则使用当前速度
+            if (isOnSlope && Mathf.Abs(CurXMoveSpeed) > 0.01f)
+            {
+                currentXVelocity = CurXMoveSpeed;
+            }
+            
+            // 如果在斜面上，跳跃时立即恢复重力
+            if (isOnSlope)
+            {
+                rb.gravityScale = originGvS;
+                justJumped = true; // 标记刚跳跃，防止立即被斜面逻辑覆盖
+            }
+            
+            rb.velocity = new Vector2(currentXVelocity, JumpSpeed);
             AnimateSetTrigger("Jump");
         }
         else if (currentAirJumpCount < maxAirJumpCount)
@@ -405,9 +508,47 @@ public class Player : MonoBehaviour
         Vector2 middle = (Vector2)transform.position;
         Vector2 left = middle + new Vector2(-boxCollider.bounds.size.x / 2, 0);
         Vector2 right = middle + new Vector2(boxCollider.bounds.size.x / 2, 0);
-        return Physics2D.Raycast(middle, Vector2.down, rayLength, groundMask) ||
-                 Physics2D.Raycast(left, Vector2.down, rayLength, groundMask) ||
-                Physics2D.Raycast(right, Vector2.down, rayLength, groundMask);
+        
+        RaycastHit2D hitMiddle = Physics2D.Raycast(middle, Vector2.down, rayLength, groundMask);
+        RaycastHit2D hitLeft = Physics2D.Raycast(left, Vector2.down, rayLength, groundMask);
+        RaycastHit2D hitRight = Physics2D.Raycast(right, Vector2.down, rayLength, groundMask);
+        
+        bool grounded = hitMiddle || hitLeft || hitRight;
+        
+        if (grounded)
+        {
+            // 检测斜面（优先使用中间的射线，其次左右）
+            RaycastHit2D hit = hitMiddle ? hitMiddle : (hitLeft ? hitLeft : hitRight);
+            DetectSlope(hit);
+        }
+        else
+        {
+            // 不在地面时重置斜面信息
+            isOnSlope = false;
+            slopeNormal = Vector2.up;
+            slopeAngle = 0f;
+        }
+        
+        return grounded;
+    }
+    
+    /// <summary>
+    /// 检测斜面信息
+    /// </summary>
+    private void DetectSlope(RaycastHit2D hit)
+    {
+        slopeNormal = hit.normal;
+        slopeAngle = Vector2.Angle(slopeNormal, Vector2.up);
+        
+        // 判断是否在可行走的斜面上
+        if (slopeAngle > 0f && slopeAngle <= maxSlopeAngle)
+        {
+            isOnSlope = true;
+        }
+        else
+        {
+            isOnSlope = false;
+        }
     }
 
     bool IsTouchWall()
@@ -461,6 +602,22 @@ public class Player : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        // 可视化斜面信息（调试用）
+        if (Application.isPlaying && isOnSlope && boxCollider != null)
+        {
+            Vector2 playerPos = transform.position;
+            
+            // 绘制斜面法线（绿色）
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(playerPos, playerPos + slopeNormal * 1f);
+            
+            // 绘制斜面方向（黄色）
+            Vector2 slopeDir = new Vector2(slopeNormal.y, -slopeNormal.x);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(playerPos, playerPos + slopeDir * 1f);
+            Gizmos.DrawLine(playerPos, playerPos - slopeDir * 1f);
+        }
+        
         // if (boxCollider != null)
         // {
         //     Vector2 middle = (Vector2)transform.position;
