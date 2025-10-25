@@ -220,6 +220,7 @@ MonoBehaviour:
   isInAtk: 0
   isInAirAtk: 0
   isHitFlying: 0
+  isInHitStop: 0
   hitFlyDamping: 0.9803
   hitFlyControlSpeed: 0.1
   hitFlyControlDelay: 0.1

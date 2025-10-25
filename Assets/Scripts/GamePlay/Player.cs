@@ -75,6 +75,8 @@ public class Player : MonoBehaviour
     
     public bool isHitFlying = false; // 是否处于被击飞状态
     
+    public bool isInHitStop = false; // 是否处于击飞停顿状态
+    
     [Header("击飞状态的横向速度衰减")]
     [Tooltip("被击飞时横向速度衰减率（0-1，越小衰减越快）")]
     [Range(0.8f, 0.99f)]
@@ -89,6 +91,7 @@ public class Player : MonoBehaviour
     public float hitFlyControlDelay = 0.1f; // 击飞初期的无控制时间
     
     private Tween hitFlyTween; // 击飞计时器
+    private Tween hitStopTween; // 停顿计时器
     private Vector2 pendingLaunchForce; // 待施加的击飞力
     private bool hasPendingLaunch = false; // 是否有待处理的击飞
     private float hitFlyStartTime = 0f; // 击飞开始的时间
@@ -152,6 +155,13 @@ public class Player : MonoBehaviour
         if (isDead)
         {
             rb.velocity = new Vector2(0, rb.velocity.y);
+            return;
+        }
+        
+        // 停顿状态：速度为0，不受重力影响
+        if (isInHitStop)
+        {
+            rb.velocity = Vector2.zero;
             return;
         }
         
@@ -290,6 +300,12 @@ public class Player : MonoBehaviour
 
     void OnMove(object data)
     {
+        // 停顿状态下无法移动
+        if (isInHitStop)
+        {
+            return;
+        }
+        
         MoveData moveData = (MoveData)data;
         Vector2 moveDir = moveData.moveDir;
         int moveDirX = 0;
@@ -338,8 +354,8 @@ public class Player : MonoBehaviour
 
     void OnJump(object data)
     {
-        // 攻击中或被击飞状态下不能跳跃
-        if (isInAtk || isInAirAtk || isHitFlying)
+        // 攻击中、被击飞状态或停顿状态下不能跳跃
+        if (isInAtk || isInAirAtk || isHitFlying || isInHitStop)
         {
             return;
         }
@@ -593,8 +609,8 @@ public class Player : MonoBehaviour
 
     void OnAction(object data)
     {
-        // 只有不在攻击状态且不在被击飞状态时才能攻击，防止 Trigger 缓冲
-        if (!isInAtk && !isInAirAtk && !isHitFlying)
+        // 只有不在攻击状态、不在被击飞状态、不在停顿状态时才能攻击，防止 Trigger 缓冲
+        if (!isInAtk && !isInAirAtk && !isHitFlying && !isInHitStop)
         {
             AnimateSetTrigger("Attack");
         }
@@ -723,26 +739,120 @@ public class Player : MonoBehaviour
     /// </summary>
     private void EndHitFlying()
     {
-        if (!isHitFlying)
+        if (!isHitFlying && !isInHitStop)
         {
-            // Debug.Log($"[Player] EndHitFlying 被调用，但已经不在击飞状态");
+            // Debug.Log($"[Player] EndHitFlying 被调用，但已经不在击飞或停顿状态");
             return; // 已经结束了，不重复处理
         }
         
         // Debug.Log($"[Player] EndHitFlying - 结束击飞状态");
         
-        // 取消计时器
+        // 取消所有相关计时器
         if (hitFlyTween != null)
         {
             hitFlyTween.Kill();
             hitFlyTween = null;
         }
         
+        if (hitStopTween != null)
+        {
+            hitStopTween.Kill();
+            hitStopTween = null;
+        }
+        
+        // 如果还在停顿状态，恢复重力和动画速度
+        if (isInHitStop)
+        {
+            rb.gravityScale = originGvS;
+            if (animator != null)
+            {
+                animator.speed = 1;
+            }
+        }
+        
         // 重置所有相关标记
         isHitFlying = false;
+        isInHitStop = false;
         hasPendingLaunch = false;
         
         // 重置击飞动画 Bool 值
         AnimateSetBool("isHitFlying", false);
     }
+    
+    /// <summary>
+    /// 被地刺或其他机关击飞（带停顿效果）
+    /// </summary>
+    /// <param name="force">弹射力</param>
+    /// <param name="hitFlyDuration">被击飞持续时间</param>
+    /// <param name="hitStopDuration">停顿时间</param>
+    public void GetLaunchedWithHitStop(Vector2 force, float hitFlyDuration, float hitStopDuration)
+    {
+        // Debug.Log($"[Player] GetLaunchedWithHitStop 被调用 - 力: {force}, 停顿时间: {hitStopDuration}, 击飞时间: {hitFlyDuration}");
+        
+        // 取消之前的所有相关计时器
+        if (hitFlyTween != null)
+        {
+            hitFlyTween.Kill();
+            hitFlyTween = null;
+        }
+        
+        if (hitStopTween != null)
+        {
+            hitStopTween.Kill();
+            hitStopTween = null;
+        }
+        
+        // 保存要施加的力
+        pendingLaunchForce = force;
+        
+        // 进入停顿状态
+        isInHitStop = true;
+        isHitFlying = false; // 先不进入击飞状态
+        
+        // 取消重力（使用初始保存的 originGvS 而不是当前的 gravityScale，避免连续击飞时保存错误值）
+        rb.gravityScale = 0;
+        
+        // 触发击飞动画（虽然还没真正击飞，但动画先播放）
+        AnimateSetTrigger("HitFlying");
+        AnimateSetBool("isHitFlying", true);
+        
+        // 暂停动画，停在第一帧
+        if (animator != null)
+        {
+            animator.speed = 0;
+        }
+        
+        // Debug.Log($"[Player] 进入停顿状态 - isInHitStop: {isInHitStop}, 当前速度: {rb.velocity}, 动画暂停");
+        
+        // 停顿结束后进入真正的击飞状态
+        hitStopTween = DOVirtual.DelayedCall(hitStopDuration, () =>
+        {
+            // Debug.Log($"[Player] 停顿结束，开始击飞");
+            
+            // 结束停顿状态
+            isInHitStop = false;
+            
+            // 恢复重力（使用初始保存的 originGvS）
+            rb.gravityScale = originGvS;
+            
+            // 恢复动画播放
+            if (animator != null)
+            {
+                animator.speed = 1;
+            }
+            
+            // 进入击飞状态
+            isHitFlying = true;
+            hitFlyStartTime = Time.time;
+            hasPendingLaunch = true;
+            
+            // 击飞持续时间结束后
+            hitFlyTween = DOVirtual.DelayedCall(hitFlyDuration, () =>
+            {
+                // Debug.Log($"[Player] 击飞时间到，当前速度: {rb.velocity}");
+                EndHitFlying();
+            });
+        });
+    }
 }
+

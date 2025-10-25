@@ -380,6 +380,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Boxes: []
+  hitEffectPrefab: {fileID: 320744395548210819, guid: 3ea7eb38eb4e40a4fb314dbf24e1b998, type: 3}
+  hitEffectDuration: 0.5
 --- !u!61 &7382642240051290031
 BoxCollider2D:
   m_ObjectHideFlags: 0
