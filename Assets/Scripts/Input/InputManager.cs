@@ -5,6 +5,8 @@ using Lizi.FrameWork.Util;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public enum CardinalDir { None, Up, Down, Left, Right }
+
 public enum MoveType
 {
     MoveStart,
@@ -25,6 +27,10 @@ public class InputManager : MonoSingleton<InputManager>
 
     private bool isMove = false;
 
+    private bool inSnapShot = false;
+
+    private bool startSnapMove = false;
+
     InputAction moveAction;
 
     void Awake()
@@ -35,6 +41,13 @@ public class InputManager : MonoSingleton<InputManager>
         AddInputCallback("Action", OnActionStart, OnAction, OnActionEnd);
         AddInputCallback("Special", OnSpecialStart, OnSpecial, OnSpecialEnd);
         AddInputCallback("Reset", OnReset);
+        AddInputCallback("Snapshot", null, OnSnapshot, null);
+        AddInputCallback("CancelSnap", null, OnSnapshotEnd, null);
+        //鼠标
+        AddInputCallback("TriggerMoveSnap", MouseStartSnapMove, null, MouseEndSnapMove);
+        AddInputCallback("SnapMove", null, OnSnapMoving, null);
+        //手柄
+        AddInputCallback("GamePadSnapMove", GamePadSnapMoveBegin, GamePadSnapMoving, GamePadSnapMoveEnd);
         Enable(true);
     }
 
@@ -203,5 +216,94 @@ public class InputManager : MonoSingleton<InputManager>
     void OnReset(InputAction.CallbackContext value)
     {
         EventManager.Instance.TriggerEvent(EventType.Reset);
+    }
+
+    void OnSnapshot(InputAction.CallbackContext value)
+    {
+        inSnapShot = true;
+        EventManager.Instance.TriggerEvent(EventType.Snapshot, false);
+    }
+
+    void OnSnapshotEnd(InputAction.CallbackContext value)
+    {
+        if (inSnapShot)
+        {
+            inSnapShot = false;
+            EventManager.Instance.TriggerEvent(EventType.Snapshot, true);
+        }
+    }
+
+    void OnSnapMoving(InputAction.CallbackContext value)
+    {
+        bool canMove = startSnapMove || value.control == Gamepad.current?.rightStick;
+        if (canMove)
+        {
+            MoveData moveData = new MoveData()
+            {
+                moveDir = value.ReadValue<Vector2>(),
+                moveType = MoveType.Move
+            };
+            EventManager.Instance.TriggerEvent(EventType.SnapMove, moveData);
+        }
+    }
+
+    void MouseStartSnapMove(InputAction.CallbackContext value)
+    {
+        if (inSnapShot)
+        {
+            startSnapMove = true;
+            EventManager.Instance.TriggerEvent(EventType.SnapMoveBegin);
+        }
+    }
+
+    void MouseEndSnapMove(InputAction.CallbackContext value)
+    {
+        if (inSnapShot)
+        {
+            EventManager.Instance.TriggerEvent(EventType.SnapMoveEnd);
+        }
+        startSnapMove = false;
+    }
+
+    void GamePadSnapMoveBegin(InputAction.CallbackContext value)
+    {
+        if (inSnapShot)
+        {
+            startSnapMove = true;
+        }
+    }
+
+    CardinalDir curGamePadMoveDir = CardinalDir.None;
+    void GamePadSnapMoving(InputAction.CallbackContext value)
+    {
+        if (inSnapShot && startSnapMove && curGamePadMoveDir == CardinalDir.None)
+        {
+            curGamePadMoveDir = ToCardinal(value.ReadValue<Vector2>(), 0.01f);
+            Debug.Log($"手柄移动 截图 {curGamePadMoveDir}");
+            EventManager.Instance.TriggerEvent(EventType.GamePadSnapMove, curGamePadMoveDir);
+        }
+    }
+    void GamePadSnapMoveEnd(InputAction.CallbackContext value)
+    {
+        startSnapMove = false;
+        curGamePadMoveDir = CardinalDir.None;
+    }
+
+    public CardinalDir ToCardinal(Vector2 v, float deadzone = 0.2f, float bias = 0.05f)
+    {
+        // 1) 死区
+        if (v.sqrMagnitude < deadzone * deadzone) return CardinalDir.None;
+
+        // 2) 选择“占优轴”：|x| vs |y|，加一点偏置，避免刚好在对角线上抖动
+        float ax = Mathf.Abs(v.x);
+        float ay = Mathf.Abs(v.y);
+
+        if (ax - ay > bias)
+            return v.x > 0 ? CardinalDir.Right : CardinalDir.Left;
+        if (ay - ax > bias)
+            return v.y > 0 ? CardinalDir.Up : CardinalDir.Down;
+
+        // 3) 平局时沿上次方向保持（可选）
+        return CardinalDir.None; // 或者根据你的需要返回上次方向
     }
 }

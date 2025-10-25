@@ -37,7 +37,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Look"",
+                    ""name"": ""SnapMove"",
                     ""type"": ""Value"",
                     ""id"": ""6b444451-8a00-4d00-a97e-f47457f736a8"",
                     ""expectedControlType"": ""Vector2"",
@@ -89,6 +89,42 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Snapshot"",
+                    ""type"": ""Button"",
+                    ""id"": ""94dbf8df-f9e0-44c5-9737-1d3baed0cf7c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CancelSnap"",
+                    ""type"": ""Button"",
+                    ""id"": ""0ab411e9-fcb8-4b4c-a161-4574cd819a4f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TriggerMoveSnap"",
+                    ""type"": ""Button"",
+                    ""id"": ""b0cd9e21-d6cd-4cf1-b8c1-1a0401bedd7a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""GamePadSnapMove"",
+                    ""type"": ""Value"",
+                    ""id"": ""160c3a37-8ab0-4be2-b5c1-a5fb712d596b"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -226,23 +262,12 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""c1f7a91b-d0fd-4a62-997e-7fb9b69bf235"",
-                    ""path"": ""<Gamepad>/rightStick"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": "";Gamepad"",
-                    ""action"": ""Look"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""8c8e490b-c610-4785-884f-f04217b23ca4"",
                     ""path"": ""<Pointer>/delta"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse;Touch"",
-                    ""action"": ""Look"",
+                    ""action"": ""SnapMove"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -253,7 +278,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Joystick"",
-                    ""action"": ""Look"",
+                    ""action"": ""SnapMove"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -397,6 +422,83 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""Reset"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a0e7d381-ae6c-4607-a379-1f7c86f3df56"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Snapshot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3ebfa82e-5ee2-4a63-b567-5de6c0b33073"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""Snapshot"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""641a4275-3eaf-4ae2-ae2c-6e1ac21b354b"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""CancelSnap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ddc40df9-8402-471c-8951-2a12ce65c6dc"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""CancelSnap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b7aa8e40-ddcd-4fe5-8169-9371fe87c37d"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""TriggerMoveSnap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a911d565-61b1-45b4-a6f6-06454d605708"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TriggerMoveSnap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""732fda09-4edb-4d2f-a315-d4a48ca07b19"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""GamePadSnapMove"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -985,12 +1087,16 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
-        m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
+        m_Player_SnapMove = m_Player.FindAction("SnapMove", throwIfNotFound: true);
         m_Player_Fire = m_Player.FindAction("Fire", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Action = m_Player.FindAction("Action", throwIfNotFound: true);
         m_Player_Special = m_Player.FindAction("Special", throwIfNotFound: true);
         m_Player_Reset = m_Player.FindAction("Reset", throwIfNotFound: true);
+        m_Player_Snapshot = m_Player.FindAction("Snapshot", throwIfNotFound: true);
+        m_Player_CancelSnap = m_Player.FindAction("CancelSnap", throwIfNotFound: true);
+        m_Player_TriggerMoveSnap = m_Player.FindAction("TriggerMoveSnap", throwIfNotFound: true);
+        m_Player_GamePadSnapMove = m_Player.FindAction("GamePadSnapMove", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1071,23 +1177,31 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
-    private readonly InputAction m_Player_Look;
+    private readonly InputAction m_Player_SnapMove;
     private readonly InputAction m_Player_Fire;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Action;
     private readonly InputAction m_Player_Special;
     private readonly InputAction m_Player_Reset;
+    private readonly InputAction m_Player_Snapshot;
+    private readonly InputAction m_Player_CancelSnap;
+    private readonly InputAction m_Player_TriggerMoveSnap;
+    private readonly InputAction m_Player_GamePadSnapMove;
     public struct PlayerActions
     {
         private @GameInputActions m_Wrapper;
         public PlayerActions(@GameInputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Move => m_Wrapper.m_Player_Move;
-        public InputAction @Look => m_Wrapper.m_Player_Look;
+        public InputAction @SnapMove => m_Wrapper.m_Player_SnapMove;
         public InputAction @Fire => m_Wrapper.m_Player_Fire;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @Action => m_Wrapper.m_Player_Action;
         public InputAction @Special => m_Wrapper.m_Player_Special;
         public InputAction @Reset => m_Wrapper.m_Player_Reset;
+        public InputAction @Snapshot => m_Wrapper.m_Player_Snapshot;
+        public InputAction @CancelSnap => m_Wrapper.m_Player_CancelSnap;
+        public InputAction @TriggerMoveSnap => m_Wrapper.m_Player_TriggerMoveSnap;
+        public InputAction @GamePadSnapMove => m_Wrapper.m_Player_GamePadSnapMove;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1100,9 +1214,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @Look.started += instance.OnLook;
-            @Look.performed += instance.OnLook;
-            @Look.canceled += instance.OnLook;
+            @SnapMove.started += instance.OnSnapMove;
+            @SnapMove.performed += instance.OnSnapMove;
+            @SnapMove.canceled += instance.OnSnapMove;
             @Fire.started += instance.OnFire;
             @Fire.performed += instance.OnFire;
             @Fire.canceled += instance.OnFire;
@@ -1118,6 +1232,18 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @Reset.started += instance.OnReset;
             @Reset.performed += instance.OnReset;
             @Reset.canceled += instance.OnReset;
+            @Snapshot.started += instance.OnSnapshot;
+            @Snapshot.performed += instance.OnSnapshot;
+            @Snapshot.canceled += instance.OnSnapshot;
+            @CancelSnap.started += instance.OnCancelSnap;
+            @CancelSnap.performed += instance.OnCancelSnap;
+            @CancelSnap.canceled += instance.OnCancelSnap;
+            @TriggerMoveSnap.started += instance.OnTriggerMoveSnap;
+            @TriggerMoveSnap.performed += instance.OnTriggerMoveSnap;
+            @TriggerMoveSnap.canceled += instance.OnTriggerMoveSnap;
+            @GamePadSnapMove.started += instance.OnGamePadSnapMove;
+            @GamePadSnapMove.performed += instance.OnGamePadSnapMove;
+            @GamePadSnapMove.canceled += instance.OnGamePadSnapMove;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1125,9 +1251,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
-            @Look.started -= instance.OnLook;
-            @Look.performed -= instance.OnLook;
-            @Look.canceled -= instance.OnLook;
+            @SnapMove.started -= instance.OnSnapMove;
+            @SnapMove.performed -= instance.OnSnapMove;
+            @SnapMove.canceled -= instance.OnSnapMove;
             @Fire.started -= instance.OnFire;
             @Fire.performed -= instance.OnFire;
             @Fire.canceled -= instance.OnFire;
@@ -1143,6 +1269,18 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @Reset.started -= instance.OnReset;
             @Reset.performed -= instance.OnReset;
             @Reset.canceled -= instance.OnReset;
+            @Snapshot.started -= instance.OnSnapshot;
+            @Snapshot.performed -= instance.OnSnapshot;
+            @Snapshot.canceled -= instance.OnSnapshot;
+            @CancelSnap.started -= instance.OnCancelSnap;
+            @CancelSnap.performed -= instance.OnCancelSnap;
+            @CancelSnap.canceled -= instance.OnCancelSnap;
+            @TriggerMoveSnap.started -= instance.OnTriggerMoveSnap;
+            @TriggerMoveSnap.performed -= instance.OnTriggerMoveSnap;
+            @TriggerMoveSnap.canceled -= instance.OnTriggerMoveSnap;
+            @GamePadSnapMove.started -= instance.OnGamePadSnapMove;
+            @GamePadSnapMove.performed -= instance.OnGamePadSnapMove;
+            @GamePadSnapMove.canceled -= instance.OnGamePadSnapMove;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1326,12 +1464,16 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
     public interface IPlayerActions
     {
         void OnMove(InputAction.CallbackContext context);
-        void OnLook(InputAction.CallbackContext context);
+        void OnSnapMove(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnAction(InputAction.CallbackContext context);
         void OnSpecial(InputAction.CallbackContext context);
         void OnReset(InputAction.CallbackContext context);
+        void OnSnapshot(InputAction.CallbackContext context);
+        void OnCancelSnap(InputAction.CallbackContext context);
+        void OnTriggerMoveSnap(InputAction.CallbackContext context);
+        void OnGamePadSnapMove(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

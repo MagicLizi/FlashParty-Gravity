@@ -12,6 +12,15 @@ public enum EventType
     Special,
 
     Reset,
+
+    Snapshot,
+
+    SnapMove,
+    SnapMoveBegin,
+
+    GamePadSnapMove,
+
+    SnapMoveEnd,
     // 平台相关事件
     PlatformTrigger,        // 平台触发
     PlatformStartMove,      // 平台开始移动
