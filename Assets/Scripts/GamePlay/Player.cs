@@ -172,10 +172,19 @@ public class Player : MonoBehaviour
                 return;
             }
             
-            Vector2 oldVelocity = rb.velocity;
+            // 横向速度处理：结合输入和衰减，类似空中移动逻辑
+            float hitFlyTargetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
             
-            // 横向速度衰减（空气阻力）
-            rb.velocity = new Vector2(rb.velocity.x * hitFlyDamping, rb.velocity.y);
+            // 如果是反向输入或速度未达到目标，立即响应
+            if (hitFlyTargetSpeed * (int)CurFaceDir < 0 || Mathf.Abs(rb.velocity.x) < Mathf.Abs(CurXMoveSpeed))
+            {
+                hitFlyTargetSpeed = CurXMoveSpeed;
+            }
+            
+            // 在目标速度基础上应用击飞衰减
+            hitFlyTargetSpeed *= hitFlyDamping;
+            
+            rb.velocity = new Vector2(hitFlyTargetSpeed, rb.velocity.y);
             
             // 限制Y轴下落速度
             if (rb.velocity.y < maxFallSpeed)
@@ -186,7 +195,7 @@ public class Player : MonoBehaviour
             // 只在前几帧输出日志
             // if (Time.frameCount % 10 == 0)  // 每10帧输出一次
             // {
-            //     Debug.Log($"[Player] FixedUpdate 击飞中 - 旧速度: {oldVelocity}, 新速度: {rb.velocity}, damping: {hitFlyDamping}");
+            //     Debug.Log($"[Player] FixedUpdate 击飞中 - 目标速度: {hitFlyTargetSpeed}, 新速度: {rb.velocity}, damping: {hitFlyDamping}");
             // }
             
             return;
@@ -255,12 +264,6 @@ public class Player : MonoBehaviour
 
     void OnMove(object data)
     {
-        // 被击飞状态下无法移动
-        if (isHitFlying)
-        {
-            return;
-        }
-        
         MoveData moveData = (MoveData)data;
         Vector2 moveDir = moveData.moveDir;
         int moveDirX = 0;
@@ -277,7 +280,13 @@ public class Player : MonoBehaviour
             moveDirX = 0;
             //Debug.Log("moveDirX 0");
         }
-        if (inAir)
+        
+        // 被击飞状态下也可以调整横向速度，使用空中移动速度
+        if (isHitFlying)
+        {
+            CurXMoveSpeed = moveDirX * AirMoveSpeed;
+        }
+        else if (inAir)
         {
             CurXMoveSpeed = moveDirX * AirMoveSpeed;
         }
@@ -668,10 +677,11 @@ public class Player : MonoBehaviour
         
         // Debug.Log($"[Player] 设置击飞状态完成 - isHitFlying: {isHitFlying}, hasPendingLaunch: {hasPendingLaunch}, force: {pendingLaunchForce}");
         
-        // 触发动画
-        AnimateSetTrigger("HitFlying");
+        // 触发击飞动画并设置 Bool 值
+        AnimateSetTrigger("HitFlying");  // Trigger 用于触发动画
+        AnimateSetBool("isHitFlying", true);  // Bool 用于保持状态
         
-        // 倒计时结束后触发结束 trigger
+        // 倒计时结束后重置 Bool 值
         hitFlyTween = DOVirtual.DelayedCall(hitFlyDuration, () =>
         {
             // Debug.Log($"[Player] 击飞时间到，当前速度: {rb.velocity}");
@@ -703,7 +713,7 @@ public class Player : MonoBehaviour
         isHitFlying = false;
         hasPendingLaunch = false;
         
-        // 触发结束被击飞状态的 trigger
-        AnimateSetTrigger("EndHitFlying");
+        // 重置击飞动画 Bool 值
+        AnimateSetBool("isHitFlying", false);
     }
 }
