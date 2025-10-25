@@ -96,7 +96,7 @@ namespace FlashParty.Platform
             playersOnPlatform.Add(player);
             EventManager.Instance.TriggerEvent(EventType.PlatformPlayerOn, player);
             
-            Debug.Log($"Player {player.name} entered platform {gameObject.name}");
+            //Debug.Log($"Player {player.name} entered platform {gameObject.name}");
         }
         
         /// <summary>
@@ -111,7 +111,7 @@ namespace FlashParty.Platform
             playersOnPlatform.Remove(player);
             EventManager.Instance.TriggerEvent(EventType.PlatformPlayerOff, player);
             
-            Debug.Log($"Player {player.name} left platform {gameObject.name}");
+            //Debug.Log($"Player {player.name} left platform {gameObject.name}");
         }
         
         /// <summary>
