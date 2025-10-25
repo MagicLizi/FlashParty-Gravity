@@ -10,8 +10,8 @@ public class LaunchPlatform : MonoBehaviour
     [Tooltip("侧面平台（90度/-90度）额外的垂直向上力度")]
     public float sideUpwardForce = 5f;
     
-    // 判断为侧面平台的角度容差（固定值，不需要配置）
-    private const float sidePlatformAngleTolerance = 30f;
+    // 判断为侧面平台的角度容差（度）
+    private const float SIDE_PLATFORM_ANGLE_TOLERANCE = 30f;
     
     [Header("时间设置")]
     [Tooltip("触发后延迟多久弹射")]
@@ -123,7 +123,7 @@ public class LaunchPlatform : MonoBehaviour
         float angleToWorldUp = Vector2.Angle(platformUp, Vector2.up);
         
         // 如果角度接近90度（在容差范围内），认为是侧面平台
-        bool isSidePlatform = Mathf.Abs(angleToWorldUp - 90f) < sidePlatformAngleTolerance;
+        bool isSidePlatform = Mathf.Abs(angleToWorldUp - 90f) < SIDE_PLATFORM_ANGLE_TOLERANCE;
         
         Vector2 upwardForce = Vector2.zero;
         if (isSidePlatform && sideUpwardForce > 0)
@@ -176,7 +176,7 @@ public class LaunchPlatform : MonoBehaviour
         
         // 计算是否为侧面平台
         float angleToWorldUp = Vector2.Angle(platformUp, Vector2.up);
-        bool isSidePlatform = Mathf.Abs(angleToWorldUp - 90f) < sidePlatformAngleTolerance;
+        bool isSidePlatform = Mathf.Abs(angleToWorldUp - 90f) < SIDE_PLATFORM_ANGLE_TOLERANCE;
         
         // 绘制主要弹射力
         Gizmos.color = Color.green;
