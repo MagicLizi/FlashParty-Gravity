@@ -195,10 +195,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   launchPower: 35
-  tangentialForceFactor: 0.1
-  maxDetectionWidth: 3
-  mainForceDecay: 0.3
-  launchDelay: 0.15
+  sideUpwardForce: 10
+  launchDelay: 0
   cooldownTime: 2
   hitFlyDuration: 0.5
   triggerCollider: {fileID: 1447686592309177204}
