@@ -80,9 +80,18 @@ public class Player : MonoBehaviour
     [Range(0.8f, 0.99f)]
     public float hitFlyDamping = 0.95f; // 横向速度衰减率
     
+    [Tooltip("击飞时玩家输入对横向速度的影响速度（0-1，越小调整越慢）")]
+    [Range(0.01f, 0.5f)]
+    public float hitFlyControlSpeed = 0.1f; // 玩家输入的调整速度
+    
+    [Tooltip("击飞后多久才能通过输入改变横向速度（秒）")]
+    [Range(0f, 0.5f)]
+    public float hitFlyControlDelay = 0.1f; // 击飞初期的无控制时间
+    
     private Tween hitFlyTween; // 击飞计时器
     private Vector2 pendingLaunchForce; // 待施加的击飞力
     private bool hasPendingLaunch = false; // 是否有待处理的击飞
+    private float hitFlyStartTime = 0f; // 击飞开始的时间
 
     public GameObject AtkCollider;
 
@@ -172,13 +181,30 @@ public class Player : MonoBehaviour
                 return;
             }
             
-            // 横向速度处理：结合输入和衰减，类似空中移动逻辑
-            float hitFlyTargetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
+            // 横向速度处理：只在有输入时才调整，否则保持弹射力的横向速度
+            float hitFlyTargetSpeed = rb.velocity.x;
             
-            // 如果是反向输入或速度未达到目标，立即响应
-            if (hitFlyTargetSpeed * (int)CurFaceDir < 0 || Mathf.Abs(rb.velocity.x) < Mathf.Abs(CurXMoveSpeed))
+            // 检查是否已经过了无控制延迟时间
+            bool canControl = (Time.time - hitFlyStartTime) >= hitFlyControlDelay;
+            
+            // 只有当玩家有实际输入时（非零移动速度）且过了延迟时间，才进行速度调整
+            if (canControl && Mathf.Abs(CurXMoveSpeed) > 0.01f)
             {
-                hitFlyTargetSpeed = CurXMoveSpeed;
+                // 判断输入方向和当前速度是否同向
+                bool isSameDirection = (CurXMoveSpeed * rb.velocity.x) > 0;
+                
+                // 如果同向且当前速度的绝对值更大，保持当前速度（不减速）
+                if (isSameDirection && Mathf.Abs(rb.velocity.x) > Mathf.Abs(CurXMoveSpeed))
+                {
+                    // 保持当前速度，只应用后续的衰减
+                    hitFlyTargetSpeed = rb.velocity.x;
+                }
+                else
+                {
+                    // 反向或需要加速时，使用 Lerp 平滑过渡
+                    // 使用 hitFlyControlSpeed 控制调整速度（值越小，调整越慢）
+                    hitFlyTargetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, hitFlyControlSpeed);
+                }
             }
             
             // 在目标速度基础上应用击飞衰减
@@ -671,11 +697,14 @@ public class Player : MonoBehaviour
         // 立即进入被击飞状态
         isHitFlying = true;
         
+        // 记录击飞开始时间
+        hitFlyStartTime = Time.time;
+        
         // 保存要施加的力，等下一个 FixedUpdate 再施加
         pendingLaunchForce = force;
         hasPendingLaunch = true;
         
-        // Debug.Log($"[Player] 设置击飞状态完成 - isHitFlying: {isHitFlying}, hasPendingLaunch: {hasPendingLaunch}, force: {pendingLaunchForce}");
+        // Debug.Log($"[Player] 设置击飞状态完成 - isHitFlying: {isHitFlying}, hasPendingLaunch: {hasPendingLaunch}, force: {pendingLaunchForce}, startTime: {hitFlyStartTime}");
         
         // 触发击飞动画并设置 Bool 值
         AnimateSetTrigger("HitFlying");  // Trigger 用于触发动画

@@ -148,13 +148,14 @@ public class LaunchPlatform : MonoBehaviour
         Vector2 tangentialForce = platformRight * tangentialForceMagnitude;
         Vector2 totalForce = mainForce + tangentialForce;
         
-        Debug.Log($"[LaunchPlatform] 弹射计算 - " +
-                  $"平台位置: {platformPos}, 角色位置: {playerPos}, " +
-                  $"平台朝向: up={platformUp}, right={platformRight}, " +
-                  $"切向偏移: {tangentialOffset:F2}, 最大范围: {maxTangentialRange:F2}, " +
-                  $"归一化: {normalizedTangential:F2}, 曲线: {tangentialCurve:F2}, " +
-                  $"主要力: {mainForceMagnitude:F2}, 次要力: {tangentialForceMagnitude:F2}, " +
-                  $"最终力向量: {totalForce}");
+        // Debug用于调试弹射平台的弹射力计算各项参数
+        // Debug.Log($"[LaunchPlatform] 弹射计算 - " +
+        //           $"平台位置: {platformPos}, 角色位置: {playerPos}, " +
+        //           $"平台朝向: up={platformUp}, right={platformRight}, " +
+        //           $"切向偏移: {tangentialOffset:F2}, 最大范围: {maxTangentialRange:F2}, " +
+        //           $"归一化: {normalizedTangential:F2}, 曲线: {tangentialCurve:F2}, " +
+        //           $"主要力: {mainForceMagnitude:F2}, 次要力: {tangentialForceMagnitude:F2}, " +
+        //           $"最终力向量: {totalForce}");
         
         return totalForce;
     }

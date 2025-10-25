@@ -200,7 +200,7 @@ MonoBehaviour:
   mainForceDecay: 0.3
   launchDelay: 0.1
   cooldownTime: 2
-  hitFlyDuration: 0.4
+  hitFlyDuration: 1
   triggerCollider: {fileID: 1447686592309177204}
 --- !u!1 &6701356667183038997
 GameObject:
@@ -266,7 +266,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.0036115646, y: 0.5351753}
+  m_Offset: {x: 0.0036115646, y: 0.6576462}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
@@ -277,5 +277,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.5593472, y: 0.30167007}
+  m_Size: {x: 2.5593472, y: 0.5466118}
   m_EdgeRadius: 0
