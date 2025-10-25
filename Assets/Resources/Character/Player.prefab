@@ -221,6 +221,8 @@ MonoBehaviour:
   isInAirAtk: 0
   isHitFlying: 0
   hitFlyDamping: 0.9803
+  hitFlyControlSpeed: 0.1
+  hitFlyControlDelay: 0.1
   AtkCollider: {fileID: 7514191595442725621}
   AirAtkCollider: {fileID: 6750943884495305963}
   isInWind: {fileID: 0}
