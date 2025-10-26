@@ -450,11 +450,23 @@ public class SnapShotManager : MonoBehaviour
     }
 
     public Dictionary<Tilemap, List<SaveTileData>> curSnapshotTiles = new Dictionary<Tilemap, List<SaveTileData>>();
-    void SnapshotTiles()
+
+    public List<SaveElementData> curSnapshotElements = new List<SaveElementData>();
+    void SaveSnapshotData()
     {
         curSnapshotTiles.Clear();
+        curSnapshotElements.Clear();
         Vector3 centerPos = Camera.main.ViewportToWorldPoint(new Vector3(_curSnapCenter.x, _curSnapCenter.y, Camera.main.nearClipPlane));
         Vector3Int bgCenterCell = GetCellAtPosition(BgTileMap, centerPos);
+
+        for(int i = 0; i < ElementsInSnapFully.Count; i++)
+        {
+            ElementSnapBound esb = ElementsInSnapFully[i];
+            SaveElementData sed = new SaveElementData();
+            sed.obj = esb.gameObject;
+            sed.offset = esb.gameObject.transform.position - centerPos;
+            curSnapshotElements.Add(sed);
+        }
 
         List<SnapPos> cellList = GetSnapShotPos(bgCenterCell);
 
@@ -514,7 +526,7 @@ public class SnapShotManager : MonoBehaviour
 
     IEnumerator CaptureViewportAndEnd()
     {
-        SnapshotTiles();
+        SaveSnapshotData();
         yield return StartCoroutine(CaptureViewportToRTCoroutine());
         HandleSnapshotEnd();
     }
@@ -648,6 +660,13 @@ public class SaveTileData
 
     public SnapPos pos;
 
+}
+
+public class SaveElementData
+{
+    public GameObject obj;
+
+    public Vector3 offset;
 }
 
 public class SnapPos
