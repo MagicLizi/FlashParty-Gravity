@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 305655157336885407}
   - component: {fileID: 3154858139266764082}
   m_Layer: 8
-  m_Name: Camera
+  m_Name: SnapMachine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

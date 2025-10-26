@@ -3972,7 +3972,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2930450772097162993, guid: 4e65601f398bd8e48ab68b57e7354a1b, type: 3}
       propertyPath: m_Name
-      value: Camera
+      value: SnapMachine
       objectReference: {fileID: 0}
     - target: {fileID: 9182408826870938840, guid: 4e65601f398bd8e48ab68b57e7354a1b, type: 3}
       propertyPath: m_LocalPosition.x
