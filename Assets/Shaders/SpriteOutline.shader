@@ -82,11 +82,17 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
 
             fixed4 frag(v2f i) : SV_Target
             {
+                // 如果outline size为0，不绘制描边
+                if (_OutlineSize < 0.01)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
+                
                 fixed4 c = tex2D(_MainTex, i.texcoord);
                 
-                // 输出描边颜色
+                // 输出描边颜色，同时考虑SpriteRenderer的alpha
                 fixed4 outline = _OutlineColor;
-                outline.a *= c.a;
+                outline.a *= c.a * i.color.a;
                 outline.rgb *= outline.a;
                 return outline;
             }
@@ -104,12 +110,14 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             struct appdata
             {
                 float4 vertex : POSITION;
+                float4 color : COLOR;
                 float2 texcoord : TEXCOORD0;
             };
 
             struct v2f
             {
                 float4 vertex : SV_POSITION;
+                fixed4 color : COLOR;
                 float2 texcoord : TEXCOORD0;
             };
 
@@ -125,14 +133,21 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
                 float2 offset = float2(0, 1) * _OutlineSize * 0.01;
                 o.vertex.xy += offset * o.vertex.w;
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.color = v.color;
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
+                // 如果outline size为0，不绘制描边
+                if (_OutlineSize < 0.01)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
+                
                 fixed4 c = tex2D(_MainTex, i.texcoord);
                 fixed4 outline = _OutlineColor;
-                outline.a *= c.a;
+                outline.a *= c.a * i.color.a;
                 outline.rgb *= outline.a;
                 return outline;
             }
@@ -146,8 +161,8 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
-            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+            struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; fixed4 color : COLOR; float2 texcoord : TEXCOORD0; };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -160,14 +175,21 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex.xy += float2(0, -1) * _OutlineSize * 0.01 * o.vertex.w;
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.color = v.color;
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
+                // 如果outline size为0，不绘制描边
+                if (_OutlineSize < 0.01)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
+                
                 fixed4 c = tex2D(_MainTex, i.texcoord);
                 fixed4 outline = _OutlineColor;
-                outline.a *= c.a;
+                outline.a *= c.a * i.color.a;
                 outline.rgb *= outline.a;
                 return outline;
             }
@@ -181,8 +203,8 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
-            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+            struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; fixed4 color : COLOR; float2 texcoord : TEXCOORD0; };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -195,14 +217,21 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex.xy += float2(-1, 0) * _OutlineSize * 0.01 * o.vertex.w;
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.color = v.color;
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
+                // 如果outline size为0，不绘制描边
+                if (_OutlineSize < 0.01)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
+                
                 fixed4 c = tex2D(_MainTex, i.texcoord);
                 fixed4 outline = _OutlineColor;
-                outline.a *= c.a;
+                outline.a *= c.a * i.color.a;
                 outline.rgb *= outline.a;
                 return outline;
             }
@@ -216,8 +245,8 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
-            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+            struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; fixed4 color : COLOR; float2 texcoord : TEXCOORD0; };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -230,14 +259,21 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex.xy += float2(1, 0) * _OutlineSize * 0.01 * o.vertex.w;
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.color = v.color;
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
+                // 如果outline size为0，不绘制描边
+                if (_OutlineSize < 0.01)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
+                
                 fixed4 c = tex2D(_MainTex, i.texcoord);
                 fixed4 outline = _OutlineColor;
-                outline.a *= c.a;
+                outline.a *= c.a * i.color.a;
                 outline.rgb *= outline.a;
                 return outline;
             }
@@ -251,8 +287,8 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
-            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+            struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; fixed4 color : COLOR; float2 texcoord : TEXCOORD0; };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -265,14 +301,21 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex.xy += float2(-1, 1) * _OutlineSize * 0.01 * o.vertex.w;
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.color = v.color;
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
+                // 如果outline size为0，不绘制描边
+                if (_OutlineSize < 0.01)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
+                
                 fixed4 c = tex2D(_MainTex, i.texcoord);
                 fixed4 outline = _OutlineColor;
-                outline.a *= c.a;
+                outline.a *= c.a * i.color.a;
                 outline.rgb *= outline.a;
                 return outline;
             }
@@ -286,8 +329,8 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
-            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+            struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; fixed4 color : COLOR; float2 texcoord : TEXCOORD0; };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -300,14 +343,21 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex.xy += float2(1, 1) * _OutlineSize * 0.01 * o.vertex.w;
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.color = v.color;
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
+                // 如果outline size为0，不绘制描边
+                if (_OutlineSize < 0.01)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
+                
                 fixed4 c = tex2D(_MainTex, i.texcoord);
                 fixed4 outline = _OutlineColor;
-                outline.a *= c.a;
+                outline.a *= c.a * i.color.a;
                 outline.rgb *= outline.a;
                 return outline;
             }
@@ -321,8 +371,8 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
-            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+            struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; fixed4 color : COLOR; float2 texcoord : TEXCOORD0; };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -335,14 +385,21 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex.xy += float2(-1, -1) * _OutlineSize * 0.01 * o.vertex.w;
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.color = v.color;
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
+                // 如果outline size为0，不绘制描边
+                if (_OutlineSize < 0.01)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
+                
                 fixed4 c = tex2D(_MainTex, i.texcoord);
                 fixed4 outline = _OutlineColor;
-                outline.a *= c.a;
+                outline.a *= c.a * i.color.a;
                 outline.rgb *= outline.a;
                 return outline;
             }
@@ -356,8 +413,8 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
-            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+            struct appdata { float4 vertex : POSITION; float4 color : COLOR; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; fixed4 color : COLOR; float2 texcoord : TEXCOORD0; };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -370,14 +427,21 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.vertex.xy += float2(1, -1) * _OutlineSize * 0.01 * o.vertex.w;
                 o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.color = v.color;
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
+                // 如果outline size为0，不绘制描边
+                if (_OutlineSize < 0.01)
+                {
+                    return fixed4(0, 0, 0, 0);
+                }
+                
                 fixed4 c = tex2D(_MainTex, i.texcoord);
                 fixed4 outline = _OutlineColor;
-                outline.a *= c.a;
+                outline.a *= c.a * i.color.a;
                 outline.rgb *= outline.a;
                 return outline;
             }
@@ -430,8 +494,13 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             {
                 // 采样原始纹理
                 fixed4 c = tex2D(_MainTex, i.texcoord);
-                c *= i.color;
+                
+                // 只应用SpriteRenderer的alpha（DOFade），不应用RGB（避免变白）
+                c.a *= i.color.a;
+                
+                // 预乘alpha
                 c.rgb *= c.a;
+                
                 return c;
             }
             ENDCG

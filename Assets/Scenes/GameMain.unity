@@ -1519,7 +1519,7 @@ PrefabInstance:
       objectReference: {fileID: 448117362}
     - target: {fileID: 133329033417947951, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
       propertyPath: ignoreSnap
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1220976750600238751, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
       propertyPath: m_Layer

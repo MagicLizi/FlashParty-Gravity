@@ -87,7 +87,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2489812121094745823}
   - component: {fileID: 2666237085811873777}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: 32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -157,7 +157,7 @@ SpriteRenderer:
   m_DrawMode: 2
   m_Size: {x: 1, y: 3}
   m_AdaptiveModeThreshold: 0.5
-  m_SpriteTileMode: 0
+  m_SpriteTileMode: 1
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
@@ -248,10 +248,10 @@ BoxCollider2D:
   m_Offset: {x: 0.00033855438, y: 1}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1.25, y: 1.25}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
@@ -304,7 +304,7 @@ MonoBehaviour:
   drawFilled: 0
   gizmoColor: {r: 1, g: 0.6, b: 0.1, a: 0.8}
   wireColor: {r: 1, g: 0.6, b: 0.1, a: 1}
-  Render: {fileID: 0}
+  Render: {fileID: 2666237085811873777}
   ignoreSnap: 0
   outlineColor: {r: 0, g: 1, b: 0, a: 1}
   interOutlineColor: {r: 1, g: 0, b: 0, a: 1}
