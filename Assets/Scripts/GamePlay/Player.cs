@@ -708,16 +708,18 @@ public class Player : MonoBehaviour
         }
         if (isDead) return;
         Const.LastReborn = rebornPt;
+        
+        // 立即停止所有物理运动和状态
+        ResetPlayerStateForRebirth();
+        
         AnimateSetBool("LossG", true);
         isDead = true;
         InputManager.Instance.Enable(false);
-        // 可以在此处添加更多死亡逻辑，例如禁用输入、延迟后重新加载场景等
-        Debug.Log("Player has died.");
-        // this.enabled = false; // 禁用Player脚本，停止Update和FixedUpdate
+        //Debug.Log("Player has died.");
+        
         // 使用DOTween创建闪烁效果
         if (spriteRenderer != null)
         {
-            // 创建闪烁动画，透明度在0.3和1之间变化，持续0.2秒，重复-1次（无限循环）
             Shine(true);
             LoseGravity(true);
             float rotateAngle = 0 - curLevelRotator.transform.eulerAngles.z;
@@ -725,21 +727,66 @@ public class Player : MonoBehaviour
             {
                 Shine(false);
                 RebornSivi.SetActive(true);
-                DOVirtual.DelayedCall(0.6f, () =>
+                
+                // 立即开始移动角色到重生点
+                transform.DOMove(rebornPt.transform.position, 1.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
                 {
-                    // 使用DOTween移动角色到指定位置
-                    transform.DOMove(rebornPt.transform.position, 1.5f).SetEase(Ease.InOutQuad).OnComplete(() =>
+                    isDead = false;
+                    LoseGravity(false);
+                    AnimateSetBool("LossG", false);
+                    RebornSivi.SetActive(false);
+                    InputManager.Instance.Enable(true);
+                    
+                    // 重生完成后重新启用碰撞器
+                    if (boxCollider != null)
                     {
-                        isDead = false;
-                        LoseGravity(false);
-                        AnimateSetBool("LossG", false);
-                        // Shine(false);
-                        RebornSivi.SetActive(false);
-                        InputManager.Instance.Enable(true);
-                    });
+                        boxCollider.enabled = true;
+                    }
                 });
             });
         }
+    }
+    
+    /// <summary>
+    /// 重置玩家状态以准备重生
+    /// </summary>
+    private void ResetPlayerStateForRebirth()
+    {
+        // 1. 立即停止所有速度，避免受重力影响往下落
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+        }
+        
+        // 2. 重置击飞相关状态，避免击飞状态下还会位移
+        isHitFlying = false;
+        isInHitStop = false;
+        hasPendingLaunch = false;
+        AnimateSetBool("isHitFlying", false);
+        
+        // 取消击飞和停顿的计时器
+        if (hitFlyTween != null)
+        {
+            hitFlyTween.Kill();
+            hitFlyTween = null;
+        }
+        if (hitStopTween != null)
+        {
+            hitStopTween.Kill();
+            hitStopTween = null;
+        }
+        
+        // 3. 禁用碰撞器，避免和地刺等机关发生交互
+        if (boxCollider != null)
+        {
+            boxCollider.enabled = false;
+        }
+        
+        // 4. 重置其他移动相关状态
+        CurXMoveSpeed = 0;
+        windSpeed = Vector2.zero;
+        StopSpeed = false;
     }
     TweenerCore<Color, Color, ColorOptions> fadeTween;
     public void Shine(bool shine)

@@ -401,8 +401,6 @@ namespace FlashParty.Platform
             
             // Debug.Log("No obstacle detected after checking all hits");
             return false;
-            
-            return false;
         }
         
         /// <summary>
