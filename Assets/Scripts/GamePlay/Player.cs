@@ -68,11 +68,16 @@ public class Player : MonoBehaviour
     [Range(0f, 80f)]
     public float maxSlopeAngle = 55f;
     
+    [Tooltip("斜面移动速度倍数（1.0为正常速度，>1加速，<1减速）")]
+    [Range(0.5f, 2f)]
+    public float slopeSpeedMultiplier = 1.0f;
+    
     private bool isOnSlope = false; // 是否在斜面上
     private bool wasOnSlope = false; // 上一帧是否在斜面上
     private Vector2 slopeNormal = Vector2.up; // 当前斜面的法线
     private float slopeAngle = 0f; // 当前斜面角度
     private bool justJumped = false; // 刚跳跃，用于防止立即进入斜面逻辑
+    private float slopeObstacleCheckDistance = 0.3f; // 斜面前方障碍检测距离
 
     private float originGvS = 1;
 
@@ -269,6 +274,16 @@ public class Player : MonoBehaviour
         else
         {
             targetSpeed = CurXMoveSpeed;
+            // 在斜面上应用速度倍数
+            if (isOnSlope && Mathf.Abs(targetSpeed) > 0.01f)
+            {
+                targetSpeed *= slopeSpeedMultiplier;
+                // 同时调整动画速度
+                if (animator != null && BaseMoveSpeed > 0)
+                {
+                    animator.speed = Mathf.Abs(targetSpeed / BaseMoveSpeed);
+                }
+            }
         }
         AnimateSetBool("CanMove", targetSpeed != 0);
         
@@ -299,22 +314,38 @@ public class Player : MonoBehaviour
             
             if (Mathf.Abs(targetSpeed) > 0.01f)
             {
-                // 在斜面上移动：沿着斜面方向
-                Vector2 slopeDirection = new Vector2(slopeNormal.y, -slopeNormal.x);
+                // 检查斜面移动方向是否有障碍物
+                bool hasObstacleAhead = CheckSlopeObstacle(targetSpeed);
                 
-                // 根据移动方向调整斜面方向
-                if (targetSpeed < 0)
+                if (hasObstacleAhead)
                 {
-                    slopeDirection = -slopeDirection;
+                    // 前方有障碍，使用水平移动而不是斜面移动，防止飞起
+                    velocity = new Vector2(targetSpeed, Mathf.Min(rb.velocity.y, 0f));
                 }
-                
-                // 沿着斜面移动（保持移动速度的大小）
-                velocity = slopeDirection.normalized * Mathf.Abs(targetSpeed);
+                else
+                {
+                    // 在斜面上移动：保持水平速度与平地一致
+                    // 计算斜面方向的垂直分量
+                    Vector2 slopeDirection = new Vector2(slopeNormal.y, -slopeNormal.x);
+                    
+                    // 根据移动方向调整斜面方向
+                    if (targetSpeed < 0)
+                    {
+                        slopeDirection = -slopeDirection;
+                    }
+                    
+                    // targetSpeed 已经在前面应用了倍数
+                    // 保持水平速度不变，根据斜面角度计算垂直速度
+                    float slopeSpeedY = -Mathf.Abs(targetSpeed) * Mathf.Tan(slopeAngle * Mathf.Deg2Rad) * Mathf.Sign(slopeDirection.x);
+                    
+                    velocity = new Vector2(targetSpeed, slopeSpeedY);
+                    velocity.y -= 0.1f; // 添加小的向下力，确保贴合斜面
+                }
             }
             else
             {
-                // 在斜面上静止：直接设为0，不会下滑（因为重力已禁用）
-                velocity = Vector2.zero;
+                // 在斜面上静止：施加小的向下速度，确保贴合斜面
+                velocity = new Vector2(0f, -0.1f);
             }
         }
         else
@@ -338,8 +369,19 @@ public class Player : MonoBehaviour
             if (justLeftSlope)
             {
                 // 如果有向上的速度（从斜面带来的），直接归零，确保贴地
-                velocity.y = Mathf.Min(velocity.y, 0f);
+                velocity.y = Mathf.Min(velocity.y, -0.5f);
                 justJumped = false; // 落地了，重置跳跃标记
+                
+                // 恢复正常动画速度
+                if (animator != null && BaseMoveSpeed > 0 && Mathf.Abs(CurXMoveSpeed) > 0.01f)
+                {
+                    animator.speed = Mathf.Abs(CurXMoveSpeed / BaseMoveSpeed);
+                }
+            }
+            // 在地面上但不在斜面上，确保有向下的力贴地
+            else if (!inAir && !isOnSlope && Mathf.Abs(velocity.y) < 0.1f)
+            {
+                velocity.y = -0.5f;
             }
         }
         
@@ -549,6 +591,33 @@ public class Player : MonoBehaviour
         {
             isOnSlope = false;
         }
+    }
+    
+    /// <summary>
+    /// 检查斜面移动方向前方是否有障碍物
+    /// </summary>
+    private bool CheckSlopeObstacle(float moveDirection)
+    {
+        if (boxCollider == null) return false;
+        
+        // 确定检测方向（左或右）
+        Vector2 checkDir = moveDirection > 0 ? Vector2.right : Vector2.left;
+        
+        // 从角色中心位置检测
+        Vector2 origin = transform.position;
+        
+        // 使用BoxCast检测前方障碍物
+        RaycastHit2D hit = Physics2D.BoxCast(
+            origin,
+            boxCollider.size * 0.8f, // 使用略小的检测框
+            0f,
+            checkDir,
+            slopeObstacleCheckDistance,
+            groundMask
+        );
+        
+        // 如果检测到障碍物，返回true
+        return hit.collider != null;
     }
 
     bool IsTouchWall()
