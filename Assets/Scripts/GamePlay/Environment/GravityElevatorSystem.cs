@@ -216,7 +216,14 @@ namespace FlashParty.Environment
         {
             if (data is Player player && elevator != null)
             {
-                // 检查是否还有玩家在电梯上
+                // 首先检查玩家是否曾经在这个电梯上
+                // 如果 isPlayerOnElevator 为 false，说明玩家不在这个电梯上，直接返回
+                if (!isPlayerOnElevator)
+                {
+                    return;
+                }
+                
+                // 检查这个电梯上是否还有玩家
                 if (elevator.PlatformController.PlayerCount == 0)
                 {
                     isPlayerOnElevator = false;
