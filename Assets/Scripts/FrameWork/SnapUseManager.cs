@@ -36,21 +36,73 @@ public class SnapUseManager : MonoBehaviour
         ConfirmBtn.onClick.AddListener(OnConfirmBtnClick);
     }
 
+    private List<GameObject> _snapCloneElements = new List<GameObject>();
+    private Dictionary<Tilemap, List<SaveTileData>> _lastTiles = new Dictionary<Tilemap, List<SaveTileData>>();
+
     void OnConfirmBtnClick()
     {
+
+        // 清理之前得复制体
+        for(int i = 0; i < _snapCloneElements.Count; i++)
+        {
+            GameObject obj = _snapCloneElements[i];
+            if(obj != null)
+            {
+                DestroyImmediate(obj);
+            }
+        }
+        _snapCloneElements.Clear();
+
+        //恢复 tile 
+        foreach (var kvp in _lastTiles)
+        {
+            var tileMap = kvp.Key;
+            foreach (var std in kvp.Value)
+            {
+                tileMap.SetTile(std.pos.cell, std.tile);
+            }
+            tileMap.RefreshAllTiles();
+        }
+        _lastTiles.Clear();
+
         Debug.Log($"复制截图元素 中心点位置 {_snapMoveEndCell}");
         // 先处理Tile
         foreach (var kvp in _shotManager.curSnapshotTiles)
         {
             var tileMap = kvp.Key;
+            if(!_lastTiles.ContainsKey(tileMap))
+            {
+                _lastTiles[tileMap] = new List<SaveTileData>();
+            }
             // 这里可以加入你处理key的逻辑
             foreach (var std in kvp.Value)
             {
                 Vector3Int setCell = _snapMoveEndCell + new Vector3Int((int)std.pos.offset.x, (int)std.pos.offset.y, 0);
+
+                TileBase curTile = tileMap.GetTile(setCell);
+                SaveTileData curStd = new SaveTileData();
+                curStd.tile = curTile;
+                curStd.pos = new SnapPos();
+                curStd.pos.cell = setCell;
+                _lastTiles[tileMap].Add(curStd);
+
                 tileMap.SetTile(setCell, std.tile);
             }
             tileMap.RefreshAllTiles();                  // 或针对范围 RefreshTile
         }
+        _shotManager.curSnapshotTiles.Clear();
+
+        // 在处理元素
+        for(int i = 0; i < _shotManager.curSnapshotElements.Count; i++)
+        {
+            SaveElementData sed = _shotManager.curSnapshotElements[i];
+            Vector3 centerPos = _shotManager.BgTileMap.GetCellCenterWorld(_snapMoveEndCell) + sed.offset;
+            var clone = Instantiate(sed.obj);
+            clone.name = sed.obj.name + "_snap_clone";
+            clone.transform.position = centerPos;
+            _snapCloneElements.Add(clone);
+        }
+        _shotManager.curSnapshotElements.Clear();
         OnSnapUse(true);
     }
 
