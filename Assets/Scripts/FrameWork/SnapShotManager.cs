@@ -110,6 +110,7 @@ public class SnapShotManager : MonoBehaviour
         EnableGridShow(true);
         SnapGo.SetActive(true);
         RefreshSaveBtn(true);
+        ShowIgnore(false);
     }
 
     public Vector3Int GetPlayerTopCurCell()
@@ -155,6 +156,7 @@ public class SnapShotManager : MonoBehaviour
         // Debug.Log("[SnapShotManager] Snapshot End -> Resume Game");
         SnapGo.SetActive(false);
         EnableGridShow(false);
+        ShowIgnore(true);
         InSnaping = false;
     }
 
@@ -346,6 +348,18 @@ public class SnapShotManager : MonoBehaviour
             else
             {
                 esb.HiddenOutline();
+            }
+        }
+    }
+
+    void ShowIgnore(bool show)
+    {
+        for (int i = 0; i < AllElementSnapBound.Count; i++)
+        {
+            ElementSnapBound esb = AllElementSnapBound[i];
+            if(esb.ignoreSnap)
+            {
+                esb.gameObject.SetActive(show);
             }
         }
     }
