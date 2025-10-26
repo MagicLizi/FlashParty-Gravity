@@ -29,6 +29,8 @@ public class SnapShotManager : MonoBehaviour
 
     public List<Tilemap> AllTileMaps = new List<Tilemap>();
 
+    public List<ElementSnapBound> AllElementSnapBound = new List<ElementSnapBound>();
+
     private Vector4 _curSnapCenter = Vector4.zero;
 
     private Vector4 _curSnapSize = Vector4.zero;
@@ -155,6 +157,8 @@ public class SnapShotManager : MonoBehaviour
         InSnaping = false;
     }
 
+
+
     public void EnableGridShow(bool show)
     {
         BgTileMap.GetComponent<TilemapGridLinesDrawer>().enabled = show;
@@ -195,6 +199,7 @@ public class SnapShotManager : MonoBehaviour
             _curSnapCenter.y = Mathf.Clamp01(_curSnapCenter.y);
             _snapMat.SetVector("_HoleCenter", _curSnapCenter);
             RefreshSaveBtn(false);
+            SearchElements();
         }
     }
 
@@ -206,6 +211,7 @@ public class SnapShotManager : MonoBehaviour
     void OnSnapMoveEnd(object data)
     {
         XFTile();
+        SearchElements();
         RefreshSaveBtn(true);
     }
 
@@ -267,6 +273,80 @@ public class SnapShotManager : MonoBehaviour
         btnRT.anchoredPosition = chosen;
 
         SaveBtn.SetActive(show);
+    }
+
+    public List<ElementSnapBound> ElementsInSnapFully = new List<ElementSnapBound>();
+    public List<ElementSnapBound> ElementsInSnapIntersects = new List<ElementSnapBound>();
+    public void SearchElements()
+    {
+        ElementsInSnapFully.Clear();
+        ElementsInSnapIntersects.Clear();
+        if (Camera.main == null || AllElementSnapBound == null || AllElementSnapBound.Count == 0)
+        {
+            return;
+        }
+
+        float halfW01 = _curSnapSize.x * 0.5f;
+        float halfH01 = _curSnapSize.y * 0.5f;
+
+        Vector3 minWorld = Camera.main.ViewportToWorldPoint(new Vector3(
+            Mathf.Clamp01(_curSnapCenter.x - halfW01),
+            Mathf.Clamp01(_curSnapCenter.y - halfH01),
+            Camera.main.nearClipPlane));
+        Vector3 maxWorld = Camera.main.ViewportToWorldPoint(new Vector3(
+            Mathf.Clamp01(_curSnapCenter.x + halfW01),
+            Mathf.Clamp01(_curSnapCenter.y + halfH01),
+            Camera.main.nearClipPlane));
+
+        float xMin = Mathf.Min(minWorld.x, maxWorld.x);
+        float xMax = Mathf.Max(minWorld.x, maxWorld.x);
+        float yMin = Mathf.Min(minWorld.y, maxWorld.y);
+        float yMax = Mathf.Max(minWorld.y, maxWorld.y);
+        Rect worldRect = Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+
+        for (int i = 0; i < AllElementSnapBound.Count; i++)
+        {
+            ElementSnapBound esb = AllElementSnapBound[i];
+            if (esb == null) continue;
+            Bounds b = esb.GetWorldBounds();
+
+            bool fullyInside = BoundsInsideRect2D(b, worldRect);
+            bool intersects = BoundsIntersectsRect2D(b, worldRect);
+
+            if (fullyInside)
+            {
+                Debug.Log($"Snap 完全包含元素: {esb.gameObject.name}");
+                esb.ShowAllInOutline();
+                ElementsInSnapFully.Add(esb);
+            }
+            else if (intersects)
+            {
+                Debug.Log($"Snap 相交元素: {esb.gameObject.name}");
+                esb.ShowInterOutline();
+                ElementsInSnapIntersects.Add(esb);
+            }
+            else
+            {
+                esb.HiddenOutline();
+            }
+        }
+    }
+
+    bool BoundsIntersectsRect2D(Bounds b, Rect r)
+    {
+        float bxMin = b.min.x;
+        float bxMax = b.max.x;
+        float byMin = b.min.y;
+        float byMax = b.max.y;
+
+        bool overlapX = bxMin <= r.xMax && bxMax >= r.xMin;
+        bool overlapY = byMin <= r.yMax && byMax >= r.yMin;
+        return overlapX && overlapY;
+    }
+
+    bool BoundsInsideRect2D(Bounds b, Rect r)
+    {
+        return b.min.x >= r.xMin && b.max.x <= r.xMax && b.min.y >= r.yMin && b.max.y <= r.yMax;
     }
 
     void XFTile()

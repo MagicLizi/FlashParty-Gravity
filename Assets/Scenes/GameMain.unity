@@ -1246,6 +1246,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6739490041983501934, guid: 89cb5339b4cc1ef458b356a62d20cbd3, type: 3}
   m_PrefabInstance: {fileID: 446343229}
   m_PrefabAsset: {fileID: 0}
+--- !u!212 &448117362 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 2666237085811873777, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+  m_PrefabInstance: {fileID: 589524210}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1508,6 +1513,70 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 133329033417947951, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: Render
+      value: 
+      objectReference: {fileID: 448117362}
+    - target: {fileID: 1220976750600238751, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2489812121094745823, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2666237085811873777, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_DrawMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2666237085811873777, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SortingLayer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2666237085811873777, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SortingLayerID
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2666237085811873777, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SpriteTileMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2666237085811873777, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 7382642240051290031, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7382642240051290031, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7382642240051290031, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SpriteTilingProperty.drawMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7382642240051290031, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7382642240051290031, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7382642240051290031, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7382642240051290031, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 1.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7382642240051290031, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
+      propertyPath: m_SpriteTilingProperty.adaptiveTilingThreshold
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8211630724641669309, guid: 159e0b246bd79aa4f800a8fe6f3a1c89, type: 3}
       propertyPath: m_Name
       value: BoxCanDestroy
