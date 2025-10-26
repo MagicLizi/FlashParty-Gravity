@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: 6129248378466049254}
   - component: {fileID: 8445757580346393063}
   - component: {fileID: 4398527442008437388}
+  - component: {fileID: 1764510929043852954}
   m_Layer: 6
   m_Name: MovingPlatform
   m_TagString: Untagged
@@ -218,6 +219,30 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   autoStart: 1
+--- !u!114 &1764510929043852954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 550981435286092697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 397266502954fdb4281e12171757494b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerOffset: {x: 0, y: 0}
+  size: {x: 1, y: 1}
+  drawAlways: 1
+  drawWhenSelected: 1
+  drawFilled: 0
+  gizmoColor: {r: 1, g: 0.6, b: 0.1, a: 0.8}
+  wireColor: {r: 1, g: 0.6, b: 0.1, a: 1}
+  Render: {fileID: 0}
+  ignoreSnap: 1
+  outlineColor: {r: 0, g: 1, b: 0, a: 1}
+  interOutlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 0.5
 --- !u!1 &3210191657520356098
 GameObject:
   m_ObjectHideFlags: 0

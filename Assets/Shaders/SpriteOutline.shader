@@ -31,6 +31,7 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
         ZWrite Off
         Blend One OneMinusSrcAlpha
 
+        // Pass 1: 绘制描边（8个方向偏移）
         Pass
         {
             CGPROGRAM
@@ -58,10 +59,360 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float4 _MainTex_TexelSize;
-            fixed4 _Color;
             fixed4 _OutlineColor;
             float _OutlineSize;
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+                
+                // 先转换到裁剪空间
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                
+                // 在屏幕空间扩展顶点（创建描边效果）
+                float2 offset = float2(1, 1) * _OutlineSize * 0.01;
+                o.vertex.xy += offset * o.vertex.w;
+                
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                o.color = v.color;
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 c = tex2D(_MainTex, i.texcoord);
+                
+                // 输出描边颜色
+                fixed4 outline = _OutlineColor;
+                outline.a *= c.a;
+                outline.rgb *= outline.a;
+                return outline;
+            }
+            ENDCG
+        }
+        
+        // Pass 2-9: 8个方向的描边
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 texcoord : TEXCOORD0;
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float2 texcoord : TEXCOORD0;
+            };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _OutlineColor;
+            float _OutlineSize;
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                float2 offset = float2(0, 1) * _OutlineSize * 0.01;
+                o.vertex.xy += offset * o.vertex.w;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 c = tex2D(_MainTex, i.texcoord);
+                fixed4 outline = _OutlineColor;
+                outline.a *= c.a;
+                outline.rgb *= outline.a;
+                return outline;
+            }
+            ENDCG
+        }
+        
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _OutlineColor;
+            float _OutlineSize;
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex.xy += float2(0, -1) * _OutlineSize * 0.01 * o.vertex.w;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 c = tex2D(_MainTex, i.texcoord);
+                fixed4 outline = _OutlineColor;
+                outline.a *= c.a;
+                outline.rgb *= outline.a;
+                return outline;
+            }
+            ENDCG
+        }
+        
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _OutlineColor;
+            float _OutlineSize;
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex.xy += float2(-1, 0) * _OutlineSize * 0.01 * o.vertex.w;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 c = tex2D(_MainTex, i.texcoord);
+                fixed4 outline = _OutlineColor;
+                outline.a *= c.a;
+                outline.rgb *= outline.a;
+                return outline;
+            }
+            ENDCG
+        }
+        
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _OutlineColor;
+            float _OutlineSize;
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex.xy += float2(1, 0) * _OutlineSize * 0.01 * o.vertex.w;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 c = tex2D(_MainTex, i.texcoord);
+                fixed4 outline = _OutlineColor;
+                outline.a *= c.a;
+                outline.rgb *= outline.a;
+                return outline;
+            }
+            ENDCG
+        }
+        
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _OutlineColor;
+            float _OutlineSize;
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex.xy += float2(-1, 1) * _OutlineSize * 0.01 * o.vertex.w;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 c = tex2D(_MainTex, i.texcoord);
+                fixed4 outline = _OutlineColor;
+                outline.a *= c.a;
+                outline.rgb *= outline.a;
+                return outline;
+            }
+            ENDCG
+        }
+        
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _OutlineColor;
+            float _OutlineSize;
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex.xy += float2(1, 1) * _OutlineSize * 0.01 * o.vertex.w;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 c = tex2D(_MainTex, i.texcoord);
+                fixed4 outline = _OutlineColor;
+                outline.a *= c.a;
+                outline.rgb *= outline.a;
+                return outline;
+            }
+            ENDCG
+        }
+        
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _OutlineColor;
+            float _OutlineSize;
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex.xy += float2(-1, -1) * _OutlineSize * 0.01 * o.vertex.w;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 c = tex2D(_MainTex, i.texcoord);
+                fixed4 outline = _OutlineColor;
+                outline.a *= c.a;
+                outline.rgb *= outline.a;
+                return outline;
+            }
+            ENDCG
+        }
+        
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+
+            struct appdata { float4 vertex : POSITION; float2 texcoord : TEXCOORD0; };
+            struct v2f { float4 vertex : SV_POSITION; float2 texcoord : TEXCOORD0; };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _OutlineColor;
+            float _OutlineSize;
+
+            v2f vert(appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex.xy += float2(1, -1) * _OutlineSize * 0.01 * o.vertex.w;
+                o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 c = tex2D(_MainTex, i.texcoord);
+                fixed4 outline = _OutlineColor;
+                outline.a *= c.a;
+                outline.rgb *= outline.a;
+                return outline;
+            }
+            ENDCG
+        }
+        
+        // Pass 10: 绘制原始sprite
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma target 2.0
+            #pragma multi_compile_instancing
+            #include "UnityCG.cginc"
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float4 color : COLOR;
+                float2 texcoord : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                fixed4 color : COLOR;
+                float2 texcoord : TEXCOORD0;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            fixed4 _Color;
 
             v2f vert(appdata v)
             {
@@ -79,38 +430,9 @@ Shader "Universal Render Pipeline/2D/Sprite-Outline"
             {
                 // 采样原始纹理
                 fixed4 c = tex2D(_MainTex, i.texcoord);
-                
-                // 如果当前像素不透明，直接返回原色
-                if (c.a > 0.01)
-                {
-                    c *= i.color;
-                    c.rgb *= c.a;
-                    return c;
-                }
-                
-                // 当前像素透明，检查周围是否有不透明像素来绘制描边
-                float2 pixelSize = _MainTex_TexelSize.xy * _OutlineSize;
-                
-                fixed alphaSum = 0;
-                alphaSum += tex2D(_MainTex, i.texcoord + float2(0, pixelSize.y)).a;
-                alphaSum += tex2D(_MainTex, i.texcoord + float2(0, -pixelSize.y)).a;
-                alphaSum += tex2D(_MainTex, i.texcoord + float2(-pixelSize.x, 0)).a;
-                alphaSum += tex2D(_MainTex, i.texcoord + float2(pixelSize.x, 0)).a;
-                alphaSum += tex2D(_MainTex, i.texcoord + float2(-pixelSize.x, pixelSize.y)).a;
-                alphaSum += tex2D(_MainTex, i.texcoord + float2(pixelSize.x, pixelSize.y)).a;
-                alphaSum += tex2D(_MainTex, i.texcoord + float2(-pixelSize.x, -pixelSize.y)).a;
-                alphaSum += tex2D(_MainTex, i.texcoord + float2(pixelSize.x, -pixelSize.y)).a;
-                
-                // 如果周围有不透明像素，绘制描边
-                if (alphaSum > 0.01)
-                {
-                    fixed4 outline = _OutlineColor;
-                    outline.rgb *= outline.a;
-                    return outline;
-                }
-                
-                // 完全透明
-                return fixed4(0, 0, 0, 0);
+                c *= i.color;
+                c.rgb *= c.a;
+                return c;
             }
             ENDCG
         }

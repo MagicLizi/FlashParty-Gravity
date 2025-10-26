@@ -4324,6 +4324,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 315150258716391965}
+  - component: {fileID: 2099666114504805265}
   m_Layer: 0
   m_Name: Track_Vertical (1)
   m_TagString: Untagged
@@ -4331,6 +4332,30 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &2099666114504805265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2099666114504805264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 397266502954fdb4281e12171757494b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerOffset: {x: 0, y: 0}
+  size: {x: 1, y: 1}
+  drawAlways: 1
+  drawWhenSelected: 1
+  drawFilled: 0
+  gizmoColor: {r: 1, g: 0.6, b: 0.1, a: 0.8}
+  wireColor: {r: 1, g: 0.6, b: 0.1, a: 1}
+  Render: {fileID: 0}
+  ignoreSnap: 1
+  outlineColor: {r: 0, g: 1, b: 0, a: 1}
+  interOutlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 0.5
 --- !u!212 &2563117807495868256
 SpriteRenderer:
   m_ObjectHideFlags: 0
