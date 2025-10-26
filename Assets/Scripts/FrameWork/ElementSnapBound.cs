@@ -18,15 +18,17 @@ public class ElementSnapBound : MonoBehaviour
     public Color gizmoColor = new Color(1f, 0.6f, 0.1f, 0.8f);
     public Color wireColor = new Color(1f, 0.6f, 0.1f, 1f);
 
-    public SpriteRenderer Render;
-
     [Header("描边设置")]
+    [Tooltip("需要应用描边的所有 SpriteRenderer（为空则自动获取子对象的所有 SpriteRenderer）")]
+    public SpriteRenderer[] Renders;
+    
+    [Header("描边颜色")]
     public Color outlineColor = Color.green;
-
     public Color interOutlineColor = Color.red;
     [Min(0f)] public float outlineWidth = 0.5f;
+    
     private string outlineShaderName = "Universal Render Pipeline/2D/Sprite-Outline";
-    private Material _outlineMat;
+    private Material[] _outlineMats;
 
     public Vector3 GetWorldCenter()
     {
@@ -77,26 +79,37 @@ public class ElementSnapBound : MonoBehaviour
         mgr = FindObjectOfType<SnapShotManager>();
         mgr.AllElementSnapBound.Add(this);
 
-        SpriteRenderer target = Render != null ? Render : GetComponentInChildren<SpriteRenderer>();
-        if (target == null)
+        // 如果未配置 Renders，自动获取子对象的所有 SpriteRenderer
+        if (Renders == null || Renders.Length == 0)
+        {
+            Renders = GetComponentsInChildren<SpriteRenderer>();
+        }
+
+        if (Renders == null || Renders.Length == 0)
         {
             Debug.LogWarning($"[{nameof(ElementSnapBound)}] 未找到 SpriteRenderer，无法应用描边。");
             return;
         }
 
-        if (_outlineMat == null)
+        // 为每个 SpriteRenderer 创建独立的材质
+        Shader s = Shader.Find(outlineShaderName);
+        if (s == null)
         {
-            Shader s = Shader.Find(outlineShaderName);
-            if (s == null)
-            {
-                Debug.LogWarning($"[{nameof(ElementSnapBound)}] 未找到 Shader: {outlineShaderName}");
-                return;
-            }
-            _outlineMat = new Material(s);
-            _outlineMat.hideFlags = HideFlags.HideAndDontSave;
+            Debug.LogWarning($"[{nameof(ElementSnapBound)}] 未找到 Shader: {outlineShaderName}");
+            return;
         }
 
-        target.material = _outlineMat;
+        _outlineMats = new Material[Renders.Length];
+        for (int i = 0; i < Renders.Length; i++)
+        {
+            if (Renders[i] != null)
+            {
+                _outlineMats[i] = new Material(s);
+                _outlineMats[i].hideFlags = HideFlags.HideAndDontSave;
+                Renders[i].material = _outlineMats[i];
+            }
+        }
+
         HiddenOutline();
     }
 
@@ -113,40 +126,80 @@ public class ElementSnapBound : MonoBehaviour
             }
         }
 
-        if (_outlineMat != null)
+        // 销毁所有材质
+        if (_outlineMats != null)
         {
-            Destroy(_outlineMat);
-            _outlineMat = null;
+            foreach (var mat in _outlineMats)
+            {
+                if (mat != null)
+                {
+                    Destroy(mat);
+                }
+            }
+            _outlineMats = null;
         }
     }
 
+    /// <summary>
+    /// 显示成功描边（Bound在视口内）
+    /// </summary>
     public void ShowAllInOutline()
     {
-        if (_outlineMat.HasProperty("_OutlineColor"))
+        if (_outlineMats == null) return;
+        
+        foreach (var mat in _outlineMats)
         {
-            _outlineMat.SetColor("_OutlineColor", outlineColor);
-        }
-        if (_outlineMat.HasProperty("_OutlineSize"))
-        {
-            _outlineMat.SetFloat("_OutlineSize", outlineWidth);
+            if (mat != null)
+            {
+                if (mat.HasProperty("_OutlineColor"))
+                {
+                    mat.SetColor("_OutlineColor", outlineColor);
+                }
+                if (mat.HasProperty("_OutlineSize"))
+                {
+                    mat.SetFloat("_OutlineSize", outlineWidth);
+                }
+            }
         }
     }
 
+    /// <summary>
+    /// 显示失败描边（Bound不在视口内）
+    /// </summary>
     public void ShowInterOutline()
     {
-        if (_outlineMat.HasProperty("_OutlineColor"))
+        if (_outlineMats == null) return;
+        
+        foreach (var mat in _outlineMats)
         {
-            _outlineMat.SetColor("_OutlineColor", interOutlineColor);
-        }
-        if (_outlineMat.HasProperty("_OutlineSize"))
-        {
-            _outlineMat.SetFloat("_OutlineSize", outlineWidth);
+            if (mat != null)
+            {
+                if (mat.HasProperty("_OutlineColor"))
+                {
+                    mat.SetColor("_OutlineColor", interOutlineColor);
+                }
+                if (mat.HasProperty("_OutlineSize"))
+                {
+                    mat.SetFloat("_OutlineSize", outlineWidth);
+                }
+            }
         }
     }
 
+    /// <summary>
+    /// 隐藏描边
+    /// </summary>
     public void HiddenOutline()
     {
-        _outlineMat.SetFloat("_OutlineSize", 0);
+        if (_outlineMats == null) return;
+        
+        foreach (var mat in _outlineMats)
+        {
+            if (mat != null)
+            {
+                mat.SetFloat("_OutlineSize", 0);
+            }
+        }
     }
 }
 

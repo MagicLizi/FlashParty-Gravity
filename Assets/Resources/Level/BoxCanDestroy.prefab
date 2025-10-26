@@ -297,6 +297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 397266502954fdb4281e12171757494b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ignoreSnap: 0
   centerOffset: {x: 0, y: 0.96}
   size: {x: 0.8, y: 2.8}
   drawAlways: 1
@@ -304,8 +305,8 @@ MonoBehaviour:
   drawFilled: 0
   gizmoColor: {r: 1, g: 0.6, b: 0.1, a: 0.8}
   wireColor: {r: 1, g: 0.6, b: 0.1, a: 1}
-  Render: {fileID: 2666237085811873777}
-  ignoreSnap: 0
+  Renders:
+  - {fileID: 2666237085811873777}
   outlineColor: {r: 0, g: 1, b: 0, a: 1}
   interOutlineColor: {r: 1, g: 0, b: 0, a: 1}
   outlineWidth: 0.5

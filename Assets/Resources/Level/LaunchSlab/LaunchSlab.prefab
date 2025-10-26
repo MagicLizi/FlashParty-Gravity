@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6778338620913953313}
   - component: {fileID: 6243486041528523697}
   - component: {fileID: 2264733011150818541}
+  - component: {fileID: 1684779119199693163}
   m_Layer: 6
   m_Name: LaunchSlab
   m_TagString: Untagged
@@ -200,6 +201,31 @@ MonoBehaviour:
   cooldownTime: 2
   hitFlyDuration: 0.5
   triggerCollider: {fileID: 1447686592309177204}
+--- !u!114 &1684779119199693163
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2596324799874531981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 397266502954fdb4281e12171757494b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ignoreSnap: 0
+  centerOffset: {x: 0.24, y: 0}
+  size: {x: 0.3, y: 2.67}
+  drawAlways: 1
+  drawWhenSelected: 1
+  drawFilled: 0
+  gizmoColor: {r: 1, g: 0.6, b: 0.1, a: 0.8}
+  wireColor: {r: 1, g: 0.6, b: 0.1, a: 1}
+  Renders:
+  - {fileID: 5542744327937441746}
+  outlineColor: {r: 0, g: 1, b: 0, a: 1}
+  interOutlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 0.5
 --- !u!1 &6701356667183038997
 GameObject:
   m_ObjectHideFlags: 0
