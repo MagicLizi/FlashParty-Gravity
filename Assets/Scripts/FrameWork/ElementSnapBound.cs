@@ -22,7 +22,7 @@ public class ElementSnapBound : MonoBehaviour
     public Color outlineColor = Color.green;
 
     public Color interOutlineColor = Color.red;
-    [Min(0f)] public float outlineWidth = 1f;
+    [Min(0f)] public float outlineWidth = 0.5f;
     private string outlineShaderName = "Universal Render Pipeline/2D/Sprite-Outline";
     private Material _outlineMat;
 

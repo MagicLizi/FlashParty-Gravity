@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 1330625776841703567}
   - component: {fileID: 597853831052788207}
   - component: {fileID: 3510748699592964103}
+  - component: {fileID: 1121390735030179138}
   m_Layer: 8
   m_Name: CheckPoint
   m_TagString: Untagged
@@ -140,7 +141,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: fe2e9187185e0a541988cbfc01c3eab3, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -255,3 +256,27 @@ MonoBehaviour:
   riseHeight: 1
   animationDuration: 1
   showDebugInfo: 1
+--- !u!114 &1121390735030179138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7755534340302750963}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 397266502954fdb4281e12171757494b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  centerOffset: {x: 0, y: 0}
+  size: {x: 1, y: 1}
+  drawAlways: 1
+  drawWhenSelected: 1
+  drawFilled: 0
+  gizmoColor: {r: 1, g: 0.6, b: 0.1, a: 0.8}
+  wireColor: {r: 1, g: 0.6, b: 0.1, a: 1}
+  Render: {fileID: 0}
+  ignoreSnap: 1
+  outlineColor: {r: 0, g: 1, b: 0, a: 1}
+  interOutlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 0.5
