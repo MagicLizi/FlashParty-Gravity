@@ -111,6 +111,7 @@ public class SnapShotManager : MonoBehaviour
         SnapGo.SetActive(true);
         RefreshSaveBtn(true);
         ShowIgnore(false);
+        SearchElements();
     }
 
     public Vector3Int GetPlayerTopCurCell()
@@ -157,9 +158,18 @@ public class SnapShotManager : MonoBehaviour
         SnapGo.SetActive(false);
         EnableGridShow(false);
         ShowIgnore(true);
+        for (int i = 0; i < ElementsInSnapFully.Count; i++)
+        {
+            ElementSnapBound esb = ElementsInSnapFully[i];
+            esb.HiddenOutline();
+        }
+        for (int i = 0; i < ElementsInSnapIntersects.Count; i++)
+        {
+            ElementSnapBound esb = ElementsInSnapIntersects[i];
+            esb.HiddenOutline();
+        }
         InSnaping = false;
     }
-
 
 
     public void EnableGridShow(bool show)
@@ -213,9 +223,12 @@ public class SnapShotManager : MonoBehaviour
 
     void OnSnapMoveEnd(object data)
     {
-        XFTile();
-        SearchElements();
-        RefreshSaveBtn(true);
+        if (InSnaping)
+        {
+            XFTile();
+            SearchElements();
+            RefreshSaveBtn(true);
+        }
     }
 
     void RefreshSaveBtn(bool show)
@@ -357,7 +370,7 @@ public class SnapShotManager : MonoBehaviour
         for (int i = 0; i < AllElementSnapBound.Count; i++)
         {
             ElementSnapBound esb = AllElementSnapBound[i];
-            if(esb.ignoreSnap)
+            if (esb.ignoreSnap)
             {
                 esb.gameObject.SetActive(show);
             }
@@ -422,6 +435,16 @@ public class SnapShotManager : MonoBehaviour
         if (InSnaping)
         {
             Debug.Log("保存当前截取内容！");
+            for (int i = 0; i < ElementsInSnapFully.Count; i++)
+            {
+                ElementSnapBound esb = ElementsInSnapFully[i];
+                esb.HiddenOutline();
+            }
+            for (int i = 0; i < ElementsInSnapIntersects.Count; i++)
+            {
+                ElementSnapBound esb = ElementsInSnapIntersects[i];
+                esb.HiddenOutline();
+            }
             StartCoroutine(CaptureViewportAndEnd());
         }
     }
@@ -516,6 +539,19 @@ public class SnapShotManager : MonoBehaviour
             }
         }
 
+        List<GameObject> hiddenObjList = new List<GameObject>();
+        for (int i = 0; i < ElementsInSnapIntersects.Count; i++)
+        {
+            ElementSnapBound esb = ElementsInSnapIntersects[i];
+            if (esb != null)
+            {
+                hiddenObjList.Add(esb.gameObject);
+                esb.gameObject.SetActive(false);
+            }
+        }
+
+        Player.gameObject.SetActive(false);
+
         yield return new WaitForEndOfFrame();
 
         Rect pixelRect = ComputeCapturePixelRect();
@@ -544,6 +580,17 @@ public class SnapShotManager : MonoBehaviour
         {
             drawer.enabled = prevEnabled;
         }
+
+        for (int i = 0; i < hiddenObjList.Count; i++)
+        {
+            GameObject obj = hiddenObjList[i];
+            if (obj != null)
+            {
+                obj.SetActive(true);
+            }
+        }
+
+        Player.gameObject.SetActive(true);
 
         if (onDone != null)
         {
