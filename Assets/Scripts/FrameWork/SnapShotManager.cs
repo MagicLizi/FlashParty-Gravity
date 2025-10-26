@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Tilemaps;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class SnapShotManager : MonoBehaviour
 {
@@ -277,10 +278,13 @@ public class SnapShotManager : MonoBehaviour
 
     public List<ElementSnapBound> ElementsInSnapFully = new List<ElementSnapBound>();
     public List<ElementSnapBound> ElementsInSnapIntersects = new List<ElementSnapBound>();
+
+    public List<ElementSnapBound> ElementsIgnoreSnap = new List<ElementSnapBound>();
     public void SearchElements()
     {
         ElementsInSnapFully.Clear();
         ElementsInSnapIntersects.Clear();
+        ElementsIgnoreSnap.Clear();
         if (Camera.main == null || AllElementSnapBound == null || AllElementSnapBound.Count == 0)
         {
             return;
@@ -316,14 +320,28 @@ public class SnapShotManager : MonoBehaviour
             if (fullyInside)
             {
                 Debug.Log($"Snap 完全包含元素: {esb.gameObject.name}");
-                esb.ShowAllInOutline();
-                ElementsInSnapFully.Add(esb);
+                if (!esb.ignoreSnap)
+                {
+                    esb.ShowAllInOutline();
+                    ElementsInSnapFully.Add(esb);
+                }
+                else
+                {
+                    ElementsIgnoreSnap.Add(esb);
+                }
             }
             else if (intersects)
             {
                 Debug.Log($"Snap 相交元素: {esb.gameObject.name}");
-                esb.ShowInterOutline();
-                ElementsInSnapIntersects.Add(esb);
+                if (!esb.ignoreSnap)
+                {
+                    esb.ShowInterOutline();
+                    ElementsInSnapIntersects.Add(esb);
+                }
+                else
+                {
+                    ElementsIgnoreSnap.Add(esb);
+                }
             }
             else
             {

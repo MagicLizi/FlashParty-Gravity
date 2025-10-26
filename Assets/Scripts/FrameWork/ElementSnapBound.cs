@@ -16,6 +16,8 @@ public class ElementSnapBound : MonoBehaviour
 
     public SpriteRenderer Render;
 
+    public bool ignoreSnap = false;
+
     [Header("描边设置")]
     public Color outlineColor = Color.green;
 
