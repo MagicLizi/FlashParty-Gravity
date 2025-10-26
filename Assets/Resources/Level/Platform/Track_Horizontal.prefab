@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 315150259559611479}
   m_Layer: 0
-  m_Name: MovingPlatform_track
+  m_Name: Track_Horizontal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -652,7 +652,7 @@ public class Player : MonoBehaviour
     {
         if (data is Player player && player == this)
         {
-            Debug.Log("Player entered moving platform");
+           // Debug.Log("Player entered moving platform");
             // 可以在这里添加进入平台的特殊逻辑，比如改变状态或播放音效
         }
     }
@@ -661,7 +661,7 @@ public class Player : MonoBehaviour
     {
         if (data is Player player && player == this)
         {
-            Debug.Log("Player left moving platform");
+           // Debug.Log("Player left moving platform");
             // 可以在这里添加离开平台的特殊逻辑
         }
     }
