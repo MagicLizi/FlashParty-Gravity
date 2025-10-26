@@ -21,6 +21,9 @@ public enum EventType
     GamePadSnapMove,
 
     SnapMoveEnd,
+
+    SnapUse,
+
     // 平台相关事件
     PlatformTrigger,        // 平台触发
     PlatformStartMove,      // 平台开始移动
@@ -62,7 +65,7 @@ public class EventManager : SingleTon<EventManager>
         if (eventDictionary.ContainsKey(eventName))
         {
             eventDictionary[eventName] -= listener;
-            
+
             // 如果没有监听器了，删除这个事件
             if (eventDictionary[eventName] == null)
             {

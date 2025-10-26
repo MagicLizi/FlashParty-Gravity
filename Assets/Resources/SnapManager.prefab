@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7112903979990173598}
   - component: {fileID: 4014524212776500132}
+  - component: {fileID: 6830235215469069877}
   m_Layer: 0
   m_Name: SnapManager
   m_TagString: Untagged
@@ -48,11 +49,21 @@ MonoBehaviour:
   SnapHeight: 3
   alpha: 0.75
   SnapGo: {fileID: 0}
-  SaveBtn: {fileID: 0}
-  Player: {fileID: 0}
   InSnaping: 0
   BgTileMap: {fileID: 0}
   AllTileMaps:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+--- !u!114 &6830235215469069877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7378929217432327049}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a52b2230e377324eac0fe35d4c19107, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

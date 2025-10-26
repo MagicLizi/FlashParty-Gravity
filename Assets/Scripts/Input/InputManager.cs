@@ -29,6 +29,8 @@ public class InputManager : MonoSingleton<InputManager>
 
     private bool inSnapShot = false;
 
+    private bool inSnapUse = false;
+
     private bool startSnapMove = false;
 
     InputAction moveAction;
@@ -42,6 +44,7 @@ public class InputManager : MonoSingleton<InputManager>
         AddInputCallback("Special", OnSpecialStart, OnSpecial, OnSpecialEnd);
         AddInputCallback("Reset", OnReset);
         AddInputCallback("Snapshot", null, OnSnapshot, null);
+        AddInputCallback("SnapUse", null, OnSnapUse, null);
         AddInputCallback("CancelSnap", null, OnSnapshotEnd, null);
         //鼠标
         AddInputCallback("TriggerMoveSnap", MouseStartSnapMove, null, MouseEndSnapMove);
@@ -224,12 +227,24 @@ public class InputManager : MonoSingleton<InputManager>
         EventManager.Instance.TriggerEvent(EventType.Snapshot, false);
     }
 
+    void OnSnapUse(InputAction.CallbackContext value)
+    {
+        inSnapUse = true;
+        EventManager.Instance.TriggerEvent(EventType.SnapUse, false);
+    }
+
     void OnSnapshotEnd(InputAction.CallbackContext value)
     {
         if (inSnapShot)
         {
             inSnapShot = false;
             EventManager.Instance.TriggerEvent(EventType.Snapshot, true);
+        }
+
+        if(inSnapUse)
+        {
+            inSnapUse = false;
+            EventManager.Instance.TriggerEvent(EventType.SnapUse, true);
         }
     }
 
@@ -249,7 +264,7 @@ public class InputManager : MonoSingleton<InputManager>
 
     void MouseStartSnapMove(InputAction.CallbackContext value)
     {
-        if (inSnapShot)
+        if (inSnapShot || inSnapUse)
         {
             startSnapMove = true;
             EventManager.Instance.TriggerEvent(EventType.SnapMoveBegin);
@@ -258,7 +273,7 @@ public class InputManager : MonoSingleton<InputManager>
 
     void MouseEndSnapMove(InputAction.CallbackContext value)
     {
-        if (inSnapShot)
+        if (inSnapShot || inSnapUse)
         {
             EventManager.Instance.TriggerEvent(EventType.SnapMoveEnd);
         }

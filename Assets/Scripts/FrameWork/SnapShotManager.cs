@@ -31,7 +31,13 @@ public class SnapShotManager : MonoBehaviour
 
     private Vector4 _curSnapCenter = Vector4.zero;
 
+    private Vector4 _curSnapSize = Vector4.zero;
+
     Canvas _canvas;
+
+    public RenderTexture LastSnapshotRT;
+
+    public RawImage CopyImg;
 
     void Awake()
     {
@@ -85,22 +91,32 @@ public class SnapShotManager : MonoBehaviour
         previousTimeScale = Time.timeScale;
         previousFixedDeltaTime = Time.fixedDeltaTime;
         InSnaping = true;
-        Time.timeScale = 0f;
-        Time.fixedDeltaTime = 0f;
+        PauseGame();
         // Debug.Log("[SnapShotManager] Snapshot Start -> Pause Game");
         _snapMat.SetColor("_Color", new Color(0, 0, 0, alpha));
         float orthoHeight = Camera.main.orthographicSize * 2f;
         float orthoWidth = orthoHeight * Camera.main.aspect;
         float percentageX = Mathf.Clamp01(SnapWidth / orthoWidth);
         float percentageY = Mathf.Clamp01(SnapHeight / orthoHeight);
-        _snapMat.SetVector("_HoleSize", new Vector4(percentageX, percentageY, 0, 0));
+        _curSnapSize = new Vector4(percentageX, percentageY, 0, 0);
+        _snapMat.SetVector("_HoleSize", _curSnapSize);
         if (Player != null && Camera.main != null)
         {
             RefreshCurSnapShotTiles(Player.transform.position + new Vector3(0, 1.05f, 0));
         }
-        BgTileMap.GetComponent<TilemapGridLinesDrawer>().enabled = true;
+        EnableGridShow(true);
         SnapGo.SetActive(true);
         RefreshSaveBtn(true);
+    }
+
+    public Vector3Int GetPlayerTopCurCell()
+    {
+        if (Player != null && Camera.main != null)
+        {
+            float offsetY = 2.1f + (int)SnapHeight / 2;
+            return GetCellAtPosition(BgTileMap, Player.transform.position + new Vector3(0, offsetY, 0));
+        }
+        return Vector3Int.zero;
     }
 
     private void RefreshCurSnapShotTiles(Vector3 centerPos)
@@ -132,13 +148,28 @@ public class SnapShotManager : MonoBehaviour
             return;
         }
         snapshotActive = false;
-
-        Time.timeScale = previousTimeScale <= 0f ? 1f : previousTimeScale;
-        Time.fixedDeltaTime = previousFixedDeltaTime > 0f ? previousFixedDeltaTime : 0.02f;
+        ResumeGame();
         // Debug.Log("[SnapShotManager] Snapshot End -> Resume Game");
         SnapGo.SetActive(false);
-        BgTileMap.GetComponent<TilemapGridLinesDrawer>().enabled = false;
+        EnableGridShow(false);
         InSnaping = false;
+    }
+
+    public void EnableGridShow(bool show)
+    {
+        BgTileMap.GetComponent<TilemapGridLinesDrawer>().enabled = show;
+    }
+
+    public void PauseGame()
+    {
+        Time.timeScale = 0f;
+        Time.fixedDeltaTime = 0f;
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = previousTimeScale <= 0f ? 1f : previousTimeScale;
+        Time.fixedDeltaTime = previousFixedDeltaTime > 0f ? previousFixedDeltaTime : 0.02f;
     }
 
     /// 角色当前所处的“格坐标”（含z=tilemap的z）
@@ -180,22 +211,62 @@ public class SnapShotManager : MonoBehaviour
 
     void RefreshSaveBtn(bool show)
     {
-        Vector3 viewportCenterWorldPos = Camera.main.ViewportToWorldPoint(new Vector3(_curSnapCenter.x, _curSnapCenter.y, Camera.main.nearClipPlane));
-        Vector3 screen = Camera.main.WorldToScreenPoint(viewportCenterWorldPos);
-        RectTransform rt = SaveBtn.GetComponent<RectTransform>();
+        RectTransform btnRT = SaveBtn.GetComponent<RectTransform>();
         RectTransform canvasRT = _canvas.transform as RectTransform;
-        Vector2 localPoint;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRT, screen, null, out localPoint);
 
-        float xOffsetUnit = SnapWidth / 2f;
-        float viewPointwdith = OrthoViewportUtil.UnitToViewportWidth(xOffsetUnit);
-        float viewPointHeightPixel = viewPointwdith * ((RectTransform)_canvas.transform).rect.width + 10;
+        // 计算洞中心在 Canvas 局部坐标
+        Vector3 centerScreen = Camera.main.ViewportToScreenPoint(new Vector3(_curSnapCenter.x, _curSnapCenter.y, 0));
+        Vector2 centerLocal;
+        Camera uiCam = (_canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay) ? _canvas.worldCamera : null;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRT, centerScreen, uiCam, out centerLocal);
 
-        Vector2 pixelOffset = new Vector2(viewPointHeightPixel + 80, 0);
-        rt.anchoredPosition = localPoint + pixelOffset;
+        // 洞的尺寸（Canvas 局部单位）
+        Rect canvasRect = canvasRT.rect;
+        float holeW = _curSnapSize.x * canvasRect.width;
+        float holeH = _curSnapSize.y * canvasRect.height;
+        float holeHalfW = holeW * 0.5f;
+        float holeHalfH = holeH * 0.5f;
+
+        // 按钮尺寸/边距/额外偏移
+        Vector2 btnSize = btnRT.rect.size;
+        float halfW = btnSize.x * 0.5f;
+        float halfH = btnSize.y * 0.5f;
+        float margin = 16f;
+        float scale = (_canvas != null && _canvas.scaleFactor > 0f) ? _canvas.scaleFactor : 1f;
+        float extra = 30f / scale;
+
+        // 洞在 Canvas 下的外侧中点
+        Vector2 rightPos = new Vector2(centerLocal.x + holeHalfW + (halfW + margin + extra), Mathf.Clamp(centerLocal.y, canvasRect.yMin + halfH, canvasRect.yMax - halfH));
+        Vector2 leftPos = new Vector2(centerLocal.x - holeHalfW - (halfW + margin + extra), Mathf.Clamp(centerLocal.y, canvasRect.yMin + halfH, canvasRect.yMax - halfH));
+        Vector2 topPos = new Vector2(Mathf.Clamp(centerLocal.x, canvasRect.xMin + halfW, canvasRect.xMax - halfW), centerLocal.y + holeHalfH + (halfH + margin + extra));
+        Vector2 bottomPos = new Vector2(Mathf.Clamp(centerLocal.x, canvasRect.xMin + halfW, canvasRect.xMax - halfW), centerLocal.y - holeHalfH - (halfH + margin + extra));
+
+        bool Fits(Vector2 p)
+        {
+            return p.x - halfW >= canvasRect.xMin && p.x + halfW <= canvasRect.xMax && p.y - halfH >= canvasRect.yMin && p.y + halfH <= canvasRect.yMax;
+        }
+
+        // 右->左->上->下 选择
+        Vector2 chosen = rightPos;
+        if (!Fits(chosen))
+        {
+            if (Fits(leftPos)) chosen = leftPos;
+            else if (Fits(topPos)) chosen = topPos;
+            else if (Fits(bottomPos)) chosen = bottomPos;
+            else
+            {
+                chosen.x = Mathf.Clamp(chosen.x, canvasRect.xMin + halfW, canvasRect.xMax - halfW);
+                chosen.y = Mathf.Clamp(chosen.y, canvasRect.yMin + halfH, canvasRect.yMax - halfH);
+            }
+        }
+
+        // 设置位置与显示
+        btnRT.anchorMin = new Vector2(0.5f, 0.5f);
+        btnRT.anchorMax = new Vector2(0.5f, 0.5f);
+        btnRT.pivot = new Vector2(0.5f, 0.5f);
+        btnRT.anchoredPosition = chosen;
 
         SaveBtn.SetActive(show);
-        // SaveBtn.transform.position = new Vector3(_curSnapCenter.x, _curSnapCenter.y, 0);
     }
 
     void XFTile()
@@ -239,45 +310,47 @@ public class SnapShotManager : MonoBehaviour
         if (InSnaping)
         {
             Debug.Log("保存当前截取内容！");
-            SnapshotTiles();
-            HandleSnapshotEnd();
+            StartCoroutine(CaptureViewportAndEnd());
         }
     }
 
-    Dictionary<Tilemap, List<TileBase>> curSnapshotTiles = new Dictionary<Tilemap, List<TileBase>>();
+    public Dictionary<Tilemap, List<SaveTileData>> curSnapshotTiles = new Dictionary<Tilemap, List<SaveTileData>>();
     void SnapshotTiles()
     {
         curSnapshotTiles.Clear();
         Vector3 centerPos = Camera.main.ViewportToWorldPoint(new Vector3(_curSnapCenter.x, _curSnapCenter.y, Camera.main.nearClipPlane));
         Vector3Int bgCenterCell = GetCellAtPosition(BgTileMap, centerPos);
 
-        List<Vector3Int> cellList = GetSnapShotPos(bgCenterCell);
+        List<SnapPos> cellList = GetSnapShotPos(bgCenterCell);
 
         for (int j = 0; j < AllTileMaps.Count; j++)
         {
             Tilemap tilemap = AllTileMaps[j];
             if (!curSnapshotTiles.ContainsKey(tilemap))
             {
-                curSnapshotTiles[tilemap] = new List<TileBase>();
+                curSnapshotTiles[tilemap] = new List<SaveTileData>();
             }
 
             for (int i = 0; i < cellList.Count; i++)
             {
-                Vector3Int cell = cellList[i];
-                TileBase baseTile = tilemap.GetTile(cell);
+                SnapPos sp = cellList[i];
+                TileBase baseTile = tilemap.GetTile(sp.cell);
                 if (baseTile)
                 {
-                    curSnapshotTiles[tilemap].Add(baseTile);
-                    Debug.Log($"选取保存 tilemap: {tilemap.name}, cell: {cell}, baseTile: {baseTile.name}");
+                    SaveTileData std = new SaveTileData();
+                    std.tile = baseTile;
+                    std.pos = sp;
+                    curSnapshotTiles[tilemap].Add(std);
+                    Debug.Log($"选取保存 tilemap: {tilemap.name}, cell: {sp.cell}, offset: {sp.offset}, baseTile: {baseTile.name}");
                 }
             }
             Debug.Log($"选取保存 tilemap: {tilemap.name} ------------------------");
         }
     }
 
-    List<Vector3Int> GetSnapShotPos(Vector3Int centerCell)
+    List<SnapPos> GetSnapShotPos(Vector3Int centerCell)
     {
-        List<Vector3Int> posList = new List<Vector3Int>();
+        List<SnapPos> posList = new List<SnapPos>();
         Debug.Log($"center cell {centerCell}");
 
         int beginX = Mathf.FloorToInt(SnapWidth / 2f) * -1;
@@ -291,14 +364,112 @@ public class SnapShotManager : MonoBehaviour
             for (int x = beginX; x <= endX; x++)
             {
                 Vector3Int cell = new Vector3Int(centerCell.x + x, centerCell.y + y, centerCell.z);
-                Debug.Log($"cell list {cell}");
-                posList.Add(cell);
+                SnapPos sp = new SnapPos();
+                sp.cell = cell;
+                sp.offset = new Vector3(x, y, 0);
+                // Debug.Log($"cell list {cell}");
+                posList.Add(sp);
             }
         }
 
-        Debug.Log($"beginX: {beginX}, endX: {endX}, beginY: {beginY}, endY: {endY}");
+        // Debug.Log($"beginX: {beginX}, endX: {endX}, beginY: {beginY}, endY: {endY}");
 
         return posList;
+    }
+
+    IEnumerator CaptureViewportAndEnd()
+    {
+        SnapshotTiles();
+        yield return StartCoroutine(CaptureViewportToRTCoroutine());
+        HandleSnapshotEnd();
+    }
+
+    public void CaptureViewportToRenderTexture(Action<RenderTexture> onDone = null)
+    {
+        StartCoroutine(CaptureViewportToRTCoroutine(onDone));
+    }
+
+    IEnumerator CaptureViewportToRTCoroutine(Action<RenderTexture> onDone = null)
+    {
+        // 临时关闭网格线绘制，避免被截入
+        TilemapGridLinesDrawer drawer = null;
+        bool prevEnabled = false;
+        if (BgTileMap != null)
+        {
+            drawer = BgTileMap.GetComponent<TilemapGridLinesDrawer>();
+            if (drawer != null)
+            {
+                prevEnabled = drawer.enabled;
+                drawer.enabled = false;
+            }
+        }
+
+        yield return new WaitForEndOfFrame();
+
+        Rect pixelRect = ComputeCapturePixelRect();
+        int w = Mathf.Max(1, Mathf.RoundToInt(pixelRect.width));
+        int h = Mathf.Max(1, Mathf.RoundToInt(pixelRect.height));
+
+        Texture2D temp = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        temp.ReadPixels(new Rect(pixelRect.x, pixelRect.y, w, h), 0, 0, false);
+        temp.Apply(false, false);
+
+        if (LastSnapshotRT != null)
+        {
+            if (LastSnapshotRT.IsCreated()) LastSnapshotRT.Release();
+            Destroy(LastSnapshotRT);
+        }
+        LastSnapshotRT = new RenderTexture(w, h, 0, RenderTextureFormat.ARGB32);
+        LastSnapshotRT.Create();
+
+        Graphics.Blit(temp, LastSnapshotRT);
+        Destroy(temp);
+
+        UpdateCopyImgSizeAndTexture(w, h);
+
+        // 恢复网格线绘制到之前状态
+        if (drawer != null)
+        {
+            drawer.enabled = prevEnabled;
+        }
+
+        if (onDone != null)
+        {
+            onDone(LastSnapshotRT);
+        }
+    }
+
+    Rect ComputeCapturePixelRect()
+    {
+        float halfW = _curSnapSize.x * 0.5f;
+        float halfH = _curSnapSize.y * 0.5f;
+        float startX01 = Mathf.Clamp01(_curSnapCenter.x - halfW);
+        float startY01 = Mathf.Clamp01(_curSnapCenter.y - halfH);
+        float endX01 = Mathf.Clamp01(_curSnapCenter.x + halfW);
+        float endY01 = Mathf.Clamp01(_curSnapCenter.y + halfH);
+
+        int x = Mathf.RoundToInt(startX01 * Screen.width);
+        int y = Mathf.RoundToInt(startY01 * Screen.height);
+        int w = Mathf.RoundToInt(Mathf.Max(1e-3f, (endX01 - startX01)) * Screen.width);
+        int h = Mathf.RoundToInt(Mathf.Max(1e-3f, (endY01 - startY01)) * Screen.height);
+
+        return new Rect(x, y, w, h);
+    }
+
+    void UpdateCopyImgSizeAndTexture(int pixelWidth, int pixelHeight)
+    {
+        if (CopyImg == null || LastSnapshotRT == null)
+        {
+            return;
+        }
+        CopyImg.texture = LastSnapshotRT;
+        float scale = _canvas != null ? _canvas.scaleFactor : 1f;
+        RectTransform rt = CopyImg.rectTransform;
+        rt.sizeDelta = new Vector2(pixelWidth / scale, pixelHeight / scale);
+        // if (!CopyImg.gameObject.activeSelf)
+        // {
+        //     CopyImg.gameObject.SetActive(true);
+        // }
     }
 
 }
@@ -310,4 +481,19 @@ public static class OrthoViewportUtil
 
     public static float UnitToViewportWidth(float units = 1f)
         => units / (2f * Camera.main.orthographicSize * Camera.main.aspect);
+}
+
+public class SaveTileData
+{
+    public TileBase tile;
+
+    public SnapPos pos;
+
+}
+
+public class SnapPos
+{
+    public Vector3 offset;
+
+    public Vector3Int cell;
 }

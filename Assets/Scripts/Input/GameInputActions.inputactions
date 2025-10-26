@@ -103,6 +103,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "SnapUse",
+                    "type": "Button",
+                    "id": "d2646a4e-fb8b-41df-b618-652aee7f741a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -477,6 +486,28 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "GamePadSnapMove",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b108e3a0-4b76-4936-a7bf-6dd240d5a281",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "SnapUse",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e18467fd-c0d4-4df3-a40e-9b4de04eda32",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "SnapUse",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

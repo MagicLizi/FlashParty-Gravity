@@ -13918,8 +13918,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e23bb6195e2eaa6429b2978441fc9654, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineColor: {r: 0, g: 1, b: 0.940783, a: 0.7058824}
-  lineThickness: 0.014
+  lineColor: {r: 0, g: 1, b: 0.940783, a: 0.5882353}
+  lineThickness: 0.02
   onlyWhilePlaying: 1
 --- !u!1 &8682768249906601991
 GameObject:

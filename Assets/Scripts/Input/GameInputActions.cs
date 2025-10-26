@@ -125,6 +125,15 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""SnapUse"",
+                    ""type"": ""Button"",
+                    ""id"": ""d2646a4e-fb8b-41df-b618-652aee7f741a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -499,6 +508,28 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""GamePadSnapMove"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b108e3a0-4b76-4936-a7bf-6dd240d5a281"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""SnapUse"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e18467fd-c0d4-4df3-a40e-9b4de04eda32"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""SnapUse"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1097,6 +1128,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         m_Player_CancelSnap = m_Player.FindAction("CancelSnap", throwIfNotFound: true);
         m_Player_TriggerMoveSnap = m_Player.FindAction("TriggerMoveSnap", throwIfNotFound: true);
         m_Player_GamePadSnapMove = m_Player.FindAction("GamePadSnapMove", throwIfNotFound: true);
+        m_Player_SnapUse = m_Player.FindAction("SnapUse", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1187,6 +1219,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_CancelSnap;
     private readonly InputAction m_Player_TriggerMoveSnap;
     private readonly InputAction m_Player_GamePadSnapMove;
+    private readonly InputAction m_Player_SnapUse;
     public struct PlayerActions
     {
         private @GameInputActions m_Wrapper;
@@ -1202,6 +1235,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         public InputAction @CancelSnap => m_Wrapper.m_Player_CancelSnap;
         public InputAction @TriggerMoveSnap => m_Wrapper.m_Player_TriggerMoveSnap;
         public InputAction @GamePadSnapMove => m_Wrapper.m_Player_GamePadSnapMove;
+        public InputAction @SnapUse => m_Wrapper.m_Player_SnapUse;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1244,6 +1278,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @GamePadSnapMove.started += instance.OnGamePadSnapMove;
             @GamePadSnapMove.performed += instance.OnGamePadSnapMove;
             @GamePadSnapMove.canceled += instance.OnGamePadSnapMove;
+            @SnapUse.started += instance.OnSnapUse;
+            @SnapUse.performed += instance.OnSnapUse;
+            @SnapUse.canceled += instance.OnSnapUse;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1281,6 +1318,9 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
             @GamePadSnapMove.started -= instance.OnGamePadSnapMove;
             @GamePadSnapMove.performed -= instance.OnGamePadSnapMove;
             @GamePadSnapMove.canceled -= instance.OnGamePadSnapMove;
+            @SnapUse.started -= instance.OnSnapUse;
+            @SnapUse.performed -= instance.OnSnapUse;
+            @SnapUse.canceled -= instance.OnSnapUse;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1474,6 +1514,7 @@ public partial class @GameInputActions: IInputActionCollection2, IDisposable
         void OnCancelSnap(InputAction.CallbackContext context);
         void OnTriggerMoveSnap(InputAction.CallbackContext context);
         void OnGamePadSnapMove(InputAction.CallbackContext context);
+        void OnSnapUse(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
