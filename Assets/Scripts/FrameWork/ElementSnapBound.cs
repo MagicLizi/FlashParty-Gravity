@@ -3,6 +3,10 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class ElementSnapBound : MonoBehaviour
 {
+    [Header("Snap 设置")]
+    [Tooltip("忽略Snap功能（不参与Snap，也不显示Gizmo）")]
+    public bool ignoreSnap = false;
+    
     [Header("Bound 设置")]
     public Vector2 centerOffset = Vector2.zero;
     public Vector2 size = new Vector2(1f, 1f);
@@ -15,8 +19,6 @@ public class ElementSnapBound : MonoBehaviour
     public Color wireColor = new Color(1f, 0.6f, 0.1f, 1f);
 
     public SpriteRenderer Render;
-
-    public bool ignoreSnap = false;
 
     [Header("描边设置")]
     public Color outlineColor = Color.green;
@@ -42,12 +44,14 @@ public class ElementSnapBound : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        if (ignoreSnap) return; // 忽略Snap时不显示Gizmo
         if (!drawAlways) return;
         DrawGizmoBounds();
     }
 
     void OnDrawGizmosSelected()
     {
+        if (ignoreSnap) return; // 忽略Snap时不显示Gizmo
         if (!drawWhenSelected) return;
         DrawGizmoBounds();
     }
