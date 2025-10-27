@@ -490,10 +490,10 @@ public class SnapShotManager : MonoBehaviour
                     std.tile = baseTile;
                     std.pos = sp;
                     curSnapshotTiles[tilemap].Add(std);
-                    Debug.Log($"选取保存 tilemap: {tilemap.name}, cell: {sp.cell}, offset: {sp.offset}, baseTile: {baseTile.name}");
+                    // Debug.Log($"选取保存 tilemap: {tilemap.name}, cell: {sp.cell}, offset: {sp.offset}, baseTile: {baseTile.name}");
                 }
             }
-            Debug.Log($"选取保存 tilemap: {tilemap.name} ------------------------");
+            // Debug.Log($"选取保存 tilemap: {tilemap.name} ------------------------");
         }
     }
 

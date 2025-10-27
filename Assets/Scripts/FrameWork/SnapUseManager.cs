@@ -174,6 +174,15 @@ public class SnapUseManager : MonoBehaviour
             clone.transform.position = centerPos + rotatedOffset;
             // 在原有朝向基础上叠加旋转
             clone.transform.rotation = q * clone.transform.rotation;
+            // 挂载碰撞器辅助脚本（若不存在）
+            if (clone.GetComponent("SnapCloneColliderHelper") == null)
+            {
+                var t = System.Type.GetType("SnapCloneColliderHelper");
+                if (t != null)
+                {
+                    clone.AddComponent(t);
+                }
+            }
             newSnapCloneElements.Add(clone);
         }
         _shotManager.curSnapshotElements.Clear();
