@@ -44,6 +44,7 @@ public class SnapUseManager : MonoBehaviour
 
     private List<GameObject> _snapCloneElements = new List<GameObject>();
     private Dictionary<Tilemap, List<SaveTileData>> _lastTiles = new Dictionary<Tilemap, List<SaveTileData>>();
+    private Dictionary<Tilemap, Dictionary<Vector3Int, Matrix4x4>> _lastTileTransforms = new Dictionary<Tilemap, Dictionary<Vector3Int, Matrix4x4>>();
 
     private int _curRotate = 0;
 
@@ -71,10 +72,22 @@ public class SnapUseManager : MonoBehaviour
             foreach (var std in kvp.Value)
             {
                 tileMap.SetTile(std.pos.cell, std.tile);
+                // 恢复之前的 TransformMatrix（如果有记录）
+                Dictionary<Vector3Int, Matrix4x4> cellToMatrix;
+                if (_lastTileTransforms != null && _lastTileTransforms.TryGetValue(tileMap, out cellToMatrix))
+                {
+                    Matrix4x4 prevM;
+                    if (cellToMatrix.TryGetValue(std.pos.cell, out prevM))
+                    {
+                        tileMap.SetTileFlags(std.pos.cell, TileFlags.None);
+                        tileMap.SetTransformMatrix(std.pos.cell, prevM);
+                    }
+                }
             }
             tileMap.RefreshAllTiles();
         }
         _lastTiles.Clear();
+        _lastTileTransforms.Clear();
 
         Debug.Log($"复制截图元素 中心点位置 {_snapMoveEndCell}");
         // 先处理Tile
@@ -88,7 +101,31 @@ public class SnapUseManager : MonoBehaviour
             // 这里可以加入你处理key的逻辑
             foreach (var std in kvp.Value)
             {
-                Vector3Int setCell = _snapMoveEndCell + new Vector3Int((int)std.pos.offset.x, (int)std.pos.offset.y, 0);
+                // 以 _snapMoveEndCell 为中心，将偏移根据 _curRotate(0/90/180/270) 进行整格旋转
+                int rot = ((Mathf.RoundToInt(_curRotate) % 360) + 360) % 360;
+                int ox = Mathf.RoundToInt(std.pos.offset.x);
+                int oy = Mathf.RoundToInt(std.pos.offset.y);
+                Vector3Int rotatedOffset;
+                switch (rot)
+                {
+                    case 0:
+                        rotatedOffset = new Vector3Int(ox, oy, 0);
+                        break;
+                    case 90:     // 逆时针90°: (x, y) -> (-y, x)
+                        rotatedOffset = new Vector3Int(-oy, ox, 0);
+                        break;
+                    case 180:    // 180°: (x, y) -> (-x, -y)
+                        rotatedOffset = new Vector3Int(-ox, -oy, 0);
+                        break;
+                    case 270:    // 顺时针90°: (x, y) -> (y, -x)
+                        rotatedOffset = new Vector3Int(oy, -ox, 0);
+                        break;
+                    default:
+                        rotatedOffset = new Vector3Int(ox, oy, 0);
+                        break;
+                }
+
+                Vector3Int setCell = _snapMoveEndCell + rotatedOffset;
 
                 TileBase curTile = tileMap.GetTile(setCell);
                 SaveTileData curStd = new SaveTileData();
@@ -98,6 +135,19 @@ public class SnapUseManager : MonoBehaviour
                 _lastTiles[tileMap].Add(curStd);
 
                 tileMap.SetTile(setCell, std.tile);
+
+                // 保存旧 TransformMatrix
+                if (!_lastTileTransforms.ContainsKey(tileMap))
+                {
+                    _lastTileTransforms[tileMap] = new Dictionary<Vector3Int, Matrix4x4>();
+                }
+                _lastTileTransforms[tileMap][setCell] = tileMap.GetTransformMatrix(setCell);
+
+                // 应用旋转到该格的 Tile 外观
+                Quaternion q = Quaternion.Euler(0f, 0f, rot);
+                Matrix4x4 m = Matrix4x4.TRS(Vector3.zero, q, Vector3.one);
+                tileMap.SetTileFlags(setCell, TileFlags.None);
+                tileMap.SetTransformMatrix(setCell, m);
             }
             tileMap.RefreshAllTiles();                  // 或针对范围 RefreshTile
         }
@@ -111,10 +161,19 @@ public class SnapUseManager : MonoBehaviour
         for (int i = 0; i < _shotManager.curSnapshotElements.Count; i++)
         {
             SaveElementData sed = _shotManager.curSnapshotElements[i];
-            Vector3 centerPos = _shotManager.BgTileMap.GetCellCenterWorld(_snapMoveEndCell) + sed.offset;
+            Vector3 centerPos = _shotManager.BgTileMap.GetCellCenterWorld(_snapMoveEndCell);
+
+            int rot = ((Mathf.RoundToInt(_curRotate) % 360) + 360) % 360;
+            Quaternion q = Quaternion.Euler(0f, 0f, rot);
+
+            // 旋转偏移后再叠加到中心点坐标
+            Vector3 rotatedOffset = q * sed.offset;
+
             var clone = Instantiate(sed.obj);
             clone.name = sed.obj.name + "_snap_clone";
-            clone.transform.position = centerPos;
+            clone.transform.position = centerPos + rotatedOffset;
+            // 在原有朝向基础上叠加旋转
+            clone.transform.rotation = q * clone.transform.rotation;
             newSnapCloneElements.Add(clone);
         }
         _shotManager.curSnapshotElements.Clear();
