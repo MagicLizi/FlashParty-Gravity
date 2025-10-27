@@ -28,11 +28,14 @@ namespace FlashParty.Platform
             {
                 // 如果没有碰撞器，创建一个用于检测的触发器
                 triggerCollider = gameObject.AddComponent<BoxCollider2D>();
+                // Debug.Log($"[PlatformController] 为平台 {gameObject.name} 创建了 BoxCollider2D");
             }
             
-            // 确保有一个触发器用于检测玩家
-            if (!HasTriggerCollider())
+            // 检查是否已经有 PlayerDetector（而不是检查是否有任何Trigger）
+            PlayerDetector existingDetector = GetComponentInChildren<PlayerDetector>();
+            if (existingDetector == null)
             {
+                // 没有 PlayerDetector，创建一个
                 GameObject triggerObj = new GameObject("PlayerDetector");
                 triggerObj.transform.SetParent(transform);
                 triggerObj.transform.localPosition = Vector3.up * detectionHeight;
@@ -40,12 +43,18 @@ namespace FlashParty.Platform
                 
                 BoxCollider2D trigger = triggerObj.AddComponent<BoxCollider2D>();
                 trigger.isTrigger = true;
-                trigger.size = triggerCollider.bounds.size;
+                trigger.size = new Vector2(triggerCollider.bounds.size.x, triggerCollider.bounds.size.y);
+                
+                // Debug.Log($"[PlatformController] 创建 PlayerDetector: Layer={LayerMask.LayerToName(triggerObj.layer)}, Size={trigger.size}, Position={triggerObj.transform.position}");
                 
                 // 添加检测脚本
                 PlayerDetector detector = triggerObj.AddComponent<PlayerDetector>();
                 detector.Initialize(this);
             }
+            // else
+            // {
+            //     Debug.Log($"[PlatformController] 平台 {gameObject.name} 已经有 PlayerDetector，跳过创建");
+            // }
             
             lastPosition = transform.position;
         }
@@ -58,6 +67,7 @@ namespace FlashParty.Platform
             // 如果平台移动了，让所有在平台上的玩家跟随移动
             if (deltaMove.magnitude > 0.001f)
             {
+                // Debug.Log($"[PlatformController] 平台 {gameObject.name} 移动: deltaMove={deltaMove}, 玩家数量={playersOnPlatform.Count}");
                 MovePlayers(deltaMove);
             }
             
@@ -168,9 +178,11 @@ namespace FlashParty.Platform
         
         void OnTriggerEnter2D(Collider2D other)
         {
+            // Debug.Log($"[PlayerDetector] 触发器进入: {other.gameObject.name}");
             Player player = other.GetComponent<Player>();
             if (player != null)
             {
+                // Debug.Log($"[PlayerDetector] 玩家进入平台");
                 platformController.OnPlayerEnter(player);
             }
         }
@@ -180,6 +192,7 @@ namespace FlashParty.Platform
             Player player = other.GetComponent<Player>();
             if (player != null)
             {
+                // Debug.Log($"[PlayerDetector] 玩家离开平台");
                 platformController.OnPlayerExit(player);
             }
         }

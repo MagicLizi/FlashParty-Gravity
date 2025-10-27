@@ -381,15 +381,19 @@ namespace FlashParty.Platform
                     continue;
                 }
                 
-                // 检查是否是路径点
+                // 检查是否是路径点（仅在Transform模式下）
+                // 注意：在偏移量模式下，路径点不是实际的GameObject，所以不需要检查
                 bool isWaypoint = false;
-                foreach (Transform waypoint in platform.Waypoints)
+                if (platform.Waypoints != null && platform.Waypoints.Length > 0)
                 {
-                    if (hit.collider.gameObject == waypoint.gameObject)
+                    foreach (Transform waypoint in platform.Waypoints)
                     {
-                        // Debug.Log($"Ignoring waypoint: {waypoint.name}");
-                        isWaypoint = true;
-                        break;
+                        if (waypoint != null && hit.collider.gameObject == waypoint.gameObject)
+                        {
+                            // Debug.Log($"Ignoring waypoint: {waypoint.name}");
+                            isWaypoint = true;
+                            break;
+                        }
                     }
                 }
                 if (isWaypoint) continue;
@@ -430,6 +434,7 @@ namespace FlashParty.Platform
             // 使用DOLocalMove移动本地坐标
             moveTweener = platform.transform.DOLocalMove(targetLocalPos, moveDuration)
                 .SetEase(platform.Config.easeType)
+                .SetUpdate(UpdateType.Fixed) // 使用FixedUpdate，与PlatformController同步
                 .OnComplete(() => {
                     isMoving = false;
                     EventManager.Instance.TriggerEvent(EventType.PlatformStopMove, platform);
@@ -572,7 +577,8 @@ namespace FlashParty.Platform
         /// </summary>
         public void ResetToNearestWaypoint()
         {
-            if (platform == null || platform.Waypoints.Length == 0) return;
+            Vector3[] worldPositions = platform.WaypointPositions;
+            if (platform == null || worldPositions.Length == 0) return;
             
             // 停止当前移动
             StopMovement();
@@ -582,9 +588,9 @@ namespace FlashParty.Platform
             float minDistance = float.MaxValue;
             int nearestIndex = 0;
             
-            for (int i = 0; i < platform.Waypoints.Length; i++)
+            for (int i = 0; i < worldPositions.Length; i++)
             {
-                float distance = Vector3.Distance(currentPos, platform.Waypoints[i].position);
+                float distance = Vector3.Distance(currentPos, worldPositions[i]);
                 if (distance < minDistance)
                 {
                     minDistance = distance;
@@ -593,7 +599,7 @@ namespace FlashParty.Platform
             }
             
             // 移动到最近的路径点（本地坐标）
-            Vector3 targetLocalPos = platform.transform.parent.InverseTransformPoint(platform.Waypoints[nearestIndex].position);
+            Vector3 targetLocalPos = platform.transform.parent.InverseTransformPoint(worldPositions[nearestIndex]);
             platform.transform.localPosition = targetLocalPos;
             currentWaypointIndex = nearestIndex;
             

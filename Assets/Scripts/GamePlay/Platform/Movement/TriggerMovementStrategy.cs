@@ -115,26 +115,27 @@ namespace FlashParty.Platform
         /// </summary>
         private Vector3[] GetCurrentPath()
         {
-            if (platform.Waypoints.Length < 2) return new Vector3[0];
+            Vector3[] worldPositions = platform.WaypointPositions;
+            if (worldPositions.Length < 2) return new Vector3[0];
             
             Vector3[] pathPoints;
             
             if (platform.Config.triggerMode == TriggerMode.SinglePath)
             {
                 // 单路径模式：从当前位置移动到下一个路径点
-                int nextIndex = (currentPathIndex + 1) % platform.Waypoints.Length;
+                int nextIndex = (currentPathIndex + 1) % worldPositions.Length;
                 pathPoints = new Vector3[2];
                 pathPoints[0] = platform.transform.parent.InverseTransformPoint(platform.transform.position);
-                pathPoints[1] = platform.transform.parent.InverseTransformPoint(platform.Waypoints[nextIndex].position);
+                pathPoints[1] = platform.transform.parent.InverseTransformPoint(worldPositions[nextIndex]);
                 currentPathIndex = nextIndex;
             }
             else
             {
                 // 完整路径模式：移动完整路径
-                pathPoints = new Vector3[platform.Waypoints.Length];
-                for (int i = 0; i < platform.Waypoints.Length; i++)
+                pathPoints = new Vector3[worldPositions.Length];
+                for (int i = 0; i < worldPositions.Length; i++)
                 {
-                    pathPoints[i] = platform.transform.parent.InverseTransformPoint(platform.Waypoints[i].position);
+                    pathPoints[i] = platform.transform.parent.InverseTransformPoint(worldPositions[i]);
                 }
             }
             
@@ -157,6 +158,7 @@ namespace FlashParty.Platform
             // 使用DOLocalPath移动本地坐标
             moveTweener = platform.transform.DOLocalPath(pathPoints, moveDuration, pathType)
                 .SetEase(platform.Config.easeType)
+                .SetUpdate(UpdateType.Fixed) // 使用FixedUpdate，与PlatformController同步
                 .OnComplete(() => {
                     isMoving = false;
                     EventManager.Instance.TriggerEvent(EventType.PlatformStopMove, platform);

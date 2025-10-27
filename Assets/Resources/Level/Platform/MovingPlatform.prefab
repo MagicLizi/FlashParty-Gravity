@@ -121,6 +121,7 @@ Transform:
   - {fileID: 1124476032080341214}
   - {fileID: 3620670324310868895}
   - {fileID: 8278524484622811713}
+  - {fileID: 8558588087915102263}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &6129248378466049254
@@ -198,7 +199,7 @@ MonoBehaviour:
     moveSpeed: 3
     easeType: 1
     initialDelay: 0
-    waitTimeAtWaypoint: 2
+    waitTimeAtWaypoint: 0
     reverseOnComplete: 1
     triggerMode: 0
     canTriggerMultipleTimes: 0
@@ -215,9 +216,14 @@ MonoBehaviour:
     showPath: 1
     pathColor: {r: 0, g: 1, b: 0, a: 1}
     waypointColor: {r: 1, g: 0, b: 0, a: 1}
-  waypoints:
-  - {fileID: 0}
-  - {fileID: 0}
+  useOffsetMode: 1
+  waypointOffsets:
+  - {x: 0, y: 0}
+  - {x: 4, y: 0}
+  - {x: 4, y: 3}
+  - {x: 4, y: 0}
+  - {x: 0, y: 0}
+  waypoints: []
   autoStart: 1
 --- !u!114 &1764510929043852954
 MonoBehaviour:
@@ -231,15 +237,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 397266502954fdb4281e12171757494b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  centerOffset: {x: 0, y: 0}
-  size: {x: 1, y: 1}
+  ignoreSnap: 0
+  boundCollider: {fileID: 1891080156651245784}
   drawAlways: 1
   drawWhenSelected: 1
   drawFilled: 0
   gizmoColor: {r: 1, g: 0.6, b: 0.1, a: 0.8}
   wireColor: {r: 1, g: 0.6, b: 0.1, a: 1}
-  Render: {fileID: 0}
-  ignoreSnap: 1
+  Renders: []
   outlineColor: {r: 0, g: 1, b: 0, a: 1}
   interOutlineColor: {r: 1, g: 0, b: 0, a: 1}
   outlineWidth: 0.5
@@ -327,6 +332,83 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &3539158580852352515
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8558588087915102263}
+  - component: {fileID: 1891080156651245784}
+  m_Layer: 0
+  m_Name: snapBoundCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8558588087915102263
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3539158580852352515}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3506875279216993183}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &1891080156651245784
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3539158580852352515}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.02466011, y: 0.13872862}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 2.6077213, y: 0.508729}
+  m_EdgeRadius: 0
 --- !u!1 &4896486761091300682
 GameObject:
   m_ObjectHideFlags: 0
