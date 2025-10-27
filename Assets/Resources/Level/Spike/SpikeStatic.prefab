@@ -225,7 +225,7 @@ MonoBehaviour:
   spikeType: 0
   launchPower: 13
   sideUpwardForce: 12
-  hitStopDuration: 0.1
+  hitStopDuration: 0.05
   hitFlyDuration: 0.5
   cooldownTime: 0
   triggerCollider: {fileID: 4564074009555656502}
