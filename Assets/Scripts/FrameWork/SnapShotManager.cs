@@ -59,6 +59,13 @@ public class SnapShotManager : MonoBehaviour
         _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         _useManager = GetComponent<SnapUseManager>();
         DontDestroyOnLoad(gameObject);
+        // SetSnapSize5x5();
+    }
+
+    public void SetSnapSize5x5()
+    {
+        SnapWidth = 5;
+        SnapHeight = 5;
     }
 
     void Destroy()
