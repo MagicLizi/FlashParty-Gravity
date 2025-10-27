@@ -13,6 +13,8 @@ public class SnapCloneColliderHelper : MonoBehaviour
 
 	private bool _hasCheck = false;
 
+	public List<Rect> TileAABBS = new List<Rect>();
+
 	void Awake()
 	{
 		_box2D = GetComponent<BoxCollider2D>();
@@ -54,7 +56,6 @@ public class SnapCloneColliderHelper : MonoBehaviour
 				{
 					Debug.Log("[SnapCloneColliderHelper] 已与 Player 发生碰撞/交互。");
 					_hasCheck = true;
-					KnockbackPlayer(playerBox);
 				}
 				else
 				{
@@ -70,11 +71,21 @@ public class SnapCloneColliderHelper : MonoBehaviour
 		{
 			Debug.Log("[SnapCloneColliderHelper] 未找到 Player 对象。");
 		}
-		DOVirtual.DelayedCall(1f, () =>
+
+		if (hit)
+		{
+			KnockbackPlayer(playerGo);
+			DOVirtual.DelayedCall(1f, () =>
+			{
+				_box2D.isTrigger = originalIsTrigger;
+				Destroy(this);
+			});
+		}
+		else
 		{
 			_box2D.isTrigger = originalIsTrigger;
 			Destroy(this);
-		});
+		}
 	}
 
 	Rect ComputeWorldAABB(BoxCollider2D col)
@@ -97,11 +108,11 @@ public class SnapCloneColliderHelper : MonoBehaviour
 		return a.xMin <= b.xMax && a.xMax >= b.xMin && a.yMin <= b.yMax && a.yMax >= b.yMin;
 	}
 
-	void KnockbackPlayer(BoxCollider2D playerBox)
+	void KnockbackPlayer(GameObject player)
 	{
 		// 判断 player 和当前对象的相对位置，player 在左边为 -1，右边为 1
 		int dir = 1;
-		if (playerBox.transform.position.x < this._box2D.transform.position.x)
+		if (player.transform.position.x < this._box2D.transform.position.x)
 		{
 			dir = -1;
 		}
@@ -109,9 +120,9 @@ public class SnapCloneColliderHelper : MonoBehaviour
 		{
 			dir = 1;
 		}
-		Vector2 launchForce = new Vector2(dir * 50, 20);
+		Vector2 launchForce = new Vector2(dir * 20, 20);
 		float hitFlyDuration = 1.5f;
-		playerBox.gameObject.GetComponent<Player>().GetLaunched(launchForce, hitFlyDuration);
+		player.gameObject.GetComponent<Player>().GetLaunched(launchForce, hitFlyDuration);
 	}
 
 }

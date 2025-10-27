@@ -23,6 +23,8 @@ public class SnapUseManager : MonoBehaviour
 
     public GameObject SnapCopyRoot;
 
+    private PlayerCopyFly _playerCopyFly;
+
     void Awake()
     {
         _shotManager = GetComponent<SnapShotManager>();
@@ -40,6 +42,7 @@ public class SnapUseManager : MonoBehaviour
 
         ConfirmBtn.onClick.AddListener(OnConfirmBtnClick);
         RotateBtn.onClick.AddListener(OnRotateBtnClick);
+        _playerCopyFly = GameObject.Find("Player").GetComponent<PlayerCopyFly>();
     }
 
     private List<GameObject> _snapCloneElements = new List<GameObject>();
@@ -135,6 +138,14 @@ public class SnapUseManager : MonoBehaviour
                 _lastTiles[tileMap].Add(curStd);
 
                 tileMap.SetTile(setCell, std.tile);
+                Debug.Log(tileMap.name + " " + setCell);
+                if (tileMap.name == "Ground")
+                {
+                    // setCell 转世界坐标
+                    Vector3 setCellWorldPos = _shotManager.BgTileMap.GetCellCenterWorld(setCell);
+                    Rect rect = new Rect(setCellWorldPos.x, setCellWorldPos.y, 1, 1);
+                    _playerCopyFly.TileRects.Add(rect);
+                }
 
                 // 保存旧 TransformMatrix
                 if (!_lastTileTransforms.ContainsKey(tileMap))
@@ -174,16 +185,11 @@ public class SnapUseManager : MonoBehaviour
             clone.transform.position = centerPos + rotatedOffset;
             // 在原有朝向基础上叠加旋转
             clone.transform.rotation = q * clone.transform.rotation;
-            // 挂载碰撞器辅助脚本（若不存在）
-            if (clone.GetComponent("SnapCloneColliderHelper") == null)
-            {
-                var t = System.Type.GetType("SnapCloneColliderHelper");
-                if (t != null)
-                {
-                    clone.AddComponent(t);
-                }
-            }
             newSnapCloneElements.Add(clone);
+
+            BoxCollider2D col = clone.GetComponent<BoxCollider2D>();
+            Rect rect = new Rect(clone.transform.position.x + col.offset.x, clone.transform.position.y + col.offset.y, col.size.x, col.size.y);
+            _playerCopyFly.TileRects.Add(rect);
         }
         _shotManager.curSnapshotElements.Clear();
 
@@ -202,9 +208,11 @@ public class SnapUseManager : MonoBehaviour
 
     void OnConfirmBtnClick()
     {
+        _playerCopyFly.Clear();
         DealCopyTiles();
         DealCopyElements();
         OnSnapUse(true);
+        _playerCopyFly.CheckFly();
     }
 
     void Destroy()
