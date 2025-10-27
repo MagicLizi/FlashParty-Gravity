@@ -21,6 +21,8 @@ public class SnapUseManager : MonoBehaviour
 
     public Button RotateBtn;
 
+    public GameObject SnapCopyRoot;
+
     void Awake()
     {
         _shotManager = GetComponent<SnapShotManager>();
@@ -31,8 +33,9 @@ public class SnapUseManager : MonoBehaviour
 
         if (SnapCopy != null)
         {
-            _snapRT = SnapCopy.rectTransform;
+            _snapRT = SnapCopyRoot.transform as RectTransform;
             _canvas = SnapCopy.canvas;
+            Debug.Log("SnapCopyRoot: " + _canvas);
         }
 
         ConfirmBtn.onClick.AddListener(OnConfirmBtnClick);
@@ -42,9 +45,21 @@ public class SnapUseManager : MonoBehaviour
     private List<GameObject> _snapCloneElements = new List<GameObject>();
     private Dictionary<Tilemap, List<SaveTileData>> _lastTiles = new Dictionary<Tilemap, List<SaveTileData>>();
 
+    private int _curRotate = 0;
+
     void OnRotateBtnClick()
     {
-        Debug.Log("旋转90°");
+        if (SnapCopy != null)
+        {
+            RectTransform rt = SnapCopy.transform as RectTransform;
+            // 顺时针旋转90°
+            rt.Rotate(0f, 0f, -90f);
+            if (rt != null)
+            {
+                _curRotate = Mathf.RoundToInt(rt.eulerAngles.z);
+                Debug.Log($"当前旋转角度 {_curRotate}");
+            }
+        }
     }
 
     void OnConfirmBtnClick()
@@ -131,7 +146,7 @@ public class SnapUseManager : MonoBehaviour
         MoveData moveData = (MoveData)data;
         if (_inSnapUse)
         {
-            if (_snapRT == null && SnapCopy != null) _snapRT = SnapCopy.rectTransform;
+            if (_snapRT == null && SnapCopy != null) _snapRT = SnapCopyRoot.transform as RectTransform;
             if (_canvas == null && SnapCopy != null) _canvas = SnapCopy.canvas;
             if (_snapRT == null) return;
 
@@ -218,7 +233,7 @@ public class SnapUseManager : MonoBehaviour
             return;
         }
 
-        if (_snapRT == null) _snapRT = SnapCopy.rectTransform;
+        if (_snapRT == null) _snapRT = SnapCopyRoot.transform as RectTransform;
         if (_canvas == null) _canvas = SnapCopy.canvas;
 
         RectTransform btnRT = ConfirmBtn.GetComponent<RectTransform>();
@@ -297,7 +312,7 @@ public class SnapUseManager : MonoBehaviour
             return;
         }
 
-        if (_snapRT == null) _snapRT = SnapCopy.rectTransform;
+        if (_snapRT == null) _snapRT = SnapCopyRoot.transform as RectTransform;
         if (_canvas == null) _canvas = SnapCopy.canvas;
 
         RectTransform btnRT = RotateBtn.GetComponent<RectTransform>();
@@ -396,9 +411,10 @@ public class SnapUseManager : MonoBehaviour
                 if (SnapCopy != null)
                 {
                     SnapCopy.texture = _shotManager.LastSnapshotRT;
-                    if (_snapRT == null) _snapRT = SnapCopy.rectTransform;
+                    if (_snapRT == null) _snapRT = SnapCopyRoot.transform as RectTransform;
                     if (_canvas == null) _canvas = SnapCopy.canvas;
                     _originalAlpha = SnapCopy.color.a;
+                    UpdateSnapCopySizeToTexture();
                 }
                 _inSnapUse = true;
                 ConfirmBtn.gameObject.SetActive(true);
@@ -420,7 +436,7 @@ public class SnapUseManager : MonoBehaviour
         // 将当前截图中心（视口坐标）转换为 UGUI 坐标并设置到 SnapCopy
         if (_shotManager != null && SnapCopy != null && Camera.main != null)
         {
-            if (_snapRT == null) _snapRT = SnapCopy.rectTransform;
+            if (_snapRT == null) _snapRT = SnapCopyRoot.transform as RectTransform;
             if (_canvas == null) _canvas = SnapCopy.canvas;
             RectTransform parentRT = _snapRT != null ? _snapRT.parent as RectTransform : null;
             if (_snapRT != null && parentRT != null)
@@ -435,12 +451,47 @@ public class SnapUseManager : MonoBehaviour
                 }
             }
         }
-        SnapCopy.gameObject.SetActive(true);
+        SnapCopyRoot.SetActive(true);
     }
 
     void Clear()
     {
         _shotManager.EnableGridShow(false);
-        SnapCopy.gameObject.SetActive(false);
+        SnapCopyRoot.SetActive(false);
+    }
+
+    void UpdateSnapCopySizeToTexture()
+    {
+        if (SnapCopy == null || SnapCopy.texture == null)
+        {
+            return;
+        }
+
+        RectTransform imgRT = SnapCopy.transform as RectTransform;
+        if (imgRT == null)
+        {
+            return;
+        }
+
+        // 让 RawImage 使用纹理的原生尺寸
+        SnapCopy.SetNativeSize();
+
+        // 同步容器（SnapCopyRoot）的尺寸，保证用于定位与边界计算的 _snapRT 与视觉一致
+        if (_snapRT == null && SnapCopyRoot != null)
+        {
+            _snapRT = SnapCopyRoot.transform as RectTransform;
+        }
+        if (_snapRT != null)
+        {
+            Vector2 size = imgRT.sizeDelta;
+            _snapRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size.x);
+            _snapRT.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size.y);
+        }
+
+        // 设置 SnapCopy 旋转为 0
+        if (SnapCopy != null)
+        {
+            SnapCopy.transform.rotation = Quaternion.identity;
+        }
     }
 }
