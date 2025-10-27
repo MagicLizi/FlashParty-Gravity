@@ -62,9 +62,8 @@ public class SnapUseManager : MonoBehaviour
         }
     }
 
-    void OnConfirmBtnClick()
+    void DealCopyTiles()
     {
-
         //恢复 tile 
         foreach (var kvp in _lastTiles)
         {
@@ -103,7 +102,10 @@ public class SnapUseManager : MonoBehaviour
             tileMap.RefreshAllTiles();                  // 或针对范围 RefreshTile
         }
         _shotManager.curSnapshotTiles.Clear();
+    }
 
+    void DealCopyElements()
+    {
         // 在处理元素
         List<GameObject> newSnapCloneElements = new List<GameObject>();
         for (int i = 0; i < _shotManager.curSnapshotElements.Count; i++)
@@ -128,8 +130,12 @@ public class SnapUseManager : MonoBehaviour
         }
         _snapCloneElements.Clear();
         _snapCloneElements = newSnapCloneElements;
+    }
 
-
+    void OnConfirmBtnClick()
+    {
+        DealCopyTiles();
+        DealCopyElements();
         OnSnapUse(true);
     }
 
@@ -462,6 +468,8 @@ public class SnapUseManager : MonoBehaviour
 
     void UpdateSnapCopySizeToTexture()
     {
+        _curRotate = 0;
+
         if (SnapCopy == null || SnapCopy.texture == null)
         {
             return;
