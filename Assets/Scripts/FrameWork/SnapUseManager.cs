@@ -59,7 +59,7 @@ public class SnapUseManager : MonoBehaviour
         foreach (var kvp in _shotManager.curSnapshotTiles)
         {
             var tileMap = kvp.Key;
-            if(!_lastTiles.ContainsKey(tileMap))
+            if (!_lastTiles.ContainsKey(tileMap))
             {
                 _lastTiles[tileMap] = new List<SaveTileData>();
             }
@@ -83,7 +83,7 @@ public class SnapUseManager : MonoBehaviour
 
         // 在处理元素
         List<GameObject> newSnapCloneElements = new List<GameObject>();
-        for(int i = 0; i < _shotManager.curSnapshotElements.Count; i++)
+        for (int i = 0; i < _shotManager.curSnapshotElements.Count; i++)
         {
             SaveElementData sed = _shotManager.curSnapshotElements[i];
             Vector3 centerPos = _shotManager.BgTileMap.GetCellCenterWorld(_snapMoveEndCell) + sed.offset;
@@ -95,10 +95,10 @@ public class SnapUseManager : MonoBehaviour
         _shotManager.curSnapshotElements.Clear();
 
         // 清理之前得复制体
-        for(int i = 0; i < _snapCloneElements.Count; i++)
+        for (int i = 0; i < _snapCloneElements.Count; i++)
         {
             GameObject obj = _snapCloneElements[i];
-            if(obj != null)
+            if (obj != null)
             {
                 DestroyImmediate(obj);
             }
@@ -316,6 +316,24 @@ public class SnapUseManager : MonoBehaviour
     void ShowTileCopy()
     {
         _shotManager.EnableGridShow(true);
+        // 将当前截图中心（视口坐标）转换为 UGUI 坐标并设置到 SnapCopy
+        if (_shotManager != null && SnapCopy != null && Camera.main != null)
+        {
+            if (_snapRT == null) _snapRT = SnapCopy.rectTransform;
+            if (_canvas == null) _canvas = SnapCopy.canvas;
+            RectTransform parentRT = _snapRT != null ? _snapRT.parent as RectTransform : null;
+            if (_snapRT != null && parentRT != null)
+            {
+                Vector4 center01 = _shotManager._curSnapCenter;
+                Vector3 screenCenter = Camera.main.ViewportToScreenPoint(new Vector3(center01.x, center01.y, 0));
+                Camera uiCam = (_canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay) ? _canvas.worldCamera : null;
+                Vector2 localPoint;
+                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRT, screenCenter, uiCam, out localPoint))
+                {
+                    _snapRT.anchoredPosition = localPoint;
+                }
+            }
+        }
         SnapCopy.gameObject.SetActive(true);
     }
 

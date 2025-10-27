@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem;
 
 public class SnapShotManager : MonoBehaviour
 {
@@ -32,7 +33,7 @@ public class SnapShotManager : MonoBehaviour
 
     public List<ElementSnapBound> AllElementSnapBound = new List<ElementSnapBound>();
 
-    private Vector4 _curSnapCenter = Vector4.zero;
+    public Vector4 _curSnapCenter = Vector4.zero;
 
     private Vector4 _curSnapSize = Vector4.zero;
 
@@ -169,6 +170,7 @@ public class SnapShotManager : MonoBehaviour
             esb.HiddenOutline();
         }
         InSnaping = false;
+        InputManager.Instance.DirectSnapUse();
     }
 
 
@@ -459,7 +461,7 @@ public class SnapShotManager : MonoBehaviour
         Vector3 centerPos = Camera.main.ViewportToWorldPoint(new Vector3(_curSnapCenter.x, _curSnapCenter.y, Camera.main.nearClipPlane));
         Vector3Int bgCenterCell = GetCellAtPosition(BgTileMap, centerPos);
 
-        for(int i = 0; i < ElementsInSnapFully.Count; i++)
+        for (int i = 0; i < ElementsInSnapFully.Count; i++)
         {
             ElementSnapBound esb = ElementsInSnapFully[i];
             SaveElementData sed = new SaveElementData();

@@ -44,7 +44,7 @@ public class InputManager : MonoSingleton<InputManager>
         AddInputCallback("Special", OnSpecialStart, OnSpecial, OnSpecialEnd);
         AddInputCallback("Reset", OnReset);
         AddInputCallback("Snapshot", null, OnSnapshot, null);
-        AddInputCallback("SnapUse", null, OnSnapUse, null);
+        // AddInputCallback("SnapUse", null, OnSnapUse, null);
         AddInputCallback("CancelSnap", null, OnSnapshotEnd, null);
         //鼠标
         AddInputCallback("TriggerMoveSnap", MouseStartSnapMove, null, MouseEndSnapMove);
@@ -233,6 +233,12 @@ public class InputManager : MonoSingleton<InputManager>
         EventManager.Instance.TriggerEvent(EventType.SnapUse, false);
     }
 
+    public void DirectSnapUse()
+    {
+        inSnapUse = true;
+        EventManager.Instance.TriggerEvent(EventType.SnapUse, false);
+    }
+
     void OnSnapshotEnd(InputAction.CallbackContext value)
     {
         if (inSnapShot)
@@ -241,7 +247,7 @@ public class InputManager : MonoSingleton<InputManager>
             EventManager.Instance.TriggerEvent(EventType.Snapshot, true);
         }
 
-        if(inSnapUse)
+        if (inSnapUse)
         {
             inSnapUse = false;
             EventManager.Instance.TriggerEvent(EventType.SnapUse, true);
