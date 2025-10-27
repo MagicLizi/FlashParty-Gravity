@@ -45,7 +45,7 @@ public class SnapUseManager : MonoBehaviour
         _playerCopyFly = GameObject.Find("Player").GetComponent<PlayerCopyFly>();
     }
 
-    private List<GameObject> _snapCloneElements = new List<GameObject>();
+    public List<GameObject> _snapCloneElements = new List<GameObject>();
     private Dictionary<Tilemap, List<SaveTileData>> _lastTiles = new Dictionary<Tilemap, List<SaveTileData>>();
     private Dictionary<Tilemap, Dictionary<Vector3Int, Matrix4x4>> _lastTileTransforms = new Dictionary<Tilemap, Dictionary<Vector3Int, Matrix4x4>>();
 
