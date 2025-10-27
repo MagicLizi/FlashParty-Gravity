@@ -625,6 +625,8 @@ public class SnapShotManager : MonoBehaviour
         int y = Mathf.RoundToInt(startY01 * Screen.height);
         int w = Mathf.RoundToInt(Mathf.Max(1e-3f, (endX01 - startX01)) * Screen.width);
         int h = Mathf.RoundToInt(Mathf.Max(1e-3f, (endY01 - startY01)) * Screen.height);
+        // Debug.Log($"ComputeCapturePixelRect: {Screen.width}, {Screen.height}, {w}, {h}");
+        
 
         return new Rect(x, y, w, h);
     }
@@ -636,9 +638,11 @@ public class SnapShotManager : MonoBehaviour
             return;
         }
         CopyImg.texture = LastSnapshotRT;
+        // CopyImg.SetNativeSize();
         float scale = _canvas != null ? _canvas.scaleFactor : 1f;
         RectTransform rt = CopyImg.rectTransform;
         rt.sizeDelta = new Vector2(pixelWidth / scale, pixelHeight / scale);
+        Debug.Log($"UpdateCopyImgSizeAndTexture: {pixelWidth}, {pixelHeight}, {scale}, {rt.sizeDelta}");
         // if (!CopyImg.gameObject.activeSelf)
         // {
         //     CopyImg.gameObject.SetActive(true);

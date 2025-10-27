@@ -558,7 +558,7 @@ public class SnapUseManager : MonoBehaviour
         }
 
         // 让 RawImage 使用纹理的原生尺寸
-        SnapCopy.SetNativeSize();
+        // SnapCopy.SetNativeSize();
 
         // 同步容器（SnapCopyRoot）的尺寸，保证用于定位与边界计算的 _snapRT 与视觉一致
         if (_snapRT == null && SnapCopyRoot != null)

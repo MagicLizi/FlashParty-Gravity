@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 578692361765581526}
   - component: {fileID: 7730708932132247585}
   - component: {fileID: 3911124674337581693}
+  - component: {fileID: 6772929633026448179}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -234,6 +235,19 @@ MonoBehaviour:
   RebornSivi: {fileID: 5918363636611341757}
   AtkFx: {fileID: 320744395548210819, guid: 3ea7eb38eb4e40a4fb314dbf24e1b998, type: 3}
   AtkAudio: {fileID: 8105319631085441771, guid: 6ca78181809ad8e47a9a17b79e42b98b, type: 3}
+--- !u!114 &6772929633026448179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2312795928412890561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3aff073707ff6c346ad466b4551448e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TileRects: []
 --- !u!1 &3557578903485010327
 GameObject:
   m_ObjectHideFlags: 0
