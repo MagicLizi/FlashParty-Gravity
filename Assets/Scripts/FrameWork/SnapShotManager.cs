@@ -72,6 +72,10 @@ public class SnapShotManager : MonoBehaviour
 
     private void OnSnapshotEvent(object data)
     {
+        if(_useManager._inSnapUse)
+        {
+            return;
+        }
         bool isEnd = false;
         if (data is bool)
         {

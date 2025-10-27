@@ -9,7 +9,7 @@ public class SnapUseManager : MonoBehaviour
 
     private SnapShotManager _shotManager;
 
-    private bool _inSnapUse;
+    public bool _inSnapUse;
 
     public RawImage SnapCopy;
 
