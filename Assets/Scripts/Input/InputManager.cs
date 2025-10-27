@@ -223,6 +223,10 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnSnapshot(InputAction.CallbackContext value)
     {
+        if(inSnapUse)
+        {
+            return;
+        }
         inSnapShot = true;
         EventManager.Instance.TriggerEvent(EventType.Snapshot, false);
     }

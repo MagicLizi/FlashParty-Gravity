@@ -43,6 +43,8 @@ public class SnapShotManager : MonoBehaviour
 
     public RawImage CopyImg;
 
+    private SnapUseManager _useManager;
+
     void Awake()
     {
         EventManager.Instance.AddListener(EventType.Snapshot, OnSnapshotEvent);
@@ -55,6 +57,7 @@ public class SnapShotManager : MonoBehaviour
         SaveBtn.GetComponent<Button>().onClick.AddListener(OnSaveBtnClick);
         Player = GameObject.Find("Player");
         _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
+        _useManager = GetComponent<SnapUseManager>();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -77,10 +80,12 @@ public class SnapShotManager : MonoBehaviour
 
         if (isEnd)
         {
+            RecoverHidden();
             HandleSnapshotEnd();
         }
         else
         {
+            HidenLastCopy();
             HandleSnapshotStart();
         }
     }
@@ -113,6 +118,17 @@ public class SnapShotManager : MonoBehaviour
         RefreshSaveBtn(true);
         ShowIgnore(false);
         SearchElements();
+    }
+
+    public void HidenLastCopy()
+    {
+        _useManager.RecoverTiles();
+        _useManager.RecoverElements();
+    }
+
+    public void RecoverHidden()
+    {
+        _useManager.OnConfirmBtnClick();
     }
 
     public Vector3Int GetPlayerTopCurCell()
@@ -170,7 +186,6 @@ public class SnapShotManager : MonoBehaviour
             esb.HiddenOutline();
         }
         InSnaping = false;
-        InputManager.Instance.DirectSnapUse();
     }
 
 
@@ -531,6 +546,7 @@ public class SnapShotManager : MonoBehaviour
         SaveSnapshotData();
         yield return StartCoroutine(CaptureViewportToRTCoroutine());
         HandleSnapshotEnd();
+        InputManager.Instance.DirectSnapUse();
     }
 
     public void CaptureViewportToRenderTexture(Action<RenderTexture> onDone = null)
@@ -626,7 +642,7 @@ public class SnapShotManager : MonoBehaviour
         int w = Mathf.RoundToInt(Mathf.Max(1e-3f, (endX01 - startX01)) * Screen.width);
         int h = Mathf.RoundToInt(Mathf.Max(1e-3f, (endY01 - startY01)) * Screen.height);
         // Debug.Log($"ComputeCapturePixelRect: {Screen.width}, {Screen.height}, {w}, {h}");
-        
+
 
         return new Rect(x, y, w, h);
     }
