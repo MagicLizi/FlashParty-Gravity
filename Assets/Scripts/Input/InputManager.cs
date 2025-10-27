@@ -34,6 +34,8 @@ public class InputManager : MonoSingleton<InputManager>
     private bool startSnapMove = false;
 
     InputAction moveAction;
+    
+    private Player player; // 用于检查玩家状态
 
     void Awake()
     {
@@ -52,6 +54,20 @@ public class InputManager : MonoSingleton<InputManager>
         //手柄
         AddInputCallback("GamePadSnapMove", GamePadSnapMoveBegin, GamePadSnapMoving, GamePadSnapMoveEnd);
         Enable(true);
+    }
+    
+    void Start()
+    {
+        // 获取Player引用
+        GameObject playerGo = GameObject.Find("Player");
+        if (playerGo != null)
+        {
+            player = playerGo.GetComponent<Player>();
+        }
+        else
+        {
+            Debug.LogWarning("[InputManager] 未找到Player对象");
+        }
     }
 
     public void Destroy()
@@ -223,6 +239,13 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnSnapshot(InputAction.CallbackContext value)
     {
+        // 检查玩家是否在地面或斜面上
+        if (player != null && player.inAir)
+        {
+            // 在空中，不允许进入snap模式
+            return;
+        }
+        
         inSnapShot = true;
         EventManager.Instance.TriggerEvent(EventType.Snapshot, false);
     }
