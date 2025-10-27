@@ -42,17 +42,6 @@ public class SnapUseManager : MonoBehaviour
     void OnConfirmBtnClick()
     {
 
-        // 清理之前得复制体
-        for(int i = 0; i < _snapCloneElements.Count; i++)
-        {
-            GameObject obj = _snapCloneElements[i];
-            if(obj != null)
-            {
-                DestroyImmediate(obj);
-            }
-        }
-        _snapCloneElements.Clear();
-
         //恢复 tile 
         foreach (var kvp in _lastTiles)
         {
@@ -93,6 +82,7 @@ public class SnapUseManager : MonoBehaviour
         _shotManager.curSnapshotTiles.Clear();
 
         // 在处理元素
+        List<GameObject> newSnapCloneElements = new List<GameObject>();
         for(int i = 0; i < _shotManager.curSnapshotElements.Count; i++)
         {
             SaveElementData sed = _shotManager.curSnapshotElements[i];
@@ -100,9 +90,23 @@ public class SnapUseManager : MonoBehaviour
             var clone = Instantiate(sed.obj);
             clone.name = sed.obj.name + "_snap_clone";
             clone.transform.position = centerPos;
-            _snapCloneElements.Add(clone);
+            newSnapCloneElements.Add(clone);
         }
         _shotManager.curSnapshotElements.Clear();
+
+        // 清理之前得复制体
+        for(int i = 0; i < _snapCloneElements.Count; i++)
+        {
+            GameObject obj = _snapCloneElements[i];
+            if(obj != null)
+            {
+                DestroyImmediate(obj);
+            }
+        }
+        _snapCloneElements.Clear();
+        _snapCloneElements = newSnapCloneElements;
+
+
         OnSnapUse(true);
     }
 

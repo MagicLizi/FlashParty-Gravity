@@ -18,6 +18,7 @@ public class Box : MonoBehaviour
     void Awake()
     {
         boxCollider = GetComponent<Collider2D>();
+        boxCollider.enabled = true;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
