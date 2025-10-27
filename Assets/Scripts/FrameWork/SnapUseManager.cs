@@ -19,6 +19,8 @@ public class SnapUseManager : MonoBehaviour
 
     public Button ConfirmBtn;
 
+    public Button RotateBtn;
+
     void Awake()
     {
         _shotManager = GetComponent<SnapShotManager>();
@@ -34,10 +36,16 @@ public class SnapUseManager : MonoBehaviour
         }
 
         ConfirmBtn.onClick.AddListener(OnConfirmBtnClick);
+        RotateBtn.onClick.AddListener(OnRotateBtnClick);
     }
 
     private List<GameObject> _snapCloneElements = new List<GameObject>();
     private Dictionary<Tilemap, List<SaveTileData>> _lastTiles = new Dictionary<Tilemap, List<SaveTileData>>();
+
+    void OnRotateBtnClick()
+    {
+        Debug.Log("旋转90°");
+    }
 
     void OnConfirmBtnClick()
     {
@@ -130,6 +138,9 @@ public class SnapUseManager : MonoBehaviour
             float scale = (_canvas != null && _canvas.scaleFactor > 0f) ? _canvas.scaleFactor : 1f;
             Vector2 deltaUI = moveData.moveDir / scale;
             _snapRT.anchoredPosition += deltaUI;
+
+            ConfirmBtn.gameObject.SetActive(false);
+            RotateBtn.gameObject.SetActive(false);
         }
     }
 
@@ -192,7 +203,10 @@ public class SnapUseManager : MonoBehaviour
             }
 
             // 放置确认按钮于合适位置（不遮挡 RT）并保证在屏幕内
+            ConfirmBtn.gameObject.SetActive(true);
+            RotateBtn.gameObject.SetActive(true);
             PositionConfirmButton();
+            PositionRotateButton();
         }
         // ConfirmBtn.gameObject.SetActive(true);
     }
@@ -204,68 +218,152 @@ public class SnapUseManager : MonoBehaviour
             return;
         }
 
-        RectTransform btnRT = ConfirmBtn.transform as RectTransform;
-        RectTransform container = btnRT.parent as RectTransform;
-        if (container == null)
+        if (_snapRT == null) _snapRT = SnapCopy.rectTransform;
+        if (_canvas == null) _canvas = SnapCopy.canvas;
+
+        RectTransform btnRT = ConfirmBtn.GetComponent<RectTransform>();
+        if (btnRT == null) return;
+
+        Canvas btnCanvas = ConfirmBtn.GetComponentInParent<Canvas>();
+        if (btnCanvas == null) btnCanvas = _canvas;
+        RectTransform btnParentRT = btnRT.parent as RectTransform;
+        if (btnParentRT == null) return;
+
+        // 计算 SnapCopy 在屏幕空间的左右边与中心Y
+        Vector3[] snapCorners = new Vector3[4];
+        _snapRT.GetWorldCorners(snapCorners);
+        Camera uiCamSnap = (_canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay) ? _canvas.worldCamera : null;
+        Vector3 tr = RectTransformUtility.WorldToScreenPoint(uiCamSnap, snapCorners[2]); // 右上
+        Vector3 br = RectTransformUtility.WorldToScreenPoint(uiCamSnap, snapCorners[3]); // 右下
+        Vector3 tl = RectTransformUtility.WorldToScreenPoint(uiCamSnap, snapCorners[1]); // 左上
+        Vector3 bl = RectTransformUtility.WorldToScreenPoint(uiCamSnap, snapCorners[0]); // 左下
+
+        float rightX = Mathf.Max(tr.x, br.x);
+        float leftX = Mathf.Min(tl.x, bl.x);
+        Vector2 snapCenterScreen = RectTransformUtility.WorldToScreenPoint(
+            uiCamSnap,
+            _snapRT.TransformPoint(_snapRT.rect.center)
+        );
+
+        // 按钮在屏幕空间的半宽/半高（像素）与边距
+        float btnScale = (btnCanvas != null && btnCanvas.scaleFactor > 0f) ? btnCanvas.scaleFactor : 1f;
+        float halfW = btnRT.rect.width * 0.5f * btnScale;
+        float halfH = btnRT.rect.height * 0.5f * btnScale;
+        const float margin = 30f;
+
+        // 先默认放在右侧外 10px，垂直居中于 SnapCopy
+        float targetX = rightX + margin + halfW;
+        float targetY = snapCenterScreen.y;
+
+        // 如果右边越界，改到左侧外 10px
+        if (targetX + halfW > Screen.width)
+        {
+            targetX = leftX - margin - halfW;
+        }
+
+        // 垂直方向自适应：上越界向下、下越界向上
+        if (targetY + halfH > Screen.height)
+        {
+            targetY = Screen.height - halfH;
+        }
+        else if (targetY - halfH < 0f)
+        {
+            targetY = halfH;
+        }
+
+        // 兜底：若左侧仍越界，夹紧到屏幕内
+        if (targetX - halfW < 0f)
+        {
+            targetX = halfW;
+        }
+
+        // 将屏幕中心点转换为按钮父节点本地坐标
+        Camera uiCamBtn = (btnCanvas != null && btnCanvas.renderMode != RenderMode.ScreenSpaceOverlay) ? btnCanvas.worldCamera : null;
+        Vector2 localCenter;
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(btnParentRT, new Vector2(targetX, targetY), uiCamBtn, out localCenter))
+        {
+            // 将中心点转换为以 pivot 为锚点的 anchoredPosition
+            Vector2 size = btnRT.rect.size;
+            Vector2 pivot = btnRT.pivot;
+            Vector2 anchored = localCenter + new Vector2((pivot.x - 0.5f) * size.x, (pivot.y - 0.5f) * size.y);
+            btnRT.anchoredPosition = anchored;
+        }
+    }
+
+    void PositionRotateButton()
+    {
+        if (RotateBtn == null || SnapCopy == null)
         {
             return;
         }
 
-        // 统一使用居中锚点/枢轴，便于计算与边界判断
-        btnRT.anchorMin = new Vector2(0.5f, 0.5f);
-        btnRT.anchorMax = new Vector2(0.5f, 0.5f);
-        btnRT.pivot = new Vector2(0.5f, 0.5f);
-        btnRT.anchoredPosition = Vector2.zero;
+        if (_snapRT == null) _snapRT = SnapCopy.rectTransform;
+        if (_canvas == null) _canvas = SnapCopy.canvas;
 
-        // 基于 Canvas 空间计算，确保“在屏内”的判断正确
-        if (_canvas == null)
+        RectTransform btnRT = RotateBtn.GetComponent<RectTransform>();
+        if (btnRT == null) return;
+
+        Canvas btnCanvas = RotateBtn.GetComponentInParent<Canvas>();
+        if (btnCanvas == null) btnCanvas = _canvas;
+        RectTransform btnParentRT = btnRT.parent as RectTransform;
+        if (btnParentRT == null) return;
+
+        // 计算 SnapCopy 在屏幕空间的上下边与中心X
+        Vector3[] snapCorners = new Vector3[4];
+        _snapRT.GetWorldCorners(snapCorners);
+        Camera uiCamSnap = (_canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay) ? _canvas.worldCamera : null;
+        Vector3 tl = RectTransformUtility.WorldToScreenPoint(uiCamSnap, snapCorners[1]); // 左上
+        Vector3 tr = RectTransformUtility.WorldToScreenPoint(uiCamSnap, snapCorners[2]); // 右上
+        Vector3 bl = RectTransformUtility.WorldToScreenPoint(uiCamSnap, snapCorners[0]); // 左下
+        Vector3 br = RectTransformUtility.WorldToScreenPoint(uiCamSnap, snapCorners[3]); // 右下
+
+        float topY = Mathf.Max(tl.y, tr.y);
+        float bottomY = Mathf.Min(bl.y, br.y);
+        Vector2 snapCenterScreen = RectTransformUtility.WorldToScreenPoint(
+            uiCamSnap,
+            _snapRT.TransformPoint(_snapRT.rect.center)
+        );
+
+        // 按钮在屏幕空间的半宽/半高（像素）与边距
+        float btnScale = (btnCanvas != null && btnCanvas.scaleFactor > 0f) ? btnCanvas.scaleFactor : 1f;
+        float halfW = btnRT.rect.width * 0.5f * btnScale;
+        float halfH = btnRT.rect.height * 0.5f * btnScale;
+        const float margin = 0f;
+
+        // 先默认放在上方外 30px，水平居中于 SnapCopy
+        float targetY = topY + margin + halfH;
+        float targetX = snapCenterScreen.x;
+
+        // 如果顶部越界，改到下方外 30px；若仍然越界到底部，再回到上方
+        if (targetY + halfH > Screen.height)
         {
-            _canvas = SnapCopy.canvas;
-            if (_canvas == null) return;
+            targetY = bottomY - margin - halfH;
         }
-        RectTransform canvasRT = _canvas.transform as RectTransform;
-
-        RectTransform snapCopyRT = SnapCopy.rectTransform;
-        Bounds bCanvas = RectTransformUtility.CalculateRelativeRectTransformBounds(canvasRT, snapCopyRT);
-
-        Vector2 btnSize = btnRT.rect.size;
-        float halfW = btnSize.x * 0.5f;
-        float halfH = btnSize.y * 0.5f;
-        float margin = 16f; // 与图片保持的最小边距
-        float scale = (_canvas != null && _canvas.scaleFactor > 0f) ? _canvas.scaleFactor : 1f;
-        // 仅当按钮当前位置尚未放置（或首次调用）时应用额外偏移
-        bool firstPlacement = btnRT.anchoredPosition == Vector2.zero;
-        float extra = firstPlacement ? (20f / scale) : 0f;
-        Rect canvasRect = canvasRT.rect;
-
-        // 备选位置（右、左、上、下），默认右侧中间（均在 Canvas 坐标系下）
-        Vector2 rightCanvas = new Vector2(bCanvas.max.x + (halfW + margin + extra), Mathf.Clamp(bCanvas.center.y, canvasRect.yMin + halfH, canvasRect.yMax - halfH));
-        Vector2 leftCanvas = new Vector2(bCanvas.min.x - (halfW + margin + extra), Mathf.Clamp(bCanvas.center.y, canvasRect.yMin + halfH, canvasRect.yMax - halfH));
-        Vector2 topCanvas = new Vector2(Mathf.Clamp(bCanvas.center.x, canvasRect.xMin + halfW, canvasRect.xMax - halfW), bCanvas.max.y + (halfH + margin + extra));
-        Vector2 bottomCanvas = new Vector2(Mathf.Clamp(bCanvas.center.x, canvasRect.xMin + halfW, canvasRect.xMax - halfW), bCanvas.min.y - (halfH + margin + extra));
-
-        bool FitsInCanvas(Vector2 p)
+        else if (targetY - halfH < 0f)
         {
-            return p.x - halfW >= canvasRect.xMin && p.x + halfW <= canvasRect.xMax && p.y - halfH >= canvasRect.yMin && p.y + halfH <= canvasRect.yMax;
-        }
-
-        Vector2 chosenCanvas = rightCanvas;
-        if (!FitsInCanvas(chosenCanvas))
-        {
-            if (FitsInCanvas(leftCanvas)) chosenCanvas = leftCanvas;
-            else if (FitsInCanvas(topCanvas)) chosenCanvas = topCanvas;
-            else if (FitsInCanvas(bottomCanvas)) chosenCanvas = bottomCanvas;
-            else
-            {
-                chosenCanvas.x = Mathf.Clamp(chosenCanvas.x, canvasRect.xMin + halfW, canvasRect.xMax - halfW);
-                chosenCanvas.y = Mathf.Clamp(chosenCanvas.y, canvasRect.yMin + halfH, canvasRect.yMax - halfH);
-            }
+            targetY = topY + margin + halfH;
         }
 
-        // 将 Canvas 局部坐标转换为容器局部坐标
-        Vector3 world = canvasRT.TransformPoint(chosenCanvas);
-        Vector3 localInContainer = container.InverseTransformPoint(world);
-        btnRT.anchoredPosition = new Vector2(localInContainer.x, localInContainer.y);
+        // 水平方向自适应：保证始终在屏幕内
+        if (targetX + halfW > Screen.width)
+        {
+            targetX = Screen.width - halfW;
+        }
+        else if (targetX - halfW < 0f)
+        {
+            targetX = halfW;
+        }
+
+        // 将屏幕中心点转换为按钮父节点本地坐标
+        Camera uiCamBtn = (btnCanvas != null && btnCanvas.renderMode != RenderMode.ScreenSpaceOverlay) ? btnCanvas.worldCamera : null;
+        Vector2 localCenter;
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(btnParentRT, new Vector2(targetX, targetY), uiCamBtn, out localCenter))
+        {
+            Vector2 size = btnRT.rect.size;
+            Vector2 pivot = btnRT.pivot;
+            Vector2 anchored = localCenter + new Vector2((pivot.x - 0.5f) * size.x, (pivot.y - 0.5f) * size.y);
+            btnRT.anchoredPosition = anchored;
+        }
     }
 
     void OnSnapUse(object data)
@@ -303,7 +401,10 @@ public class SnapUseManager : MonoBehaviour
                     _originalAlpha = SnapCopy.color.a;
                 }
                 _inSnapUse = true;
+                ConfirmBtn.gameObject.SetActive(true);
+                RotateBtn.gameObject.SetActive(true);
                 PositionConfirmButton();
+                PositionRotateButton();
                 //  ConfirmBtn.gameObject.SetActive(true);
             }
             else
