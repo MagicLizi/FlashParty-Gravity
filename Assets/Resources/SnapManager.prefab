@@ -55,6 +55,13 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  AllElementSnapBound: []
+  _curSnapCenter: {x: 0, y: 0, z: 0, w: 0}
+  LastSnapshotRT: {fileID: 0}
+  CopyImg: {fileID: 0}
+  ElementsInSnapFully: []
+  ElementsInSnapIntersects: []
+  ElementsIgnoreSnap: []
 --- !u!114 &6830235215469069877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67,3 +74,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a52b2230e377324eac0fe35d4c19107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SnapCopy: {fileID: 0}
+  ConfirmBtn: {fileID: 0}
+  RotateBtn: {fileID: 0}
+  SnapCopyRoot: {fileID: 0}
