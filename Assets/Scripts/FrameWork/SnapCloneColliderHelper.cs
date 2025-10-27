@@ -1,14 +1,17 @@
 using UnityEngine;
 using System.Collections.Generic;
+using DG.Tweening;
 
 public class SnapCloneColliderHelper : MonoBehaviour
 {
 	public bool hasBoxCollider2D;
 	public bool originalIsTrigger;
-    private float knockbackHorizontalForce = 20f;
-    private float knockbackVerticalForce = 12f;
+	private float knockbackHorizontalForce = 20f;
+	private float knockbackVerticalForce = 12f;
 
 	private BoxCollider2D _box2D;
+
+	private bool _hasCheck = false;
 
 	void Awake()
 	{
@@ -25,6 +28,10 @@ public class SnapCloneColliderHelper : MonoBehaviour
 
 	public void TriggerPlayer()
 	{
+		if (_hasCheck)
+		{
+			return;
+		}
 		if (_box2D == null)
 		{
 			Debug.Log("[SnapCloneColliderHelper] 无 BoxCollider2D，无法检测与 Player 的碰撞。");
@@ -35,7 +42,7 @@ public class SnapCloneColliderHelper : MonoBehaviour
 		// 仅与场景上的 Player 对象的 BoxCollider2D 精确检测（考虑位置/旋转/缩放）
 		GameObject playerGo = GameObject.Find("Player");
 		bool hit = false;
-        if (playerGo != null)
+		if (playerGo != null)
 		{
 			BoxCollider2D playerBox = playerGo.GetComponent<BoxCollider2D>();
 			if (playerBox != null && playerBox.enabled)
@@ -43,15 +50,16 @@ public class SnapCloneColliderHelper : MonoBehaviour
 				Rect a = ComputeWorldAABB(_box2D);
 				Rect b = ComputeWorldAABB(playerBox);
 				hit = RectsOverlap(a, b);
-                if (hit)
-                {
-                    Debug.Log("[SnapCloneColliderHelper] 已与 Player 发生碰撞/交互。");
+				if (hit)
+				{
+					Debug.Log("[SnapCloneColliderHelper] 已与 Player 发生碰撞/交互。");
+					_hasCheck = true;
 					KnockbackPlayer(playerBox);
-                }
-                else
-                {
-                    Debug.Log("[SnapCloneColliderHelper] 未检测到与 Player 的碰撞。");
-                }
+				}
+				else
+				{
+					Debug.Log("[SnapCloneColliderHelper] 未检测到与 Player 的碰撞。");
+				}
 			}
 			else
 			{
@@ -62,8 +70,11 @@ public class SnapCloneColliderHelper : MonoBehaviour
 		{
 			Debug.Log("[SnapCloneColliderHelper] 未找到 Player 对象。");
 		}
-		_box2D.isTrigger = originalIsTrigger;
-		Destroy(this);
+		DOVirtual.DelayedCall(1f, () =>
+		{
+			_box2D.isTrigger = originalIsTrigger;
+			Destroy(this);
+		});
 	}
 
 	Rect ComputeWorldAABB(BoxCollider2D col)
@@ -98,7 +109,7 @@ public class SnapCloneColliderHelper : MonoBehaviour
 		{
 			dir = 1;
 		}
-		Vector2 launchForce = new Vector2(dir * 40, 20);
+		Vector2 launchForce = new Vector2(dir * 50, 20);
 		float hitFlyDuration = 1.5f;
 		playerBox.gameObject.GetComponent<Player>().GetLaunched(launchForce, hitFlyDuration);
 	}
