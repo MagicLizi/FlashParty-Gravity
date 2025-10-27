@@ -26,7 +26,7 @@ namespace FlashParty.Platform
         
         public void StartMovement()
         {
-            if (!isInitialized || platform == null || platform.Waypoints.Length < 2)
+            if (!isInitialized || platform == null || platform.WaypointPositions.Length < 2)
             {
                 Debug.LogWarning("Loop movement strategy not properly initialized or insufficient waypoints");
                 return;
@@ -68,21 +68,24 @@ namespace FlashParty.Platform
         /// </summary>
         private void StartLoopMovement()
         {
+            // 获取路径点世界坐标（支持偏移量模式和Transform模式）
+            Vector3[] worldPositions = platform.WaypointPositions;
+            
             // 创建本地坐标路径点数组
-            Vector3[] pathPoints = new Vector3[platform.Waypoints.Length];
-            for (int i = 0; i < platform.Waypoints.Length; i++)
+            Vector3[] pathPoints = new Vector3[worldPositions.Length];
+            for (int i = 0; i < worldPositions.Length; i++)
             {
                 if (platform.transform.parent != null)
                 {
                     // 转换为相对于父对象的本地坐标
-                    pathPoints[i] = platform.transform.parent.InverseTransformPoint(platform.Waypoints[i].position);
+                    pathPoints[i] = platform.transform.parent.InverseTransformPoint(worldPositions[i]);
                 }
                 else
                 {
                     // 如果没有父对象，直接使用世界坐标
-                    pathPoints[i] = platform.Waypoints[i].position;
+                    pathPoints[i] = worldPositions[i];
                 }
-                // Debug.Log($"Waypoint {i}: World={platform.Waypoints[i].position}, Local={pathPoints[i]}");
+                // Debug.Log($"Waypoint {i}: World={worldPositions[i]}, Local={pathPoints[i]}");
             }
             
             // 计算移动时间
@@ -129,6 +132,7 @@ namespace FlashParty.Platform
                 // 使用DOLocalPath移动本地坐标
                 moveTweener = platform.transform.DOLocalPath(pathPoints, moveDuration, pathType)
                     .SetEase(platform.Config.easeType)
+                    .SetUpdate(UpdateType.Fixed) // 使用FixedUpdate，与PlatformController同步
                     .SetLoops(-1, platform.Config.reverseOnComplete ? LoopType.Yoyo : LoopType.Restart)
                     .OnComplete(() => {
                         isMoving = false;
@@ -171,6 +175,7 @@ namespace FlashParty.Platform
             
             moveTweener = platform.transform.DOLocalMove(pathPoints[1], segmentDuration)
                 .SetEase(platform.Config.easeType)
+                .SetUpdate(UpdateType.Fixed) // 使用FixedUpdate，与PlatformController同步
                 .SetLoops(-1, LoopType.Yoyo);
                 
             // Debug.Log($"Simple DOTween created: IsActive={moveTweener.IsActive()}, IsPlaying={moveTweener.IsPlaying()}");
