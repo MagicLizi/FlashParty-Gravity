@@ -43,8 +43,6 @@ public class SnapShotManager : MonoBehaviour
 
     public RawImage CopyImg;
 
-    private SnapUseManager _snapUseManager;
-
     void Awake()
     {
         EventManager.Instance.AddListener(EventType.Snapshot, OnSnapshotEvent);
@@ -57,7 +55,6 @@ public class SnapShotManager : MonoBehaviour
         SaveBtn.GetComponent<Button>().onClick.AddListener(OnSaveBtnClick);
         Player = GameObject.Find("Player");
         _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
-        _snapUseManager = GetComponent<SnapUseManager>();
         DontDestroyOnLoad(gameObject);
     }
 
@@ -112,7 +109,6 @@ public class SnapShotManager : MonoBehaviour
             RefreshCurSnapShotTiles(Player.transform.position + new Vector3(0, 1.05f, 0));
         }
         EnableGridShow(true);
-        Player.gameObject.SetActive(false);
         SnapGo.SetActive(true);
         RefreshSaveBtn(true);
         ShowIgnore(false);
@@ -173,7 +169,6 @@ public class SnapShotManager : MonoBehaviour
             ElementSnapBound esb = ElementsInSnapIntersects[i];
             esb.HiddenOutline();
         }
-        Player.gameObject.SetActive(true);
         InSnaping = false;
         InputManager.Instance.DirectSnapUse();
     }
