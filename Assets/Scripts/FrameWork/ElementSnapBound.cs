@@ -8,8 +8,8 @@ public class ElementSnapBound : MonoBehaviour
     public bool ignoreSnap = false;
     
     [Header("Bound 设置")]
-    public Vector2 centerOffset = Vector2.zero;
-    public Vector2 size = new Vector2(1f, 1f);
+    [Tooltip("用于定义Snap边界的BoxCollider2D（ignoreSnap=false时必须设置）")]
+    public BoxCollider2D boundCollider;
 
     [Header("Gizmo 显示")]
     public bool drawAlways = true;
@@ -32,16 +32,41 @@ public class ElementSnapBound : MonoBehaviour
 
     public Vector3 GetWorldCenter()
     {
-        return transform.position + new Vector3(centerOffset.x, centerOffset.y, 0f);
+        if (boundCollider == null)
+        {
+            if (!ignoreSnap)
+            {
+                Debug.LogWarning($"[{nameof(ElementSnapBound)}] {gameObject.name} boundCollider 未设置，返回物体位置", this);
+            }
+            return transform.position;
+        }
+        return boundCollider.bounds.center;
     }
 
-    public Vector2 GetSize() => size;
+    public Vector2 GetSize()
+    {
+        if (boundCollider == null)
+        {
+            if (!ignoreSnap)
+            {
+                Debug.LogWarning($"[{nameof(ElementSnapBound)}] {gameObject.name} boundCollider 未设置，返回默认大小", this);
+            }
+            return Vector2.one;
+        }
+        return boundCollider.bounds.size;
+    }
 
     public Bounds GetWorldBounds()
     {
-        Vector3 center = GetWorldCenter();
-        Vector3 extents = new Vector3(Mathf.Max(0f, size.x) * 0.5f, Mathf.Max(0f, size.y) * 0.5f, 0.001f);
-        return new Bounds(center, extents * 2f);
+        if (boundCollider == null)
+        {
+            if (!ignoreSnap)
+            {
+                Debug.LogWarning($"[{nameof(ElementSnapBound)}] {gameObject.name} boundCollider 未设置，返回默认边界", this);
+            }
+            return new Bounds(transform.position, Vector3.one);
+        }
+        return boundCollider.bounds;
     }
 
     void OnDrawGizmos()
@@ -60,6 +85,8 @@ public class ElementSnapBound : MonoBehaviour
 
     void DrawGizmoBounds()
     {
+        if (boundCollider == null) return;
+        
         Bounds b = GetWorldBounds();
         Color prev = Gizmos.color;
         if (drawFilled)
@@ -78,6 +105,12 @@ public class ElementSnapBound : MonoBehaviour
     {
         mgr = FindObjectOfType<SnapShotManager>();
         mgr.AllElementSnapBound.Add(this);
+
+        // 检查 boundCollider 是否配置（只在不忽略 Snap 时检查）
+        if (!ignoreSnap && boundCollider == null)
+        {
+            Debug.LogError($"[{nameof(ElementSnapBound)}] {gameObject.name} 的 boundCollider 未设置！请在 Inspector 中拖入一个 BoxCollider2D。", this);
+        }
 
         // 如果未配置 Renders，自动获取子对象的所有 SpriteRenderer
         if (Renders == null || Renders.Length == 0)
