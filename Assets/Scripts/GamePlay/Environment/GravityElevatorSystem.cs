@@ -13,9 +13,11 @@ namespace FlashParty.Environment
         private GravityElevator elevator;
         private GravityElevatorController controller;
         
-        // 配置参数（从电梯读取）
-        private float controllerGravity;
-        private float playerWeightForce;
+        // 速度参数（从电梯读取）
+        private float elevatorSpeedUp;          // 电梯上升速度（m/s）
+        private float elevatorSpeedDown;        // 电梯下降速度（m/s）
+        private float controllerSpeedUp;        // 控制器上升速度（m/s，根据电梯速度计算）
+        private float controllerSpeedDown;      // 控制器下降速度（m/s，根据电梯速度计算）
         
         // 状态
         private bool isPlayerOnElevator = false;
@@ -39,9 +41,41 @@ namespace FlashParty.Environment
             elevator = elevatorInstance;
             controller = controllerInstance;
             
-            // 从电梯读取配置
-            controllerGravity = elevator.ControllerGravity;
-            playerWeightForce = elevator.PlayerWeightForce;
+            // 从电梯读取速度配置
+            elevatorSpeedUp = elevator.ElevatorSpeedUp;
+            elevatorSpeedDown = elevator.ElevatorSpeedDown;
+            
+            // 计算控制器的速度，保证同时到达终点
+            // 控制器和电梯的移动距离可能不同，但需要在相同时间内完成
+            float elevatorDistance = elevator.MoveDistance;
+            float controllerDistance = controller.MoveDistance;
+            
+            // 电梯上升时，控制器下降
+            // 时间 = 电梯距离 / 电梯上升速度
+            // 控制器下降速度 = 控制器距离 / 时间
+            if (elevatorSpeedUp > 0f)
+            {
+                float timeUp = elevatorDistance / elevatorSpeedUp;
+                controllerSpeedDown = controllerDistance / timeUp;
+            }
+            else
+            {
+                controllerSpeedDown = 1f; // 默认值
+            }
+            
+            // 电梯下降时，控制器上升
+            if (elevatorSpeedDown > 0f)
+            {
+                float timeDown = elevatorDistance / elevatorSpeedDown;
+                controllerSpeedUp = controllerDistance / timeDown;
+            }
+            else
+            {
+                controllerSpeedUp = 1f; // 默认值
+            }
+            
+            Debug.Log($"[GravityElevatorSystem] 初始化速度 - 电梯上升: {elevatorSpeedUp} m/s, 下降: {elevatorSpeedDown} m/s");
+            Debug.Log($"[GravityElevatorSystem] 控制器上升: {controllerSpeedUp} m/s, 下降: {controllerSpeedDown} m/s");
             
             // 初始化电梯
             elevator.Initialize(this);
@@ -137,7 +171,9 @@ namespace FlashParty.Environment
             }
             
             // 电梯往下移动（currentPosition 减小）
-            float deltaMove = playerWeightForce * Time.fixedDeltaTime;
+            // 将物理速度转换为 [0,1] 空间的移动
+            float elevatorDistance = elevator.MoveDistance;
+            float deltaMove = (elevatorSpeedDown * Time.fixedDeltaTime) / elevatorDistance;
             currentPosition = Mathf.Max(0f, currentPosition - deltaMove);
             
             UpdatePositions(currentPosition);
@@ -167,8 +203,10 @@ namespace FlashParty.Environment
                 return;
             }
             
-            // 控制器往下移动（currentPosition 增加）
-            float deltaMove = controllerGravity * Time.fixedDeltaTime;
+            // 电梯往上移动（currentPosition 增加）
+            // 将物理速度转换为 [0,1] 空间的移动
+            float elevatorDistance = elevator.MoveDistance;
+            float deltaMove = (elevatorSpeedUp * Time.fixedDeltaTime) / elevatorDistance;
             currentPosition = Mathf.Min(1f, currentPosition + deltaMove);
             
             UpdatePositions(currentPosition);

@@ -14,8 +14,8 @@ namespace FlashParty.Environment
         
         [Header("移动设置")]
         [SerializeField] private float moveDistance = 5f;           // 移动距离
-        [SerializeField] private float controllerGravity = 1f;      // 控制器下落速度（电梯上升）
-        [SerializeField] private float playerWeightForce = 3f;      // 电梯下降速度（玩家站上时）
+        [SerializeField] private float elevatorSpeedUp = 2f;        // 电梯上升速度（m/s）
+        [SerializeField] private float elevatorSpeedDown = 4f;      // 电梯下降速度（m/s，玩家站上时）
         
         [Header("检测设置")]
         [SerializeField] private LayerMask obstacleLayer;           // 阻挡层
@@ -38,8 +38,8 @@ namespace FlashParty.Environment
         public Vector3 StartPosition => startPosition;
         public Vector3 EndPosition => endPosition;
         public float MoveDistance => moveDistance;
-        public float ControllerGravity => controllerGravity;
-        public float PlayerWeightForce => playerWeightForce;
+        public float ElevatorSpeedUp => elevatorSpeedUp;
+        public float ElevatorSpeedDown => elevatorSpeedDown;
         public LayerMask ObstacleLayer => obstacleLayer;
         public float ObstacleCheckDistance => obstacleCheckDistance;
         

@@ -363,8 +363,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   linkedController: {fileID: 0}
   moveDistance: 4.8
-  controllerGravity: 0.3
-  playerWeightForce: 0.3
+  elevatorSpeedUp: 2
+  elevatorSpeedDown: 4
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 192
@@ -382,15 +382,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 397266502954fdb4281e12171757494b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  centerOffset: {x: 0, y: 0}
-  size: {x: 1, y: 1}
+  ignoreSnap: 1
+  boundCollider: {fileID: 0}
   drawAlways: 1
   drawWhenSelected: 1
   drawFilled: 0
   gizmoColor: {r: 1, g: 0.6, b: 0.1, a: 0.8}
   wireColor: {r: 1, g: 0.6, b: 0.1, a: 1}
-  Render: {fileID: 0}
-  ignoreSnap: 1
+  Renders: []
   outlineColor: {r: 0, g: 1, b: 0, a: 1}
   interOutlineColor: {r: 1, g: 0, b: 0, a: 1}
   outlineWidth: 0.5
