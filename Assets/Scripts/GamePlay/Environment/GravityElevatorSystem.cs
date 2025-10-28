@@ -33,6 +33,13 @@ namespace FlashParty.Environment
         private float controllerBlockedPauseTimer = 0f;       // 停顿计时器
         private bool isControllerPaused = false;              // 控制器是否在停顿中
         
+        // 复位相关
+        private bool isResetting = false;               // 是否正在复位
+        private float resetWaitTime = 1f;               // 复位到初始位置后的等待时间
+        private float resetWaitTimer = 0f;              // 等待计时器
+        private bool isWaitingAfterReset = false;       // 是否在复位后等待中
+        private float resetSpeed = 2f;                  // 复位速度（使用电梯上升速度）
+        
         /// <summary>
         /// 由电梯自动创建时调用
         /// </summary>
@@ -77,6 +84,9 @@ namespace FlashParty.Environment
             //Debug.Log($"[GravityElevatorSystem] 初始化速度 - 电梯上升: {elevatorSpeedUp} m/s, 下降: {elevatorSpeedDown} m/s");
             //Debug.Log($"[GravityElevatorSystem] 控制器上升: {controllerSpeedUp} m/s, 下降: {controllerSpeedDown} m/s");
             
+            // 设置复位速度（使用电梯上升速度）
+            resetSpeed = elevatorSpeedUp;
+            
             // 初始化电梯
             elevator.Initialize(this);
             
@@ -117,6 +127,26 @@ namespace FlashParty.Environment
         
         void FixedUpdate()
         {
+            // 如果在复位后的等待中
+            if (isWaitingAfterReset)
+            {
+                resetWaitTimer -= Time.fixedDeltaTime;
+                if (resetWaitTimer <= 0f)
+                {
+                    isWaitingAfterReset = false;
+                    isResetting = false; // 完全结束复位状态
+                    Debug.Log($"[GravityElevatorSystem] 复位等待结束，恢复正常运行");
+                }
+                return; // 等待期间不移动
+            }
+            
+            // 如果正在复位
+            if (isResetting)
+            {
+                HandleReset();
+                return; // 复位期间不执行其他逻辑
+            }
+            
             // 如果在等待玩家离开后的延迟
             if (isWaitingAfterPlayerExit)
             {
@@ -274,13 +304,77 @@ namespace FlashParty.Environment
         }
         
         /// <summary>
-        /// 重置到初始状态
+        /// 开始复位（由开关调用）
+        /// </summary>
+        public void StartReset()
+        {
+            // 如果已经在初始位置或已经在复位中，不重复触发
+            if (currentPosition <= 0.01f || isResetting)
+            {
+                Debug.Log($"[GravityElevatorSystem] 已在初始位置或正在复位中，忽略复位请求");
+                return;
+            }
+            
+            isResetting = true;
+            Debug.Log($"[GravityElevatorSystem] 开始复位，当前位置: {currentPosition}");
+        }
+        
+        /// <summary>
+        /// 处理复位逻辑
+        /// </summary>
+        private void HandleReset()
+        {
+            // 检查停止条件1：玩家在电梯上
+            if (elevator.HasPlayer())
+            {
+                Debug.Log($"[GravityElevatorSystem] 复位被中断：玩家在电梯上");
+                isResetting = false;
+                return;
+            }
+            
+            // 检查停止条件2：电梯或控制器被阻挡
+            // 复位时：电梯往下（currentPosition减少，回到初始位置），控制器往上
+            // 方向与下落时相反！
+            bool elevatorBlocked = elevator.IsBlocked(Vector3.down);
+            bool controllerBlocked = controller.IsBlocked(Vector3.up);
+            
+            if (elevatorBlocked || controllerBlocked)
+            {
+                Debug.Log($"[GravityElevatorSystem] 复位被中断：电梯或控制器被阻挡 (电梯: {elevatorBlocked}, 控制器: {controllerBlocked})");
+                isResetting = false;
+                return;
+            }
+            
+            // 继续复位移动（往初始位置移动，即 currentPosition -> 0）
+            float elevatorDistance = elevator.MoveDistance;
+            float deltaMove = (resetSpeed * Time.fixedDeltaTime) / elevatorDistance;
+            currentPosition = Mathf.Max(0f, currentPosition - deltaMove);
+            
+            UpdatePositions(currentPosition);
+            
+            // 检查是否到达初始位置
+            if (currentPosition <= 0.01f)
+            {
+                currentPosition = 0f;
+                UpdatePositions(currentPosition);
+                
+                // 进入等待状态
+                isWaitingAfterReset = true;
+                resetWaitTimer = resetWaitTime;
+                Debug.Log($"[GravityElevatorSystem] 复位完成，开始等待 {resetWaitTime} 秒");
+            }
+        }
+        
+        /// <summary>
+        /// 重置到初始状态（旧方法，保持兼容）
         /// </summary>
         public void ResetElevator()
         {
             currentPosition = 0f;
             UpdatePositions(currentPosition);
             isPlayerOnElevator = false;
+            isResetting = false;
+            isWaitingAfterReset = false;
         }
         
         void OnDrawGizmosSelected()

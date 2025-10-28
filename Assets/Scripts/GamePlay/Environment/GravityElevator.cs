@@ -19,6 +19,7 @@ namespace FlashParty.Environment
         
         [Header("检测设置")]
         [SerializeField] private LayerMask obstacleLayer;           // 阻挡层
+        [Tooltip("阻挡检测距离（米），控制正常运行和复位时提前停止的距离")]
         [SerializeField] private float obstacleCheckDistance = 0.5f;  // 阻挡检测距离（建议至少0.5）
         
         [Header("可视化设置")]
@@ -35,6 +36,7 @@ namespace FlashParty.Environment
         
         public PlatformController PlatformController => platformController;
         public GravityElevatorController LinkedController => linkedController;
+        public GravityElevatorSystem System => system;
         public Vector3 StartPosition => startPosition;
         public Vector3 EndPosition => endPosition;
         public float MoveDistance => moveDistance;
