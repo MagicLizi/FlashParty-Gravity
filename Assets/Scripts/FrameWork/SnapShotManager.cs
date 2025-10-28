@@ -125,6 +125,7 @@ public class SnapShotManager : MonoBehaviour
             RefreshCurSnapShotTiles(Player.transform.position + new Vector3(0, 1.05f, 0));
         }
         EnableGridShow(true);
+        Player.gameObject.SetActive(false);
         SnapGo.SetActive(true);
         RefreshSaveBtn(true);
         ShowIgnore(false);
@@ -196,6 +197,7 @@ public class SnapShotManager : MonoBehaviour
             ElementSnapBound esb = ElementsInSnapIntersects[i];
             esb.HiddenOutline();
         }
+        Player.gameObject.SetActive(true);
         InSnaping = false;
     }
 
