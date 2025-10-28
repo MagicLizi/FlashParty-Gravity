@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6003344648866218716}
   - component: {fileID: 3886127464638505816}
   - component: {fileID: 7284842459902550962}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: armor_trigger_bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
