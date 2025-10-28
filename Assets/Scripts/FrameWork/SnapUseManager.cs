@@ -16,6 +16,8 @@ public class SnapUseManager : MonoBehaviour
     private Canvas _canvas;
     private RectTransform _snapRT;
     private float _originalAlpha = 1f;
+    private bool _hasDragOffset;
+    private Vector2 _dragOffsetInParent;
 
     public Button ConfirmBtn;
 
@@ -245,9 +247,30 @@ public class SnapUseManager : MonoBehaviour
             if (_canvas == null && SnapCopy != null) _canvas = SnapCopy.canvas;
             if (_snapRT == null) return;
 
-            float scale = (_canvas != null && _canvas.scaleFactor > 0f) ? _canvas.scaleFactor : 1f;
-            Vector2 deltaUI = moveData.moveDir / scale;
-            _snapRT.anchoredPosition += deltaUI;
+            RectTransform parentRT = _snapRT.parent as RectTransform;
+            if (parentRT != null)
+            {
+                Camera uiCam = (_canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay) ? _canvas.worldCamera : null;
+                if (_hasDragOffset)
+                {
+                    Vector2 mouseLocal;
+                    if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRT, Input.mousePosition, uiCam, out mouseLocal))
+                    {
+                        _snapRT.anchoredPosition = mouseLocal + _dragOffsetInParent;
+                    }
+                }
+                else
+                {
+                    // 兜底：屏幕像素增量 -> 父局部
+                    Vector2 currentCenterScreen = RectTransformUtility.WorldToScreenPoint(uiCam, _snapRT.TransformPoint(_snapRT.rect.center));
+                    Vector2 targetCenterScreen = currentCenterScreen + moveData.moveDir;
+                    Vector2 targetLocalCenter;
+                    if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRT, targetCenterScreen, uiCam, out targetLocalCenter))
+                    {
+                        _snapRT.anchoredPosition = targetLocalCenter;
+                    }
+                }
+            }
 
             ConfirmBtn.gameObject.SetActive(false);
             RotateBtn.gameObject.SetActive(false);
@@ -262,6 +285,19 @@ public class SnapUseManager : MonoBehaviour
             Color c = SnapCopy.color;
             c.a = 0.8f;
             SnapCopy.color = c;
+            if (_snapRT == null && SnapCopy != null) _snapRT = SnapCopyRoot.transform as RectTransform;
+            if (_canvas == null && SnapCopy != null) _canvas = SnapCopy.canvas;
+            RectTransform parentRT = _snapRT != null ? _snapRT.parent as RectTransform : null;
+            if (parentRT != null)
+            {
+                Camera uiCam = (_canvas != null && _canvas.renderMode != RenderMode.ScreenSpaceOverlay) ? _canvas.worldCamera : null;
+                Vector2 localPoint;
+                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRT, Input.mousePosition, uiCam, out localPoint))
+                {
+                    _dragOffsetInParent = _snapRT.anchoredPosition - localPoint;
+                    _hasDragOffset = true;
+                }
+            }
         }
         // ConfirmBtn.gameObject.SetActive(false);
     }
@@ -276,6 +312,8 @@ public class SnapUseManager : MonoBehaviour
             {
                 return;
             }
+
+            _hasDragOffset = false;
 
             // 目标：将 SnapCopy 的中心对齐到 Tilemap 的最近格子中心
             // 计算 Tilemap 最近格子的世界坐标
