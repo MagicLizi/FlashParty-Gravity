@@ -128,8 +128,8 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -147,10 +147,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_1
       rect:
         serializedVersion: 2
-        x: 16
+        x: 24
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -168,10 +168,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_2
       rect:
         serializedVersion: 2
-        x: 32
+        x: 48
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -189,10 +189,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_3
       rect:
         serializedVersion: 2
-        x: 48
+        x: 72
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -210,10 +210,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_4
       rect:
         serializedVersion: 2
-        x: 64
+        x: 96
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -231,10 +231,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_5
       rect:
         serializedVersion: 2
-        x: 80
+        x: 120
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -252,10 +252,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_6
       rect:
         serializedVersion: 2
-        x: 96
+        x: 144
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -273,10 +273,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_7
       rect:
         serializedVersion: 2
-        x: 112
+        x: 168
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -294,10 +294,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_8
       rect:
         serializedVersion: 2
-        x: 128
+        x: 192
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -315,10 +315,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_9
       rect:
         serializedVersion: 2
-        x: 144
+        x: 216
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -336,10 +336,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_10
       rect:
         serializedVersion: 2
-        x: 160
+        x: 240
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -357,10 +357,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_11
       rect:
         serializedVersion: 2
-        x: 176
+        x: 264
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -378,10 +378,10 @@ TextureImporter:
       name: cross_scene_door_unlocked_12
       rect:
         serializedVersion: 2
-        x: 192
+        x: 288
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -389,7 +389,7 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b53039e24a006884796c02e9150da74b
+      spriteID: 302b6cea03d993a46996fd4237acec5d
       internalID: -1531537383
       vertices: []
       indices: 

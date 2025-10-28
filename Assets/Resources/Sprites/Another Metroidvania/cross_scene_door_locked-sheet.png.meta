@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: aa57e293787d50f418f93f6e64f5d0ea
+guid: caac6c023a67bd644897586f5ab57d74
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -7,7 +7,7 @@ TextureImporter:
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
-    sRGBTexture: 0
+    sRGBTexture: 1
     linearTexture: 0
     fadeOut: 0
     borderMipMap: 0
@@ -45,9 +45,9 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
-  alignment: 0
-  spritePivot: {x: 0.5, y: 0.5}
+  spriteMeshType: 1
+  alignment: 7
+  spritePivot: {x: 0.5, y: 0}
   spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -123,13 +123,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: cross_scene_door_locked_0
+      name: cross_scene_door_locked-sheet_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -137,20 +137,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8e1870b88c8388e468911e0792aecefd
-      internalID: 1252965095
+      spriteID: 8a364e1a1f1c72d46a2c612e8b8a0699
+      internalID: 1609473823
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: cross_scene_door_locked_1
+      name: cross_scene_door_locked-sheet_1
       rect:
         serializedVersion: 2
-        x: 16
+        x: 24
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -158,41 +158,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 97a8ca6eb20fe364ab6555a398b80b5e
-      internalID: -281289835
+      spriteID: ba2b725d864fff04696c9ddabb5a814d
+      internalID: 1722046482
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: cross_scene_door_locked_2
-      rect:
-        serializedVersion: 2
-        x: 32
-        y: 0
-        width: 16
-        height: 32
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2949856c64ca24045a47b5c362ee4410
-      internalID: -1155868317
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: cross_scene_door_locked_3
+      name: cross_scene_door_locked-sheet_2
       rect:
         serializedVersion: 2
         x: 48
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -200,20 +179,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a8879598cf2eb2c4bb3729a5b3e98cd5
-      internalID: -1546686462
+      spriteID: 0eaa99b073684c64996aec299211401f
+      internalID: -501831965
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: cross_scene_door_locked_4
+      name: cross_scene_door_locked-sheet_3
       rect:
         serializedVersion: 2
-        x: 64
+        x: 72
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -221,20 +200,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b8996dfa72c58014d9b556fc854cfa03
-      internalID: -479791159
+      spriteID: 6fa85a4e7a6e37e4e8192304ed2cb9ce
+      internalID: -363690031
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: cross_scene_door_locked_5
+      name: cross_scene_door_locked-sheet_4
       rect:
         serializedVersion: 2
-        x: 80
+        x: 96
         y: 0
-        width: 16
-        height: 32
+        width: 24
+        height: 48
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -242,8 +221,29 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6367e0b252caa334f90728825cb00e21
-      internalID: -248019707
+      spriteID: da19a17a1cf77424e9a45cc4aefda9fc
+      internalID: 760772372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: cross_scene_door_locked-sheet_5
+      rect:
+        serializedVersion: 2
+        x: 120
+        y: 0
+        width: 24
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 567a1e6f7a8e13b45a82f29ce7571d72
+      internalID: 899761425
       vertices: []
       indices: 
       edges: []
@@ -251,7 +251,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 8515bdbcdd9a33e4e919dffd7a25de4c
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -259,12 +259,12 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      cross_scene_door_locked_0: 1252965095
-      cross_scene_door_locked_1: -281289835
-      cross_scene_door_locked_2: -1155868317
-      cross_scene_door_locked_3: -1546686462
-      cross_scene_door_locked_4: -479791159
-      cross_scene_door_locked_5: -248019707
+      cross_scene_door_locked-sheet_0: 1609473823
+      cross_scene_door_locked-sheet_1: 1722046482
+      cross_scene_door_locked-sheet_2: -501831965
+      cross_scene_door_locked-sheet_3: -363690031
+      cross_scene_door_locked-sheet_4: 760772372
+      cross_scene_door_locked-sheet_5: 899761425
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
