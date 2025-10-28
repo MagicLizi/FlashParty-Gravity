@@ -227,6 +227,12 @@ MonoBehaviour:
   - {x: 0, y: 0}
   waypoints: []
   autoStart: 1
+  enableObstacleDetection: 1
+  detectionDistance: 0.3
+  detectionFrequency: 20
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &1764510929043852954
 MonoBehaviour:
   m_ObjectHideFlags: 0
