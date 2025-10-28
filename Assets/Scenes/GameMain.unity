@@ -4330,7 +4330,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -19.04, y: 12.56, z: -10}
+  m_LocalPosition: {x: 40, y: 49.9, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8303,16 +8303,12 @@ PrefabInstance:
       value: reward5x5
       objectReference: {fileID: 0}
     - target: {fileID: 7601197191200691137, guid: b994c4147e09c6447b4ccb3d676a86f5, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 7601197191200691137, guid: b994c4147e09c6447b4ccb3d676a86f5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 145.97
       objectReference: {fileID: 0}
     - target: {fileID: 7601197191200691137, guid: b994c4147e09c6447b4ccb3d676a86f5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 21.67
+      value: 21.835
       objectReference: {fileID: 0}
     - target: {fileID: 7601197191200691137, guid: b994c4147e09c6447b4ccb3d676a86f5, type: 3}
       propertyPath: m_LocalPosition.z
@@ -10144,7 +10140,7 @@ Transform:
   m_GameObject: {fileID: 1341108276}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -19.04, y: 12.56, z: -10}
+  m_LocalPosition: {x: 40, y: 49.9, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -16639,11 +16635,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7860327963028453502, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -19.04
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 7860327963028453502, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 9.06
+      value: 46.4
       objectReference: {fileID: 0}
     - target: {fileID: 7860327963028453502, guid: 731a42afe25fa5a4a9a1ad43f20ae6dd, type: 3}
       propertyPath: m_LocalPosition.z
@@ -18594,18 +18590,6 @@ PrefabInstance:
       propertyPath: linkedController
       value: 
       objectReference: {fileID: 7991832355919374581}
-    - target: {fileID: 8805924737570753002, guid: e8eb9fd8e5aec8a44b5109686a297fda, type: 3}
-      propertyPath: controllerGravity
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8805924737570753002, guid: e8eb9fd8e5aec8a44b5109686a297fda, type: 3}
-      propertyPath: playerWeightForce
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8805924737570753002, guid: e8eb9fd8e5aec8a44b5109686a297fda, type: 3}
-      propertyPath: obstacleCheckDistance
-      value: 0.005
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
