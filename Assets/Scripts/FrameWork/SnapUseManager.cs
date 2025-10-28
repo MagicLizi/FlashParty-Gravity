@@ -25,6 +25,8 @@ public class SnapUseManager : MonoBehaviour
 
     private PlayerCopyFly _playerCopyFly;
 
+    public bool CanRotate = false;
+
     void Awake()
     {
         _shotManager = GetComponent<SnapShotManager>();
@@ -301,7 +303,7 @@ public class SnapUseManager : MonoBehaviour
 
             // 放置确认按钮于合适位置（不遮挡 RT）并保证在屏幕内
             ConfirmBtn.gameObject.SetActive(true);
-            RotateBtn.gameObject.SetActive(true);
+            RotateBtn.gameObject.SetActive(CanRotate);
             PositionConfirmButton();
             PositionRotateButton();
         }
@@ -500,7 +502,7 @@ public class SnapUseManager : MonoBehaviour
                 }
                 _inSnapUse = true;
                 ConfirmBtn.gameObject.SetActive(true);
-                RotateBtn.gameObject.SetActive(true);
+                RotateBtn.gameObject.SetActive(CanRotate);
                 PositionConfirmButton();
                 PositionRotateButton();
                 //  ConfirmBtn.gameObject.SetActive(true);
