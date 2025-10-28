@@ -11,6 +11,9 @@ namespace FlashParty.Platform
         [Header("检测设置")]
         [SerializeField] private float detectionHeight = 0.1f;
         
+        [Tooltip("玩家检测器（可选，留空则自动创建）")]
+        [SerializeField] private GameObject playerDetectorObject;
+        
         // 当前在平台上的玩家
         private List<Player> playersOnPlatform = new List<Player>();
         
@@ -31,30 +34,8 @@ namespace FlashParty.Platform
                 // Debug.Log($"[PlatformController] 为平台 {gameObject.name} 创建了 BoxCollider2D");
             }
             
-            // 检查是否已经有 PlayerDetector（而不是检查是否有任何Trigger）
-            PlayerDetector existingDetector = GetComponentInChildren<PlayerDetector>();
-            if (existingDetector == null)
-            {
-                // 没有 PlayerDetector，创建一个
-                GameObject triggerObj = new GameObject("PlayerDetector");
-                triggerObj.transform.SetParent(transform);
-                triggerObj.transform.localPosition = Vector3.up * detectionHeight;
-                triggerObj.layer = gameObject.layer;
-                
-                BoxCollider2D trigger = triggerObj.AddComponent<BoxCollider2D>();
-                trigger.isTrigger = true;
-                trigger.size = new Vector2(triggerCollider.bounds.size.x, triggerCollider.bounds.size.y);
-                
-                // Debug.Log($"[PlatformController] 创建 PlayerDetector: Layer={LayerMask.LayerToName(triggerObj.layer)}, Size={trigger.size}, Position={triggerObj.transform.position}");
-                
-                // 添加检测脚本
-                PlayerDetector detector = triggerObj.AddComponent<PlayerDetector>();
-                detector.Initialize(this);
-            }
-            // else
-            // {
-            //     Debug.Log($"[PlatformController] 平台 {gameObject.name} 已经有 PlayerDetector，跳过创建");
-            // }
+            // 设置玩家检测器
+            SetupPlayerDetector();
             
             lastPosition = transform.position;
         }
@@ -72,6 +53,60 @@ namespace FlashParty.Platform
             }
             
             lastPosition = transform.position;
+        }
+        
+        /// <summary>
+        /// 设置玩家检测器
+        /// </summary>
+        private void SetupPlayerDetector()
+        {
+            // 检查是否已经有 PlayerDetector 脚本组件
+            PlayerDetector existingDetector = GetComponentInChildren<PlayerDetector>();
+            if (existingDetector != null)
+            {
+                // 已经有了，不需要处理
+                return;
+            }
+            
+            GameObject triggerObj = null;
+            
+            // 优先使用手动配置的
+            if (playerDetectorObject != null)
+            {
+                triggerObj = playerDetectorObject;
+                // Debug.Log($"[PlatformController] 使用手动配置的 PlayerDetector: {triggerObj.name}");
+            }
+            else
+            {
+                // 没有配置，自动创建
+                triggerObj = new GameObject("PlayerDetector");
+                triggerObj.transform.SetParent(transform);
+                triggerObj.transform.localPosition = Vector3.up * detectionHeight;
+                triggerObj.layer = gameObject.layer;
+                // Debug.Log($"[PlatformController] 自动创建 PlayerDetector");
+            }
+            
+            // 确保有 BoxCollider2D
+            BoxCollider2D trigger = triggerObj.GetComponent<BoxCollider2D>();
+            if (trigger == null)
+            {
+                trigger = triggerObj.AddComponent<BoxCollider2D>();
+                trigger.isTrigger = true;
+                trigger.size = new Vector2(triggerCollider.bounds.size.x, triggerCollider.bounds.size.y);
+            }
+            else
+            {
+                // 已有 collider，确保是 trigger
+                trigger.isTrigger = true;
+            }
+            
+            // 添加或获取检测脚本
+            PlayerDetector detector = triggerObj.GetComponent<PlayerDetector>();
+            if (detector == null)
+            {
+                detector = triggerObj.AddComponent<PlayerDetector>();
+            }
+            detector.Initialize(this);
         }
         
         /// <summary>
