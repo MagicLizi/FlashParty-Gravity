@@ -106,11 +106,21 @@ public class Player : MonoBehaviour
     [Range(0f, 0.5f)]
     public float hitFlyControlDelay = 0.1f; // 击飞初期的无控制时间
     
+    [Header("击飞结束后的速度过渡")]
+    [Tooltip("击飞结束后，速度过渡到InAir最大速度的时间（秒）")]
+    [Range(0.1f, 2f)]
+    public float hitFlyToAirTransitionTime = 0.5f; // 过渡时间
+    
     private Tween hitFlyTween; // 击飞计时器
     private Tween hitStopTween; // 停顿计时器
     private Vector2 pendingLaunchForce; // 待施加的击飞力
     private bool hasPendingLaunch = false; // 是否有待处理的击飞
     private float hitFlyStartTime = 0f; // 击飞开始的时间
+    
+    // 击飞结束后的速度过渡相关
+    private bool isTransitioningFromHitFly = false; // 是否正在从击飞过渡到 inAir
+    private float hitFlyEndSpeed = 0f; // 击飞结束时的横向速度
+    private float transitionStartTime = 0f; // 过渡开始时间
 
     public GameObject AtkCollider;
 
@@ -285,12 +295,54 @@ public class Player : MonoBehaviour
         float targetSpeed;
         if (inAir)
         {
-            targetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
-            if (targetSpeed * (int)CurFaceDir < 0 || Mathf.Abs(rb.velocity.x) < Mathf.Abs(CurXMoveSpeed))
+            // 检查是否正在从击飞过渡到 inAir
+            if (isTransitioningFromHitFly)
             {
-                // Debug.Log("空中转向");
-                targetSpeed = CurXMoveSpeed;
+                float elapsed = Time.time - transitionStartTime;
+                float t = Mathf.Clamp01(elapsed / hitFlyToAirTransitionTime);
+                
+                // 计算目标最大速度（考虑方向）
+                float maxSpeed = Mathf.Abs(AirMoveSpeed) * Mathf.Sign(hitFlyEndSpeed);
+                
+                // 从击飞结束速度平滑过渡到最大 InAir 速度
+                float transitionSpeed = Mathf.Lerp(hitFlyEndSpeed, maxSpeed, t);
+                
+                // 如果玩家输入了相反方向，允许控制
+                if (CurXMoveSpeed != 0 && Mathf.Sign(CurXMoveSpeed) != Mathf.Sign(hitFlyEndSpeed))
+                {
+                    // 玩家想转向，使用正常的空中控制
+                    targetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
+                    isTransitioningFromHitFly = false; // 结束过渡
+                }
+                else if (CurXMoveSpeed != 0 && Mathf.Abs(CurXMoveSpeed) > Mathf.Abs(transitionSpeed))
+                {
+                    // 玩家输入同向且想加速（不超过过渡速度）
+                    targetSpeed = Mathf.Max(Mathf.Abs(CurXMoveSpeed), Mathf.Abs(transitionSpeed)) * Mathf.Sign(hitFlyEndSpeed);
+                }
+                else
+                {
+                    // 保持过渡速度
+                    targetSpeed = transitionSpeed;
+                }
+                
+                // 过渡完成
+                if (t >= 1f)
+                {
+                    isTransitioningFromHitFly = false;
+                    // Debug.Log($"[Player] 速度过渡完成 - 最终速度: {targetSpeed}");
+                }
             }
+            else
+            {
+                // 正常的空中移动逻辑
+                targetSpeed = Mathf.Lerp(rb.velocity.x, CurXMoveSpeed, AirDrag);
+                if (targetSpeed * (int)CurFaceDir < 0 || Mathf.Abs(rb.velocity.x) < Mathf.Abs(CurXMoveSpeed))
+                {
+                    // Debug.Log("空中转向");
+                    targetSpeed = CurXMoveSpeed;
+                }
+            }
+            
             // Debug.Log($"No Speed AirDrag: {rb.velocity.x} {CurXMoveSpeed} {targetSpeed}");
             // Debug.Log($"inAirTouchWall: {inAirTouchWall} {targetSpeed * (int)CurFaceDir}");
             if (inAirTouchWall && targetSpeed * (int)CurFaceDir >= 0)
@@ -545,6 +597,12 @@ public class Player : MonoBehaviour
             rb.velocity = new Vector2(rb.velocity.x, AirJumpSpeed);
             AnimateSetTrigger("JumpAir");
             currentAirJumpCount++;
+            
+            // 二段跳时取消击飞速度过渡
+            if (isTransitioningFromHitFly)
+            {
+                isTransitioningFromHitFly = false;
+            }
         }
     }
 
@@ -569,6 +627,13 @@ public class Player : MonoBehaviour
         {
             // 落地后重置空中跳跃次数
             currentAirJumpCount = 0;
+            
+            // 落地后取消击飞到空中的速度过渡
+            if (isTransitioningFromHitFly)
+            {
+                isTransitioningFromHitFly = false;
+                // Debug.Log($"[Player] 落地，取消速度过渡");
+            }
         }
     }
 
@@ -1069,6 +1134,23 @@ public class Player : MonoBehaviour
             {
                 animator.speed = 1;
             }
+        }
+        
+        // 记录击飞结束时的横向速度，用于平滑过渡
+        float currentXSpeed = rb.velocity.x;
+        float maxAirSpeed = Mathf.Abs(AirMoveSpeed);
+        
+        // 只有当前速度超过 InAir 最大速度时才需要过渡
+        if (Mathf.Abs(currentXSpeed) > maxAirSpeed)
+        {
+            isTransitioningFromHitFly = true;
+            hitFlyEndSpeed = currentXSpeed;
+            transitionStartTime = Time.time;
+            // Debug.Log($"[Player] 开始速度过渡 - 当前速度: {currentXSpeed}, 最大空中速度: {maxAirSpeed}");
+        }
+        else
+        {
+            isTransitioningFromHitFly = false;
         }
         
         // 重置所有相关标记

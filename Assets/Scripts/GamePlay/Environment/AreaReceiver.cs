@@ -56,17 +56,17 @@ public class AreaReceiver : MonoBehaviour
             Debug.LogWarning($"[AreaReceiver] {gameObject.name} 未配置门，无法触发！", this);
         }
         
-        Debug.Log($"[AreaReceiver] {gameObject.name} 初始化完成，Layer: {LayerMask.LayerToName(gameObject.layer)}");
+        //Debug.Log($"[AreaReceiver] {gameObject.name} 初始化完成，Layer: {LayerMask.LayerToName(gameObject.layer)}");
     }
     
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"[AreaReceiver] OnTriggerEnter2D 被触发！碰撞对象: {other.gameObject.name}, Layer: {LayerMask.LayerToName(other.gameObject.layer)}");
+        //Debug.Log($"[AreaReceiver] OnTriggerEnter2D 被触发！碰撞对象: {other.gameObject.name}, Layer: {LayerMask.LayerToName(other.gameObject.layer)}");
         
         // 如果已激活，不再处理
         if (isActivated)
         {
-            Debug.Log($"[AreaReceiver] 已激活，忽略");
+            //Debug.Log($"[AreaReceiver] 已激活，忽略");
             return;
         }
         
@@ -75,11 +75,11 @@ public class AreaReceiver : MonoBehaviour
         if (key != null)
         {
             keysInContact.Add(key);
-            Debug.Log($"[AreaReceiver] ✓ 钥匙 {key.gameObject.name} 进入接收区域，当前接触钥匙数: {keysInContact.Count}");
+            //Debug.Log($"[AreaReceiver] ✓ 钥匙 {key.gameObject.name} 进入接收区域，当前接触钥匙数: {keysInContact.Count}");
         }
         else
         {
-            Debug.Log($"[AreaReceiver] ✗ 对象 {other.gameObject.name} 没有AreaKey组件");
+            //Debug.Log($"[AreaReceiver] ✗ 对象 {other.gameObject.name} 没有AreaKey组件");
         }
     }
     
@@ -107,7 +107,7 @@ public class AreaReceiver : MonoBehaviour
         if (key != null)
         {
             keysInContact.Remove(key);
-            Debug.Log($"[AreaReceiver] 钥匙 {key.gameObject.name} 离开接收区域，当前接触钥匙数: {keysInContact.Count}");
+            //Debug.Log($"[AreaReceiver] 钥匙 {key.gameObject.name} 离开接收区域，当前接触钥匙数: {keysInContact.Count}");
         }
     }
     
@@ -138,9 +138,9 @@ public class AreaReceiver : MonoBehaviour
         
         if (showDebugInfo)
         {
-            Debug.Log($"[AreaReceiver] 检查钥匙 {key.gameObject.name} 是否完全在区域内: {isFullyInside}");
-            Debug.Log($"  接收区域: {receiverRect}");
-            Debug.Log($"  钥匙范围: min({keyBounds.min.x:F2}, {keyBounds.min.y:F2}), max({keyBounds.max.x:F2}, {keyBounds.max.y:F2})");
+            //Debug.Log($"[AreaReceiver] 检查钥匙 {key.gameObject.name} 是否完全在区域内: {isFullyInside}");
+            //Debug.Log($"  接收区域: {receiverRect}");
+            //Debug.Log($"  钥匙范围: min({keyBounds.min.x:F2}, {keyBounds.min.y:F2}), max({keyBounds.max.x:F2}, {keyBounds.max.y:F2})");
         }
         
         if (isFullyInside)
@@ -173,7 +173,7 @@ public class AreaReceiver : MonoBehaviour
         
         isActivated = true;
         
-        Debug.Log($"[AreaReceiver] ✓✓✓ {gameObject.name} 钥匙 {key.gameObject.name} 已完全放入区域，触发门打开！");
+        //Debug.Log($"[AreaReceiver] ✓✓✓ {gameObject.name} 钥匙 {key.gameObject.name} 已完全放入区域，触发门打开！");
         
         // 打开门
         if (door != null)
@@ -196,7 +196,7 @@ public class AreaReceiver : MonoBehaviour
         
         if (showDebugInfo)
         {
-            Debug.Log($"[AreaReceiver] {gameObject.name} 已重置");
+            //Debug.Log($"[AreaReceiver] {gameObject.name} 已重置");
         }
     }
     

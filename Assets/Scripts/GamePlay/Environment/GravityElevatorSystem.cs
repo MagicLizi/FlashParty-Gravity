@@ -74,8 +74,8 @@ namespace FlashParty.Environment
                 controllerSpeedUp = 1f; // 默认值
             }
             
-            Debug.Log($"[GravityElevatorSystem] 初始化速度 - 电梯上升: {elevatorSpeedUp} m/s, 下降: {elevatorSpeedDown} m/s");
-            Debug.Log($"[GravityElevatorSystem] 控制器上升: {controllerSpeedUp} m/s, 下降: {controllerSpeedDown} m/s");
+            //Debug.Log($"[GravityElevatorSystem] 初始化速度 - 电梯上升: {elevatorSpeedUp} m/s, 下降: {elevatorSpeedDown} m/s");
+            //Debug.Log($"[GravityElevatorSystem] 控制器上升: {controllerSpeedUp} m/s, 下降: {controllerSpeedDown} m/s");
             
             // 初始化电梯
             elevator.Initialize(this);
