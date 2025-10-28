@@ -9,7 +9,7 @@ public class SnapUseManager : MonoBehaviour
 
     private SnapShotManager _shotManager;
 
-    private bool _inSnapUse;
+    public bool _inSnapUse;
 
     public RawImage SnapCopy;
 
@@ -47,7 +47,7 @@ public class SnapUseManager : MonoBehaviour
         _playerCopyFly = GameObject.Find("Player").GetComponent<PlayerCopyFly>();
     }
 
-    public List<GameObject> _snapCloneElements = new List<GameObject>();
+    private List<GameObject> _snapCloneElements = new List<GameObject>();
     private Dictionary<Tilemap, List<SaveTileData>> _lastTiles = new Dictionary<Tilemap, List<SaveTileData>>();
     private Dictionary<Tilemap, Dictionary<Vector3Int, Matrix4x4>> _lastTileTransforms = new Dictionary<Tilemap, Dictionary<Vector3Int, Matrix4x4>>();
 
@@ -68,7 +68,7 @@ public class SnapUseManager : MonoBehaviour
         }
     }
 
-    void DealCopyTiles()
+   public void RecoverTiles()
     {
         //恢复 tile 
         foreach (var kvp in _lastTiles)
@@ -93,6 +93,11 @@ public class SnapUseManager : MonoBehaviour
         }
         _lastTiles.Clear();
         _lastTileTransforms.Clear();
+    }
+
+    void DealCopyTiles()
+    {
+        RecoverTiles();
 
         Debug.Log($"复制截图元素 中心点位置 {_snapMoveEndCell}");
         // 先处理Tile
@@ -164,7 +169,7 @@ public class SnapUseManager : MonoBehaviour
             }
             tileMap.RefreshAllTiles();                  // 或针对范围 RefreshTile
         }
-        _shotManager.curSnapshotTiles.Clear();
+        // _shotManager.curSnapshotTiles.Clear();
     }
 
     void DealCopyElements()
@@ -175,7 +180,7 @@ public class SnapUseManager : MonoBehaviour
         {
             SaveElementData sed = _shotManager.curSnapshotElements[i];
             Vector3 centerPos = _shotManager.BgTileMap.GetCellCenterWorld(_snapMoveEndCell);
-
+            Debug.Log(_curRotate);
             int rot = ((Mathf.RoundToInt(_curRotate) % 360) + 360) % 360;
             Quaternion q = Quaternion.Euler(0f, 0f, rot);
 
@@ -193,8 +198,15 @@ public class SnapUseManager : MonoBehaviour
             Rect rect = new Rect(clone.transform.position.x + col.offset.x, clone.transform.position.y + col.offset.y, col.size.x, col.size.y);
             _playerCopyFly.TileRects.Add(rect);
         }
-        _shotManager.curSnapshotElements.Clear();
+        // _shotManager.curSnapshotElements.Clear();
 
+        // 清理之前得复制体
+        RecoverElements();
+        _snapCloneElements = newSnapCloneElements;
+    }
+
+    public void RecoverElements()
+    {
         // 清理之前得复制体
         for (int i = 0; i < _snapCloneElements.Count; i++)
         {
@@ -205,10 +217,9 @@ public class SnapUseManager : MonoBehaviour
             }
         }
         _snapCloneElements.Clear();
-        _snapCloneElements = newSnapCloneElements;
     }
 
-    void OnConfirmBtnClick()
+    public void OnConfirmBtnClick()
     {
         _playerCopyFly.Clear();
         DealCopyTiles();

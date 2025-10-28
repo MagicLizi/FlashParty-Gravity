@@ -12,6 +12,17 @@ namespace FlashParty.Platform
         [SerializeField] private PlatformConfig config = new PlatformConfig();
         
         [Header("路径设置")]
+        [Tooltip("使用偏移量模式（推荐）或Transform模式")]
+        [SerializeField] private bool useOffsetMode = true;
+        
+        [Tooltip("相对于平台位置的偏移量（基于平台角度为0时）")]
+        [SerializeField] private Vector2[] waypointOffsets = new Vector2[] 
+        { 
+            new Vector2(4f, 0f), 
+            new Vector2(-4f, 0f) 
+        };
+        
+        [Tooltip("传统方式：使用Transform数组（useOffsetMode=false时生效）")]
         [SerializeField] private Transform[] waypoints = new Transform[0];
         
         [Header("自动开始")]
@@ -87,15 +98,84 @@ namespace FlashParty.Platform
         /// </summary>
         private Vector3[] GetWaypointPositions()
         {
-            if (waypoints == null || waypoints.Length == 0)
+            if (useOffsetMode)
+            {
+                // 使用偏移量模式
+                return CalculateWaypointsFromOffsets();
+            }
+            else
+            {
+                // 使用传统Transform模式
+                if (waypoints == null || waypoints.Length == 0)
+                    return new Vector3[0];
+                
+                Vector3[] positions = new Vector3[waypoints.Length];
+                for (int i = 0; i < waypoints.Length; i++)
+                {
+                    positions[i] = waypoints[i] != null ? waypoints[i].position : Vector3.zero;
+                }
+                return positions;
+            }
+        }
+        
+        /// <summary>
+        /// 根据偏移量计算路径点世界坐标
+        /// 支持平台旋转（只支持90度的倍数）
+        /// </summary>
+        private Vector3[] CalculateWaypointsFromOffsets()
+        {
+            if (waypointOffsets == null || waypointOffsets.Length == 0)
                 return new Vector3[0];
             
-            Vector3[] positions = new Vector3[waypoints.Length];
-            for (int i = 0; i < waypoints.Length; i++)
+            Vector3[] positions = new Vector3[waypointOffsets.Length];
+            Vector3 platformPos = transform.position;
+            float platformRotation = transform.eulerAngles.z;
+            
+            // 计算旋转矩阵（只支持90度的倍数）
+            // 将角度规范化到 0-360 范围
+            platformRotation = Mathf.Repeat(platformRotation, 360f);
+            
+            // 四舍五入到最接近的90度
+            int rotationSteps = Mathf.RoundToInt(platformRotation / 90f);
+            float normalizedRotation = rotationSteps * 90f;
+            
+            // 根据旋转转换偏移量
+            for (int i = 0; i < waypointOffsets.Length; i++)
             {
-                positions[i] = waypoints[i] != null ? waypoints[i].position : Vector3.zero;
+                Vector2 offset = waypointOffsets[i];
+                Vector2 rotatedOffset = RotateOffset(offset, normalizedRotation);
+                positions[i] = platformPos + new Vector3(rotatedOffset.x, rotatedOffset.y, 0f);
             }
+            
             return positions;
+        }
+        
+        /// <summary>
+        /// 根据角度旋转偏移量（90度的倍数）
+        /// </summary>
+        private Vector2 RotateOffset(Vector2 offset, float angleDegrees)
+        {
+            // 只处理90度的倍数
+            int steps = Mathf.RoundToInt(angleDegrees / 90f) % 4;
+            if (steps < 0) steps += 4;
+            
+            switch (steps)
+            {
+                case 0: // 0度 - 不旋转
+                    return offset;
+                    
+                case 1: // 90度 - 顺时针旋转90度
+                    return new Vector2(offset.y, -offset.x);
+                    
+                case 2: // 180度
+                    return new Vector2(-offset.x, -offset.y);
+                    
+                case 3: // 270度 - 顺时针旋转270度
+                    return new Vector2(-offset.y, offset.x);
+                    
+                default:
+                    return offset;
+            }
         }
         
 
@@ -105,20 +185,32 @@ namespace FlashParty.Platform
         /// </summary>
         private bool ValidateSetup()
         {
-            // 检查路径点
-            if (waypoints == null || waypoints.Length < 2)
+            if (useOffsetMode)
             {
-                Debug.LogError("Moving platform requires at least 2 waypoints");
-                return false;
-            }
-            
-            // 检查Transform是否有效
-            for (int i = 0; i < waypoints.Length; i++)
-            {
-                if (waypoints[i] == null)
+                // 偏移量模式验证
+                if (waypointOffsets == null || waypointOffsets.Length < 2)
                 {
-                    Debug.LogError($"Waypoint {i} is null");
+                    Debug.LogError("Moving platform requires at least 2 waypoint offsets");
                     return false;
+                }
+            }
+            else
+            {
+                // Transform模式验证
+                if (waypoints == null || waypoints.Length < 2)
+                {
+                    Debug.LogError("Moving platform requires at least 2 waypoints");
+                    return false;
+                }
+                
+                // 检查Transform是否有效
+                for (int i = 0; i < waypoints.Length; i++)
+                {
+                    if (waypoints[i] == null)
+                    {
+                        Debug.LogError($"Waypoint {i} is null");
+                        return false;
+                    }
                 }
             }
             
@@ -204,7 +296,37 @@ namespace FlashParty.Platform
                 StopMovement();
             }
             
+            useOffsetMode = false;
             waypoints = newWaypoints;
+            
+            // 如果之前在移动，重新开始
+            if (wasMoving)
+            {
+                StartMovement();
+            }
+        }
+        
+        /// <summary>
+        /// 设置新的路径点（偏移量方式）
+        /// </summary>
+        /// <param name="newOffsets">新的偏移量数组</param>
+        public void SetWaypointOffsets(Vector2[] newOffsets)
+        {
+            if (newOffsets == null || newOffsets.Length < 2)
+            {
+                Debug.LogError("Invalid offsets array");
+                return;
+            }
+            
+            // 如果正在移动，先停止
+            bool wasMoving = IsMoving;
+            if (wasMoving)
+            {
+                StopMovement();
+            }
+            
+            useOffsetMode = true;
+            waypointOffsets = newOffsets;
             
             // 如果之前在移动，重新开始
             if (wasMoving)
@@ -364,7 +486,12 @@ namespace FlashParty.Platform
                 
                 // 绘制路径点编号
                 #if UNITY_EDITOR
-                UnityEditor.Handles.Label(positions[i] + Vector3.up * 0.5f, i.ToString());
+                string label = i.ToString();
+                if (useOffsetMode && waypointOffsets != null && i < waypointOffsets.Length)
+                {
+                    label += $"\n({waypointOffsets[i].x:F1}, {waypointOffsets[i].y:F1})";
+                }
+                UnityEditor.Handles.Label(positions[i] + Vector3.up * 0.5f, label);
                 #endif
             }
         }
@@ -379,6 +506,23 @@ namespace FlashParty.Platform
             // 显示平台当前位置到第一个路径点的连线
             Gizmos.color = Color.cyan;
             Gizmos.DrawLine(transform.position, positions[0]);
+            
+            #if UNITY_EDITOR
+            // 显示模式信息
+            string modeInfo = useOffsetMode ? "偏移量模式" : "Transform模式";
+            float rotation = Mathf.Round(transform.eulerAngles.z);
+            string rotationInfo = $"旋转: {rotation}°";
+            UnityEditor.Handles.Label(transform.position + Vector3.up * 1.5f, $"{modeInfo}\n{rotationInfo}");
+            
+            // 如果是偏移量模式，显示平台方向指示
+            if (useOffsetMode)
+            {
+                Gizmos.color = Color.yellow;
+                Vector3 forward = transform.up * 0.5f;
+                Gizmos.DrawRay(transform.position, forward);
+                Gizmos.DrawWireSphere(transform.position + forward, 0.1f);
+            }
+            #endif
         }
     }
 } 

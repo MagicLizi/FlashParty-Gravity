@@ -43,7 +43,7 @@ public class SnapShotManager : MonoBehaviour
 
     public RawImage CopyImg;
 
-    private SnapUseManager _snapUseManager;
+    private SnapUseManager _useManager;
 
     void Awake()
     {
@@ -57,8 +57,15 @@ public class SnapShotManager : MonoBehaviour
         SaveBtn.GetComponent<Button>().onClick.AddListener(OnSaveBtnClick);
         Player = GameObject.Find("Player");
         _canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
-        _snapUseManager = GetComponent<SnapUseManager>();
+        _useManager = GetComponent<SnapUseManager>();
         DontDestroyOnLoad(gameObject);
+        // SetSnapSize5x5();
+    }
+
+    public void SetSnapSize5x5()
+    {
+        SnapWidth = 5;
+        SnapHeight = 5;
     }
 
     void Destroy()
@@ -72,6 +79,10 @@ public class SnapShotManager : MonoBehaviour
 
     private void OnSnapshotEvent(object data)
     {
+        if(_useManager._inSnapUse)
+        {
+            return;
+        }
         bool isEnd = false;
         if (data is bool)
         {
@@ -80,10 +91,12 @@ public class SnapShotManager : MonoBehaviour
 
         if (isEnd)
         {
+            RecoverHidden();
             HandleSnapshotEnd();
         }
         else
         {
+            HidenLastCopy();
             HandleSnapshotStart();
         }
     }
@@ -112,11 +125,21 @@ public class SnapShotManager : MonoBehaviour
             RefreshCurSnapShotTiles(Player.transform.position + new Vector3(0, 1.05f, 0));
         }
         EnableGridShow(true);
-        Player.gameObject.SetActive(false);
         SnapGo.SetActive(true);
         RefreshSaveBtn(true);
         ShowIgnore(false);
         SearchElements();
+    }
+
+    public void HidenLastCopy()
+    {
+        _useManager.RecoverTiles();
+        _useManager.RecoverElements();
+    }
+
+    public void RecoverHidden()
+    {
+        _useManager.OnConfirmBtnClick();
     }
 
     public Vector3Int GetPlayerTopCurCell()
@@ -173,9 +196,7 @@ public class SnapShotManager : MonoBehaviour
             ElementSnapBound esb = ElementsInSnapIntersects[i];
             esb.HiddenOutline();
         }
-        Player.gameObject.SetActive(true);
         InSnaping = false;
-        InputManager.Instance.DirectSnapUse();
     }
 
 
@@ -536,6 +557,7 @@ public class SnapShotManager : MonoBehaviour
         SaveSnapshotData();
         yield return StartCoroutine(CaptureViewportToRTCoroutine());
         HandleSnapshotEnd();
+        InputManager.Instance.DirectSnapUse();
     }
 
     public void CaptureViewportToRenderTexture(Action<RenderTexture> onDone = null)
@@ -631,7 +653,7 @@ public class SnapShotManager : MonoBehaviour
         int w = Mathf.RoundToInt(Mathf.Max(1e-3f, (endX01 - startX01)) * Screen.width);
         int h = Mathf.RoundToInt(Mathf.Max(1e-3f, (endY01 - startY01)) * Screen.height);
         // Debug.Log($"ComputeCapturePixelRect: {Screen.width}, {Screen.height}, {w}, {h}");
-        
+
 
         return new Rect(x, y, w, h);
     }

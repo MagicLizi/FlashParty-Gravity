@@ -194,13 +194,41 @@ public class Player : MonoBehaviour
                 return; // 本帧只施加力，不做衰减
             }
             
-            // 检测是否接触地面或墙面，如果是则立即结束击飞
+            // 检测是否接触地面或墙面
             bool touchedGround = IsGrounded();
             bool touchedWall = IsTouchWallAny(); // 使用双向墙壁检测，不受角色朝向限制
             
-            if (touchedGround || touchedWall)
+            // 判断是否应该结束击飞：
+            // 1. 如果接触墙面，立即结束击飞
+            // 2. 如果接触地面但是平地（不是斜面或斜角很小），结束击飞
+            // 3. 如果接触斜面，继续保持击飞状态
+            bool shouldEndHitFly = false;
+            
+            if (touchedWall)
             {
-                // Debug.Log($"[Player] 击飞中接触{(touchedGround ? "地面" : "墙面")}，立即结束击飞。当前速度: {rb.velocity}");
+                // 撞墙立即结束击飞
+                shouldEndHitFly = true;
+                // Debug.Log($"[Player] 击飞中接触墙面，立即结束击飞");
+            }
+            else if (touchedGround)
+            {
+                // 接触地面，但需要判断是平地还是斜面
+                // 只有在平地上才结束击飞，斜面上继续击飞
+                if (!isOnSlope)
+                {
+                    // 平地（0度或超过最大可行走角度），结束击飞
+                    shouldEndHitFly = true;
+                    // Debug.Log($"[Player] 击飞中接触平地，结束击飞。斜面角度: {slopeAngle}");
+                }
+                else
+                {
+                    // 斜面（角度在 0 到 maxSlopeAngle 之间），继续击飞
+                    // Debug.Log($"[Player] 击飞中接触斜面，继续击飞。斜面角度: {slopeAngle}");
+                }
+            }
+            
+            if (shouldEndHitFly)
+            {
                 EndHitFlying();
                 // EndHitFlying 后 isHitFlying 变为 false，本帧不再处理击飞逻辑
                 // 下一帧会进入正常的地面/空中物理处理
