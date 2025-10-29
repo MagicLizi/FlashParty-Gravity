@@ -148,11 +148,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 6ecabce50b343594dab2381f4850d025, type: 3}
-    m_FontSize: 36
+    m_FontSize: 40
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 2
-    m_MaxSize: 40
+    m_MinSize: 0
+    m_MaxSize: 300
     m_Alignment: 1
     m_AlignByGeometry: 0
     m_RichText: 1
@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a7c328f4017e7a479fdfb0b5530b58d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayDuration: 2
+  displayDuration: 2.5
   fadeDuration: 0.5
 --- !u!225 &1151446022809756287
 CanvasGroup:
@@ -264,7 +264,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u9ECF\u8D34"
+  m_Text: "\u7C98\u8D34"
 --- !u!1 &923347046951791782
 GameObject:
   m_ObjectHideFlags: 0
