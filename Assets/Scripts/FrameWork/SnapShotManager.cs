@@ -386,7 +386,7 @@ public class SnapShotManager : MonoBehaviour
 
             if (fullyInside)
             {
-                Debug.Log($"Snap 完全包含元素: {esb.gameObject.name}");
+                //Debug.Log($"Snap 完全包含元素: {esb.gameObject.name}");
                 if (!esb.ignoreSnap)
                 {
                     esb.ShowAllInOutline();
@@ -399,7 +399,7 @@ public class SnapShotManager : MonoBehaviour
             }
             else if (intersects)
             {
-                Debug.Log($"Snap 相交元素: {esb.gameObject.name}");
+                //Debug.Log($"Snap 相交元素: {esb.gameObject.name}");
                 if (!esb.ignoreSnap)
                 {
                     esb.ShowInterOutline();

@@ -41,7 +41,7 @@ public class SnapUseManager : MonoBehaviour
         {
             _snapRT = SnapCopyRoot.transform as RectTransform;
             _canvas = SnapCopy.canvas;
-            Debug.Log("SnapCopyRoot: " + _canvas);
+            //Debug.Log("SnapCopyRoot: " + _canvas);
         }
 
         ConfirmBtn.onClick.AddListener(OnConfirmBtnClick);
@@ -147,7 +147,7 @@ public class SnapUseManager : MonoBehaviour
                 _lastTiles[tileMap].Add(curStd);
 
                 tileMap.SetTile(setCell, std.tile);
-                Debug.Log(tileMap.name + " " + setCell);
+                //Debug.Log(tileMap.name + " " + setCell);
                 if (tileMap.name == "Ground")
                 {
                     // setCell 转世界坐标
