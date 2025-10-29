@@ -476,7 +476,7 @@ public class SnapUseManager : MonoBehaviour
         float btnScale = (btnCanvas != null && btnCanvas.scaleFactor > 0f) ? btnCanvas.scaleFactor : 1f;
         float halfW = btnRT.rect.width * 0.5f * btnScale;
         float halfH = btnRT.rect.height * 0.5f * btnScale;
-        const float margin = 0f;
+        const float margin = 60f;
 
         // 先默认放在上方外 30px，水平居中于 SnapCopy
         float targetY = topY + margin + halfH;
