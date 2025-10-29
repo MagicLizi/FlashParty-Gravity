@@ -64,7 +64,8 @@ namespace FlashParty.Platform
             PlayerDetector existingDetector = GetComponentInChildren<PlayerDetector>();
             if (existingDetector != null)
             {
-                // 已经有了，不需要处理
+                // 已经有了，但需要重新初始化（处理复制的情况）
+                existingDetector.Initialize(this);
                 return;
             }
             
@@ -217,6 +218,16 @@ namespace FlashParty.Platform
             Player player = other.GetComponent<Player>();
             if (player != null)
             {
+                if (platformController == null)
+                {
+                    Debug.LogError($"[PlayerDetector] platformController 未初始化！尝试从父对象获取...", this);
+                    platformController = GetComponentInParent<PlatformController>();
+                    if (platformController == null)
+                    {
+                        Debug.LogError($"[PlayerDetector] 无法找到 PlatformController！", this);
+                        return;
+                    }
+                }
                 // Debug.Log($"[PlayerDetector] 玩家进入平台");
                 platformController.OnPlayerEnter(player);
             }
@@ -227,6 +238,11 @@ namespace FlashParty.Platform
             Player player = other.GetComponent<Player>();
             if (player != null)
             {
+                if (platformController == null)
+                {
+                    Debug.LogError($"[PlayerDetector] platformController 未初始化！", this);
+                    return;
+                }
                 // Debug.Log($"[PlayerDetector] 玩家离开平台");
                 platformController.OnPlayerExit(player);
             }
