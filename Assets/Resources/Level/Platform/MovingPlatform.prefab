@@ -228,8 +228,8 @@ MonoBehaviour:
   waypoints: []
   autoStart: 1
   enableObstacleDetection: 1
-  detectionDistance: 0.3
-  detectionFrequency: 20
+  obstacleDetectionCollider: {fileID: 6129248378466049254}
+  detectionDistance: 0.5
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 64

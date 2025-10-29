@@ -32,11 +32,11 @@ namespace FlashParty.Platform
         [Tooltip("是否启用障碍物检测（遇到Scene层阻挡时停止）")]
         [SerializeField] private bool enableObstacleDetection = false;
         
+        [Tooltip("用于阻挡检测的碰撞器（必须配置，使用平台本身的BoxCollider2D）")]
+        [SerializeField] private BoxCollider2D obstacleDetectionCollider;
+        
         [Tooltip("检测距离（从平台边缘开始，建议0.5以上）")]
         [SerializeField] private float detectionDistance = 0.5f;
-        
-        [Tooltip("检测频率（每秒检测次数）")]
-        [SerializeField] private float detectionFrequency = 15f;
         
         [Tooltip("检测层级（默认只检测Scene层）")]
         [SerializeField] private LayerMask obstacleLayerMask = 1 << 6; // Scene层
@@ -47,9 +47,7 @@ namespace FlashParty.Platform
         
         // 碰撞检测相关
         private bool isBlockedByObstacle = false;
-        private float detectionTimer = 0f;
         private Vector3 lastPosition;
-        private Collider2D platformCollider;
         
         // 属性访问器
         public PlatformConfig Config => config;
@@ -67,8 +65,16 @@ namespace FlashParty.Platform
                 platformController = gameObject.AddComponent<PlatformController>();
             }
             
-            // 获取碰撞器
-            platformCollider = GetComponent<Collider2D>();
+            // 验证阻挡检测碰撞器配置
+            if (enableObstacleDetection && obstacleDetectionCollider == null)
+            {
+                Debug.LogWarning($"[MovingPlatform] {gameObject.name} 启用了障碍物检测但未配置 obstacleDetectionCollider！将尝试自动获取...", this);
+                obstacleDetectionCollider = GetComponent<BoxCollider2D>();
+                if (obstacleDetectionCollider == null)
+                {
+                    Debug.LogError($"[MovingPlatform] {gameObject.name} 无法找到 BoxCollider2D，障碍物检测将失效！", this);
+                }
+            }
             
             // 初始化位置
             lastPosition = transform.position;
@@ -79,15 +85,18 @@ namespace FlashParty.Platform
         
         void FixedUpdate()
         {
-            // 障碍物检测
+            // 障碍物检测（每帧检测，避免卡顿和穿透）
             if (enableObstacleDetection && IsMoving)
             {
-                detectionTimer += Time.fixedDeltaTime;
-                if (detectionTimer >= 1f / detectionFrequency)
-                {
-                    detectionTimer = 0f;
-                    CheckForObstacles();
-                }
+                CheckForObstacles();
+                
+                // 每30帧输出一次速度信息（调试用）
+                // Vector3 velocity = transform.position - lastPosition;
+                // float currentSpeed = velocity.magnitude / Time.fixedDeltaTime;
+                // if (Time.frameCount % 30 == 0)
+                // {
+                //     Debug.Log($"[MovingPlatform] {gameObject.name} 速度: {currentSpeed:F3} m/s, 被阻挡: {isBlockedByObstacle}");
+                // }
             }
             
             // 更新位置
@@ -132,6 +141,7 @@ namespace FlashParty.Platform
                         // 障碍物清除，恢复运动
                         isBlockedByObstacle = false;
                         ResumeMovement();
+                        // Debug.Log($"[MovingPlatform] {gameObject.name} 障碍物清除，恢复运动");
                     }
                 }
                 return;
@@ -140,7 +150,7 @@ namespace FlashParty.Platform
             Vector3 moveDirection = velocity.normalized;
             
             // 检测移动方向上是否有障碍物
-            bool hasObstacleInPath = DetectObstacleInDirection(moveDirection, detectionDistance);
+            bool hasObstacleInPath = DetectObstacleInDirection(moveDirection, detectionDistance, false); // 改为false关闭详细日志
             
             // 根据检测结果控制平台
             if (hasObstacleInPath && !isBlockedByObstacle)
@@ -148,12 +158,17 @@ namespace FlashParty.Platform
                 // 发现障碍物，停止平台
                 isBlockedByObstacle = true;
                 PauseMovement();
+                // Debug.Log($"<color=red>[MovingPlatform] {gameObject.name} 检测到障碍物，暂停移动！" +
+                //          $"\n  - 移动方向: {moveDirection}" +
+                //          $"\n  - 检测距离: {detectionDistance:F3}m" +
+                //          $"\n  - 当前速度: {(velocity.magnitude / Time.fixedDeltaTime):F3} m/s</color>");
             }
             else if (!hasObstacleInPath && isBlockedByObstacle)
             {
                 // 障碍物清除，恢复运动
                 isBlockedByObstacle = false;
                 ResumeMovement();
+                // Debug.Log($"<color=green>[MovingPlatform] {gameObject.name} 障碍物清除，恢复运动</color>");
             }
         }
         
@@ -162,39 +177,21 @@ namespace FlashParty.Platform
         /// </summary>
         /// <param name="direction">检测方向（归一化向量）</param>
         /// <param name="distance">检测距离</param>
+        /// <param name="logDetails">是否输出详细日志</param>
         /// <returns>是否检测到障碍物</returns>
-        private bool DetectObstacleInDirection(Vector3 direction, float distance)
+        private bool DetectObstacleInDirection(Vector3 direction, float distance, bool logDetails = false)
         {
-            if (platformCollider == null)
+            if (obstacleDetectionCollider == null)
                 return false;
             
             // 获取平台的碰撞器边界
-            Bounds bounds = platformCollider.bounds;
-            Vector2 origin;
-            Vector2 boxSize = bounds.size * 0.8f; // 使用平台80%的大小
+            Bounds bounds = obstacleDetectionCollider.bounds;
+            Vector2 origin = bounds.center; // 始终从平台中心开始检测
+            Vector2 boxSize = new Vector2(bounds.size.x * 0.95f, bounds.size.y * 0.95f); // 使用平台95%的大小
             
-            // 根据移动方向设置检测起点
-            if (direction.magnitude > 0.001f)
+            // 如果无方向（恢复检测），使用更小的检测距离
+            if (direction.magnitude < 0.001f)
             {
-                // 有明确方向，从边缘开始检测
-                origin = bounds.center;
-                
-                // 将起点移到移动方向的边缘
-                if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
-                {
-                    // 主要是横向移动
-                    origin.x = direction.x > 0 ? bounds.max.x : bounds.min.x;
-                }
-                else
-                {
-                    // 主要是纵向移动
-                    origin.y = direction.y > 0 ? bounds.max.y : bounds.min.y;
-                }
-            }
-            else
-            {
-                // 无方向，检测周围（用于恢复时的检测）
-                origin = bounds.center;
                 distance = 0.2f; // 只检测紧邻区域
             }
             
@@ -208,26 +205,60 @@ namespace FlashParty.Platform
                 obstacleLayerMask
             );
             
+            if (logDetails)
+            {
+                Debug.Log($"[MovingPlatform] {gameObject.name} 障碍物检测:" +
+                         $"\n  - 检测起点: {origin}" +
+                         $"\n  - 检测方向: {direction}" +
+                         $"\n  - 检测距离: {distance:F3}m" +
+                         $"\n  - 检测盒大小: {boxSize}" +
+                         $"\n  - 检测到 {hits.Length} 个碰撞");
+            }
+            
             // 过滤掉自身及子对象的碰撞
+            int ignoredCount = 0;
             foreach (RaycastHit2D hit in hits)
             {
                 if (hit.collider == null)
                     continue;
                 
-                // 忽略自身
-                if (hit.collider == platformCollider)
+                // 忽略自身的所有碰撞器
+                if (hit.collider.transform == transform)
+                {
+                    ignoredCount++;
                     continue;
+                }
                 
-                // 忽略子对象
+                // 忽略子对象的碰撞器
                 if (hit.collider.transform.IsChildOf(transform))
+                {
+                    ignoredCount++;
                     continue;
+                }
                 
-                // 忽略父对象
+                // 忽略父对象的碰撞器
                 if (transform.IsChildOf(hit.collider.transform))
+                {
+                    ignoredCount++;
                     continue;
+                }
                 
                 // 检测到障碍物
+                if (logDetails)
+                {
+                    Debug.Log($"<color=orange>[MovingPlatform] {gameObject.name} 检测到有效障碍物:" +
+                             $"\n  - 障碍物: {hit.collider.name}" +
+                             $"\n  - 距离: {hit.distance:F3}m" +
+                             $"\n  - 位置: {hit.point}" +
+                             $"\n  - Layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)}" +
+                             $"\n  - 忽略的碰撞: {ignoredCount}个</color>");
+                }
                 return true;
+            }
+            
+            if (logDetails && hits.Length > 0)
+            {
+                Debug.Log($"[MovingPlatform] {gameObject.name} 检测到 {hits.Length} 个碰撞，但全部被忽略");
             }
             
             return false;
@@ -413,6 +444,7 @@ namespace FlashParty.Platform
         /// </summary>
         public void PauseMovement()
         {
+            // Debug.Log($"[MovingPlatform] {gameObject.name} 调用 PauseMovement()");
             movementStrategy?.PauseMovement();
         }
         
@@ -421,6 +453,7 @@ namespace FlashParty.Platform
         /// </summary>
         public void ResumeMovement()
         {
+            // Debug.Log($"[MovingPlatform] {gameObject.name} 调用 ResumeMovement()");
             movementStrategy?.ResumeMovement();
         }
         
@@ -687,10 +720,10 @@ namespace FlashParty.Platform
             #endif
             
             // 显示障碍物检测区域
-            if (enableObstacleDetection && platformCollider != null)
+            if (enableObstacleDetection && obstacleDetectionCollider != null)
             {
-                Bounds bounds = platformCollider.bounds;
-                Vector2 boxSize = bounds.size * 0.8f;
+                Bounds bounds = obstacleDetectionCollider.bounds;
+                Vector2 boxSize = new Vector2(bounds.size.x * 0.95f, bounds.size.y * 0.95f);
                 
                 // 根据当前状态选择颜色
                 Gizmos.color = isBlockedByObstacle ? Color.red : Color.green;
@@ -700,30 +733,28 @@ namespace FlashParty.Platform
                 if (Application.isPlaying && velocity.magnitude > 0.001f)
                 {
                     Vector3 direction = velocity.normalized;
-                    Vector2 origin = bounds.center;
-                    
-                    // 根据移动方向计算检测起点
-                    if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
-                    {
-                        // 横向移动
-                        origin.x = direction.x > 0 ? bounds.max.x : bounds.min.x;
-                    }
-                    else
-                    {
-                        // 纵向移动
-                        origin.y = direction.y > 0 ? bounds.max.y : bounds.min.y;
-                    }
+                    Vector2 origin = bounds.center; // 从平台中心开始
                     
                     Vector3 detectionEnd = origin + (Vector2)direction * detectionDistance;
                     
+                    // 画平台当前位置（半透明）
+                    Gizmos.color = new Color(Gizmos.color.r, Gizmos.color.g, Gizmos.color.b, 0.3f);
+                    Gizmos.DrawCube(origin, boxSize);
+                    
                     // 画检测射线
+                    Gizmos.color = isBlockedByObstacle ? Color.red : Color.green;
                     Gizmos.DrawLine(origin, detectionEnd);
                     
-                    // 画检测起点
-                    Gizmos.DrawWireSphere(origin, 0.05f);
+                    // 画检测起点（平台中心）
+                    Gizmos.DrawWireSphere(origin, 0.1f);
                     
-                    // 画检测区域
+                    // 画检测终点区域（完整方框）
                     Gizmos.DrawWireCube(detectionEnd, boxSize);
+                    
+                    // 画检测路径（从起点到终点的盒子）
+                    Gizmos.color = new Color(Gizmos.color.r, Gizmos.color.g, Gizmos.color.b, 0.2f);
+                    Vector3 midPoint = (origin + (Vector2)detectionEnd) * 0.5f;
+                    Gizmos.DrawCube(midPoint, new Vector3(boxSize.x, boxSize.y, 0.01f));
                 }
                 else
                 {
