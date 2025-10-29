@@ -45,6 +45,10 @@ public class SnapShotManager : MonoBehaviour
 
     private SnapUseManager _useManager;
 
+    // 拖拽相关：与 SnapUseManager 的 RT 移动手感保持一致
+    private bool _hasDragOffset = false;
+    private Vector2 _dragOffsetScreen = Vector2.zero;
+
     void Awake()
     {
         EventManager.Instance.AddListener(EventType.Snapshot, OnSnapshotEvent);
@@ -230,16 +234,27 @@ public class SnapShotManager : MonoBehaviour
     void OnSnapMove(object data)
     {
         MoveData moveData = (MoveData)data;
-        if (InSnaping)
+        if (InSnaping && Camera.main != null)
         {
-            Vector2 viewportDelta = new Vector2(
-                moveData.moveDir.x / Camera.main.pixelWidth,
-                moveData.moveDir.y / Camera.main.pixelHeight
-            );
-            _curSnapCenter.x = _curSnapCenter.x + viewportDelta.x;
-            _curSnapCenter.x = Mathf.Clamp01(_curSnapCenter.x);
-            _curSnapCenter.y = _curSnapCenter.y + viewportDelta.y;
-            _curSnapCenter.y = Mathf.Clamp01(_curSnapCenter.y);
+            if (_hasDragOffset)
+            {
+                // 拖拽：鼠标位置 + 起始偏移 -> 目标屏幕中心 -> 视口
+                Vector2 mouseScreen = Input.mousePosition;
+                Vector2 targetCenterScreen = mouseScreen + _dragOffsetScreen;
+                Vector3 targetViewport = Camera.main.ScreenToViewportPoint(new Vector3(targetCenterScreen.x, targetCenterScreen.y, 0f));
+                _curSnapCenter.x = Mathf.Clamp01(targetViewport.x);
+                _curSnapCenter.y = Mathf.Clamp01(targetViewport.y);
+            }
+            else
+            {
+                // 兜底：屏幕像素增量（moveDir） -> 累加到当前屏幕中心 -> 视口
+                Vector3 currentCenterScreen = Camera.main.ViewportToScreenPoint(new Vector3(_curSnapCenter.x, _curSnapCenter.y, 0f));
+                Vector2 targetCenterScreen = (Vector2)currentCenterScreen + moveData.moveDir;
+                Vector3 targetViewport = Camera.main.ScreenToViewportPoint(new Vector3(targetCenterScreen.x, targetCenterScreen.y, 0f));
+                _curSnapCenter.x = Mathf.Clamp01(targetViewport.x);
+                _curSnapCenter.y = Mathf.Clamp01(targetViewport.y);
+            }
+
             _snapMat.SetVector("_HoleCenter", _curSnapCenter);
             RefreshSaveBtn(false);
             SearchElements();
@@ -248,13 +263,20 @@ public class SnapShotManager : MonoBehaviour
 
     void OnSnapMoveBegin(object data)
     {
-
+        if (InSnaping && Camera.main != null)
+        {
+            // 记录拖拽起始的屏幕偏移，使拖拽时中心与按下点的相对位置保持不变
+            Vector3 centerScreen = Camera.main.ViewportToScreenPoint(new Vector3(_curSnapCenter.x, _curSnapCenter.y, 0f));
+            _dragOffsetScreen = (Vector2)centerScreen - (Vector2)Input.mousePosition;
+            _hasDragOffset = true;
+        }
     }
 
     void OnSnapMoveEnd(object data)
     {
         if (InSnaping)
         {
+            _hasDragOffset = false;
             XFTile();
             SearchElements();
             RefreshSaveBtn(true);
