@@ -145,6 +145,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   disappearDuration: 0.5
+  tooltipMessage: "\u62CD\u7167\u8303\u56F4\u6269\u5C55\u5230 5x5\uFF01"
+  tooltip: {fileID: 0}
 --- !u!114 &709177782650628992
 MonoBehaviour:
   m_ObjectHideFlags: 0

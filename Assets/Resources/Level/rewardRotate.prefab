@@ -71,7 +71,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
-    oldSize: {x: 2, y: 3}
+    oldSize: {x: 1.4545455, y: 2.1818182}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -168,3 +168,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   disappearDuration: 0.5
+  tooltipMessage: "\u7167\u7247\u89E3\u9501\u65CB\u8F6C\u529F\u80FD\uFF01"
+  tooltip: {fileID: 0}

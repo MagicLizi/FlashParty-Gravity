@@ -11,6 +11,13 @@ public class SnapSizeUpgrade : MonoBehaviour
     [Tooltip("消失动画持续时间")]
     public float disappearDuration = 0.5f;
     
+    [Header("UI提示")]
+    [Tooltip("拾取后显示的提示文本")]
+    public string tooltipMessage = "截图范围扩展到 5x5！";
+    
+    [Tooltip("SimpleTooltip组件（如果为空则自动查找）")]
+    public SimpleTooltip tooltip;
+    
     private bool isCollected = false; // 是否已被拾取
     private SnapShotManager snapShotManager;
     private Collider2D triggerCollider;
@@ -23,6 +30,16 @@ public class SnapSizeUpgrade : MonoBehaviour
         if (snapShotManager == null)
         {
             Debug.LogWarning($"[SnapSizeUpgrade] 未找到 SnapShotManager，道具可能无法正常工作", this);
+        }
+        
+        // 查找SimpleTooltip（如果没有手动配置）
+        if (tooltip == null)
+        {
+            tooltip = FindObjectOfType<SimpleTooltip>();
+            if (tooltip == null)
+            {
+                Debug.LogWarning($"[SnapSizeUpgrade] 未找到 SimpleTooltip，将不会显示拾取提示", this);
+            }
         }
         
         // 获取自己的触发器
@@ -80,8 +97,19 @@ public class SnapSizeUpgrade : MonoBehaviour
         // 升级截图能力
         UpgradeSnapSize();
         
+        // 显示UI提示
+        ShowTooltip();
+        
         // 播放淡出消失动画
         PlayFadeOutAnimation();
+    }
+    
+    private void ShowTooltip()
+    {
+        if (tooltip != null && !string.IsNullOrEmpty(tooltipMessage))
+        {
+            tooltip.Show(tooltipMessage);
+        }
     }
     
     private void UpgradeSnapSize()

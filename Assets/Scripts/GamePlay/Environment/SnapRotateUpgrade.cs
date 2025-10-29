@@ -11,6 +11,13 @@ public class SnapRotateUpgrade : MonoBehaviour
     [Tooltip("消失动画持续时间")]
     public float disappearDuration = 0.5f;
     
+    [Header("UI提示")]
+    [Tooltip("拾取后显示的提示文本")]
+    public string tooltipMessage = "截图旋转功能已解锁！";
+    
+    [Tooltip("SimpleTooltip组件（如果为空则自动查找）")]
+    public SimpleTooltip tooltip;
+    
     private bool isCollected = false; // 是否已被拾取
     private SnapUseManager snapUseManager;
     private Collider2D triggerCollider;
@@ -23,6 +30,16 @@ public class SnapRotateUpgrade : MonoBehaviour
         if (snapUseManager == null)
         {
             Debug.LogWarning($"[SnapRotateUpgrade] 未找到 SnapUseManager，道具可能无法正常工作", this);
+        }
+        
+        // 查找SimpleTooltip（如果没有手动配置）
+        if (tooltip == null)
+        {
+            tooltip = FindObjectOfType<SimpleTooltip>();
+            if (tooltip == null)
+            {
+                Debug.LogWarning($"[SnapRotateUpgrade] 未找到 SimpleTooltip，将不会显示拾取提示", this);
+            }
         }
         
         // 获取自己的触发器
@@ -80,8 +97,19 @@ public class SnapRotateUpgrade : MonoBehaviour
         // 解锁旋转功能
         UnlockRotateFeature();
         
+        // 显示UI提示
+        ShowTooltip();
+        
         // 播放淡出消失动画
         PlayFadeOutAnimation();
+    }
+    
+    private void ShowTooltip()
+    {
+        if (tooltip != null && !string.IsNullOrEmpty(tooltipMessage))
+        {
+            tooltip.Show(tooltipMessage);
+        }
     }
     
     private void UnlockRotateFeature()
