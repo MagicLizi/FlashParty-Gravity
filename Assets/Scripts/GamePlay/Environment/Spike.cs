@@ -30,6 +30,9 @@ public class Spike : MonoBehaviour
     [Tooltip("角色被击飞持续时间")]
     public float hitFlyDuration = 0.5f;
     
+    [Tooltip("击飞冷却时间（击飞后需要等待多久才能再次击飞同一玩家）")]
+    public float launchCooldownTime = 1f;
+    
     [Header("动态地刺设置（仅 Dynamic 类型生效）")]
     [Tooltip("触发Open后的冷却时间，冷却结束后再次触发Open")]
     public float cooldownTime = 2f;
@@ -46,6 +49,11 @@ public class Spike : MonoBehaviour
     public float hitEffectDuration = 1f;
     
     private Animator animator;
+    
+    // 冷却管理
+    private bool isInCooldown = false; // 是否在击飞冷却中
+    private Player playerInTrigger = null; // 当前在触发器内的玩家
+    private Tween cooldownTween = null; // 冷却计时器
     
     void Awake()
     {
@@ -93,8 +101,31 @@ public class Spike : MonoBehaviour
             return; // 不是玩家，忽略
         }
         
-        // 击飞玩家（触发器的启用/禁用由动画状态机控制）
-        LaunchPlayer(player, other);
+        // 记录玩家进入触发器
+        playerInTrigger = player;
+        
+        // 如果不在冷却中，立即击飞
+        if (!isInCooldown)
+        {
+            LaunchPlayer(player, other);
+        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        // 检查是否是玩家
+        Player player = other.GetComponent<Player>();
+        
+        if (player == null)
+        {
+            return; // 不是玩家，忽略
+        }
+        
+        // 玩家离开触发器
+        if (playerInTrigger == player)
+        {
+            playerInTrigger = null;
+        }
     }
     
     private void LaunchPlayer(Player player, Collider2D playerCollider)
@@ -107,6 +138,39 @@ public class Spike : MonoBehaviour
         
         // 给角色施加弹射力，带停顿效果
         player.GetLaunchedWithHitStop(launchForce, hitFlyDuration, hitStopDuration);
+        
+        // 启动击飞冷却
+        StartLaunchCooldown();
+    }
+    
+    /// <summary>
+    /// 启动击飞冷却
+    /// </summary>
+    private void StartLaunchCooldown()
+    {
+        // 如果已经有冷却计时器在运行，先取消
+        if (cooldownTween != null && cooldownTween.IsActive())
+        {
+            cooldownTween.Kill();
+        }
+        
+        // 进入冷却状态
+        isInCooldown = true;
+        
+        // 启动冷却计时器
+        cooldownTween = DOVirtual.DelayedCall(launchCooldownTime, () =>
+        {
+            // 冷却结束
+            isInCooldown = false;
+            
+            // 如果玩家还在触发器内，立即再次击飞
+            if (playerInTrigger != null)
+            {
+                // 获取玩家的 Collider2D
+                Collider2D playerCollider = playerInTrigger.GetComponent<Collider2D>();
+                LaunchPlayer(playerInTrigger, playerCollider);
+            }
+        });
     }
     
     /// <summary>
@@ -210,6 +274,15 @@ public class Spike : MonoBehaviour
             // 继续下一轮循环
             StartCooldownCycle();
         });
+    }
+    
+    void OnDestroy()
+    {
+        // 清理冷却计时器
+        if (cooldownTween != null && cooldownTween.IsActive())
+        {
+            cooldownTween.Kill();
+        }
     }
     
     // 可选：Gizmos 显示击飞效果

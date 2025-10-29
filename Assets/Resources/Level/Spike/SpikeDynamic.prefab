@@ -172,6 +172,7 @@ MonoBehaviour:
   sideUpwardForce: 12
   hitStopDuration: 0.1
   hitFlyDuration: 0.5
+  launchCooldownTime: 0.5
   cooldownTime: 2
   triggerCollider: {fileID: 591092602704455389}
   hitEffectPrefab: {fileID: 320744395548210819, guid: 3ea7eb38eb4e40a4fb314dbf24e1b998, type: 3}
