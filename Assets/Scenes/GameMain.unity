@@ -4114,6 +4114,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 957862724056662319}
     - target: {fileID: 4014524212776500132, guid: c6e54b3718511124a8941a92edac607f, type: 3}
+      propertyPath: GroundTileMap
+      value: 
+      objectReference: {fileID: 957862724056662317}
+    - target: {fileID: 4014524212776500132, guid: c6e54b3718511124a8941a92edac607f, type: 3}
       propertyPath: AllTileMaps.Array.data[0]
       value: 
       objectReference: {fileID: 957862724056662319}
@@ -5421,6 +5425,11 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &395418383 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2660744318613544109, guid: 5d19460000d7f6845b6faac6f0bbaeca, type: 3}
+  m_PrefabInstance: {fileID: 957862724056662315}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &399266303
 GameObject:
   m_ObjectHideFlags: 0
@@ -28922,7 +28931,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2660744318613544109, guid: 5d19460000d7f6845b6faac6f0bbaeca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 957862724056662325}
   m_SourcePrefab: {fileID: 100100000, guid: 5d19460000d7f6845b6faac6f0bbaeca, type: 3}
 --- !u!4 &957862724056662316 stripped
 Transform:
@@ -28944,6 +28956,22 @@ Tilemap:
   m_CorrespondingSourceObject: {fileID: 3063449135079764096, guid: 5d19460000d7f6845b6faac6f0bbaeca, type: 3}
   m_PrefabInstance: {fileID: 957862724056662315}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &957862724056662325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395418383}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a725458d27ec28844b72ad0695381c0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lineColor: {r: 0.029849052, g: 1, b: 0, a: 1}
+  lineWidth: 0.05
+  sortingLayerName: 
+  sortingOrderOffset: 10
 --- !u!1001 &4343164585533595812
 PrefabInstance:
   m_ObjectHideFlags: 0
