@@ -383,21 +383,13 @@ public class InputManager : MonoSingleton<InputManager>
     /// <summary>
     /// 临时锁定玩家控制输入（移动和跳跃）
     /// </summary>
-    /// <param name="duration">锁定时长（秒），如果为0则立即解锁</param>
+    /// <param name="duration">锁定时长（秒）</param>
     public void LockPlayerInput(float duration)
     {
         // 如果已有锁定计时器，先取消
         if (inputUnlockTween != null && inputUnlockTween.IsActive())
         {
             inputUnlockTween.Kill();
-        }
-        
-        // 如果 duration 为 0，立即解锁
-        if (duration <= 0f)
-        {
-            isInputLocked = false;
-            // Debug.Log("[InputManager] 玩家输入已立即解锁");
-            return;
         }
         
         isInputLocked = true;
