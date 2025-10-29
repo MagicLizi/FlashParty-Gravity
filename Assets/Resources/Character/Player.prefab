@@ -208,7 +208,7 @@ MonoBehaviour:
   maxFallSpeed: -30
   inAir: 0
   inAirTouchWall: 0
-  groundJumpGracePeriod: 0.05
+  groundJumpGracePeriod: 0
   maxAirJumpCount: 1
   AirJumpSpeed: 13
   rb: {fileID: 0}
