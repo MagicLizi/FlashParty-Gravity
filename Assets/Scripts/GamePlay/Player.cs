@@ -43,6 +43,14 @@ public class Player : MonoBehaviour
     
     private int currentAirJumpCount = 0; // 当前已使用的空中跳跃次数
     
+    [Header("地面跳跃保护（土狼时间）")]
+    [Tooltip("离开地面后仍可以执行地面跳跃的保护时间（秒）")]
+    [Range(0f, 0.2f)]
+    public float groundJumpGracePeriod = 0.03f; // 地面跳跃保护时间
+    
+    private float lastGroundedTime = -1f; // 上次在地面的时间（负值表示从未在地面）
+    private bool wasGroundedLastFrame = false; // 上一帧是否在地面
+    
     public int maxAirJumpCount = 1; // 最大空中跳跃次数
     
     public float AirJumpSpeed = 4; // 空中跳跃速度（可以和地面跳跃速度不同）
@@ -569,9 +577,14 @@ public class Player : MonoBehaviour
             return;
         }
         
-        if (!inAir)
+        // 检查是否在地面跳跃保护时间内
+        bool isInGroundJumpGracePeriod = inAir && 
+                                         lastGroundedTime >= 0f && 
+                                         (Time.time - lastGroundedTime) <= groundJumpGracePeriod;
+        
+        if (!inAir || isInGroundJumpGracePeriod)
         {
-            // 地面跳跃（包括斜面上的跳跃）
+            // 地面跳跃（包括斜面上的跳跃和保护时间内的跳跃）
             // 在斜面上跳跃时，保持当前的横向速度分量
             float currentXVelocity = rb.velocity.x;
             
@@ -590,6 +603,13 @@ public class Player : MonoBehaviour
             
             rb.velocity = new Vector2(currentXVelocity, JumpSpeed);
             AnimateSetTrigger("Jump");
+            
+            // 使用地面跳跃后，清除保护时间（避免连续触发）
+            if (isInGroundJumpGracePeriod)
+            {
+                lastGroundedTime = -1f; // 清除保护时间
+                // Debug.Log($"[Player] 地面跳跃保护触发！离地时间: {Time.time - lastGroundedTime:F3}秒");
+            }
         }
         else if (currentAirJumpCount < maxAirJumpCount)
         {
@@ -625,6 +645,9 @@ public class Player : MonoBehaviour
         }
         else
         {
+            // 在地面上，更新地面时间
+            lastGroundedTime = Time.time;
+            
             // 落地后重置空中跳跃次数
             currentAirJumpCount = 0;
             
@@ -635,6 +658,9 @@ public class Player : MonoBehaviour
                 // Debug.Log($"[Player] 落地，取消速度过渡");
             }
         }
+        
+        // 更新上一帧状态
+        wasGroundedLastFrame = !inAir;
     }
 
     bool IsGrounded()

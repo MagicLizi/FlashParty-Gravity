@@ -208,6 +208,7 @@ MonoBehaviour:
   maxFallSpeed: -30
   inAir: 0
   inAirTouchWall: 0
+  groundJumpGracePeriod: 0.15
   maxAirJumpCount: 1
   AirJumpSpeed: 13
   rb: {fileID: 0}
@@ -227,7 +228,7 @@ MonoBehaviour:
   hitFlyDamping: 0.9803
   hitFlyControlSpeed: 0.1
   hitFlyControlDelay: 0.1
-  hitFlyToAirTransitionTime: 0.3
+  hitFlyToAirTransitionTime: 0.6
   AtkCollider: {fileID: 7514191595442725621}
   AirAtkCollider: {fileID: 6750943884495305963}
   isInWind: {fileID: 0}
