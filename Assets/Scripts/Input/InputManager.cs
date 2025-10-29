@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Lizi.FrameWork.Util;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using DG.Tweening;
 
 public enum CardinalDir { None, Up, Down, Left, Right }
 
@@ -39,6 +40,10 @@ public class InputManager : MonoSingleton<InputManager>
     
     [Header("UI提示")]
     [SerializeField] private SimpleTooltip tooltip; // 提示UI
+    
+    // 输入锁定
+    private bool isInputLocked = false;
+    private Tween inputUnlockTween;
 
     void Awake()
     {
@@ -144,6 +149,9 @@ public class InputManager : MonoSingleton<InputManager>
 
     void Update()
     {
+        // 输入锁定时不处理移动
+        if (isInputLocked) return;
+        
         if (isMove)
         {
             MoveData moveData = new MoveData()
@@ -157,6 +165,9 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnMoveStart(InputAction.CallbackContext value)
     {
+        // 输入锁定时不响应
+        if (isInputLocked) return;
+        
         // Debug.Log("StartMove: " + value.ReadValue<Vector2>());
         MoveData moveData = new MoveData()
         {
@@ -169,6 +180,9 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnMoving(InputAction.CallbackContext value)
     {
+        // 输入锁定时不响应
+        if (isInputLocked) return;
+        
         // Debug.Log("onMove: " + value.ReadValue<Vector2>());
         MoveData moveData = new MoveData()
         {
@@ -180,6 +194,9 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnMoveEnd(InputAction.CallbackContext value)
     {
+        // 输入锁定时不响应
+        if (isInputLocked) return;
+        
         // Debug.Log("endMove: " + value.ReadValue<Vector2>());
         MoveData moveData = new MoveData()
         {
@@ -192,6 +209,9 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnJumpStart(InputAction.CallbackContext value)
     {
+        // 输入锁定时不响应
+        if (isInputLocked) return;
+        
         EventManager.Instance.TriggerEvent(EventType.Jump);
     }
 
@@ -347,7 +367,7 @@ public class InputManager : MonoSingleton<InputManager>
         // 1) 死区
         if (v.sqrMagnitude < deadzone * deadzone) return CardinalDir.None;
 
-        // 2) 选择“占优轴”：|x| vs |y|，加一点偏置，避免刚好在对角线上抖动
+        // 2) 选择"占优轴"：|x| vs |y|，加一点偏置，避免刚好在对角线上抖动
         float ax = Mathf.Abs(v.x);
         float ay = Mathf.Abs(v.y);
 
@@ -358,5 +378,46 @@ public class InputManager : MonoSingleton<InputManager>
 
         // 3) 平局时沿上次方向保持（可选）
         return CardinalDir.None; // 或者根据你的需要返回上次方向
+    }
+    
+    /// <summary>
+    /// 临时锁定玩家控制输入（移动和跳跃）
+    /// </summary>
+    /// <param name="duration">锁定时长（秒），如果为0则立即解锁</param>
+    public void LockPlayerInput(float duration)
+    {
+        // 如果已有锁定计时器，先取消
+        if (inputUnlockTween != null && inputUnlockTween.IsActive())
+        {
+            inputUnlockTween.Kill();
+        }
+        
+        // 如果 duration 为 0，立即解锁
+        if (duration <= 0f)
+        {
+            isInputLocked = false;
+            // Debug.Log("[InputManager] 玩家输入已立即解锁");
+            return;
+        }
+        
+        isInputLocked = true;
+        
+        // 使用 unscaled time，避免受暂停影响
+        inputUnlockTween = DOVirtual.DelayedCall(duration, () =>
+        {
+            isInputLocked = false;
+            // Debug.Log("[InputManager] 玩家输入已解锁");
+        }).SetUpdate(true); // SetUpdate(true) 使用 unscaled time
+        
+        // Debug.Log($"[InputManager] 玩家输入已锁定 {duration} 秒");
+    }
+    
+    void OnDestroy()
+    {
+        // 清理 Tween
+        if (inputUnlockTween != null && inputUnlockTween.IsActive())
+        {
+            inputUnlockTween.Kill();
+        }
     }
 }

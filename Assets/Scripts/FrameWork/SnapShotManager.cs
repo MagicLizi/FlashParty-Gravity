@@ -116,6 +116,14 @@ public class SnapShotManager : MonoBehaviour
         previousFixedDeltaTime = Time.fixedDeltaTime;
         InSnaping = true;
         PauseGame();
+        
+        // 截图阶段锁定玩家输入，避免响应输入
+        InputManager inputManager = InputManager.Instance;
+        if (inputManager != null)
+        {
+            inputManager.LockPlayerInput(999f); // 使用一个很大的值，在snap结束时会手动解锁
+        }
+        
         // Debug.Log("[SnapShotManager] Snapshot Start -> Pause Game");
         _snapMat.SetColor("_Color", new Color(0, 0, 0, alpha));
         float orthoHeight = Camera.main.orthographicSize * 2f;
@@ -187,6 +195,18 @@ public class SnapShotManager : MonoBehaviour
         }
         snapshotActive = false;
         ResumeGame();
+        
+        // 如果不是进入贴图模式，则解锁输入
+        // 如果是进入贴图模式，SnapUseManager会自己处理输入锁定
+        if (!_useManager._inSnapUse)
+        {
+            InputManager inputManager = InputManager.Instance;
+            if (inputManager != null)
+            {
+                inputManager.LockPlayerInput(0f); // 立即解锁
+            }
+        }
+        
         // Debug.Log("[SnapShotManager] Snapshot End -> Resume Game");
         SnapGo.SetActive(false);
         EnableGridShow(false);
