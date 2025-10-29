@@ -36,6 +36,9 @@ public class InputManager : MonoSingleton<InputManager>
     InputAction moveAction;
     
     private Player player; // 用于检查玩家状态
+    
+    [Header("UI提示")]
+    [SerializeField] private SimpleTooltip tooltip; // 提示UI
 
     void Awake()
     {
@@ -242,7 +245,11 @@ public class InputManager : MonoSingleton<InputManager>
         // 检查玩家是否在地面或斜面上
         if (player != null && player.inAir)
         {
-            // 在空中，不允许进入snap模式
+            // 在空中，不允许进入snap模式，显示提示
+            if (tooltip != null)
+            {
+                tooltip.Show("在空中拍照太危险啦！");
+            }
             return;
         }
         

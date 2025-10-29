@@ -5001,6 +5001,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3217711455679401707, guid: 89cb5339b4cc1ef458b356a62d20cbd3, type: 3}
+      propertyPath: m_Text
+      value: "\u7C98\u8D34"
+      objectReference: {fileID: 0}
     - target: {fileID: 4073448647688995448, guid: 89cb5339b4cc1ef458b356a62d20cbd3, type: 3}
       propertyPath: m_Name
       value: Canvas
@@ -5095,6 +5099,17 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6739490041983501934, guid: 89cb5339b4cc1ef458b356a62d20cbd3, type: 3}
   m_PrefabInstance: {fileID: 446343229}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &446343231 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1732960208971845652, guid: 89cb5339b4cc1ef458b356a62d20cbd3, type: 3}
+  m_PrefabInstance: {fileID: 446343229}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a7c328f4017e7a479fdfb0b5530b58d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &481385536
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19541,6 +19556,7 @@ GameObject:
   - component: {fileID: 2041996079}
   - component: {fileID: 2041996078}
   - component: {fileID: 2041996080}
+  - component: {fileID: 2041996081}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -19609,6 +19625,19 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
+--- !u!114 &2041996081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2041996076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2aba0e9f1eda98e4ba9008d3ad66aabc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tooltip: {fileID: 446343231}
 --- !u!1 &2045965703
 GameObject:
   m_ObjectHideFlags: 0
