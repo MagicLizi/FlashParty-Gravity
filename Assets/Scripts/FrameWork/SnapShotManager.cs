@@ -7,7 +7,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine.InputSystem;
-using System.Linq;
 
 public class SnapShotManager : MonoBehaviour
 {
@@ -29,8 +28,6 @@ public class SnapShotManager : MonoBehaviour
     public bool InSnaping = false;
 
     public Tilemap BgTileMap;
-
-    public Tilemap GroundTileMap;
 
     public List<Tilemap> AllTileMaps = new List<Tilemap>();
 
@@ -86,7 +83,7 @@ public class SnapShotManager : MonoBehaviour
 
     private void OnSnapshotEvent(object data)
     {
-        if (_useManager._inSnapUse)
+        if(_useManager._inSnapUse)
         {
             return;
         }
@@ -119,14 +116,6 @@ public class SnapShotManager : MonoBehaviour
         previousFixedDeltaTime = Time.fixedDeltaTime;
         InSnaping = true;
         PauseGame();
-
-        // 截图阶段锁定玩家输入，避免响应输入
-        InputManager inputManager = InputManager.Instance;
-        if (inputManager != null)
-        {
-            inputManager.LockPlayerInput(999f); // 使用一个很大的值，在snap结束时会手动解锁
-        }
-
         // Debug.Log("[SnapShotManager] Snapshot Start -> Pause Game");
         _snapMat.SetColor("_Color", new Color(0, 0, 0, alpha));
         float orthoHeight = Camera.main.orthographicSize * 2f;
@@ -198,18 +187,6 @@ public class SnapShotManager : MonoBehaviour
         }
         snapshotActive = false;
         ResumeGame();
-
-        // 如果不是进入贴图模式，则解锁输入
-        // 如果是进入贴图模式，SnapUseManager会自己处理输入锁定
-        if (!_useManager._inSnapUse)
-        {
-            InputManager inputManager = InputManager.Instance;
-            if (inputManager != null)
-            {
-                inputManager.LockPlayerInput(0f); // 立即解锁
-            }
-        }
-
         // Debug.Log("[SnapShotManager] Snapshot End -> Resume Game");
         SnapGo.SetActive(false);
         EnableGridShow(false);
@@ -232,11 +209,6 @@ public class SnapShotManager : MonoBehaviour
     public void EnableGridShow(bool show)
     {
         BgTileMap.GetComponent<TilemapGridLinesDrawer>().enabled = show;
-        if (!show)
-        {
-            TilemapCellsOutlineDrawer cellOutline = GroundTileMap.GetComponent<TilemapCellsOutlineDrawer>();
-            cellOutline.ClearOutline();
-        }
     }
 
     public void PauseGame()
@@ -286,7 +258,6 @@ public class SnapShotManager : MonoBehaviour
             _snapMat.SetVector("_HoleCenter", _curSnapCenter);
             RefreshSaveBtn(false);
             SearchElements();
-            ShowCellSelectLine();
         }
     }
 
@@ -484,20 +455,6 @@ public class SnapShotManager : MonoBehaviour
         RefreshCurSnapShotTiles(viewportCenterWorldPos);
     }
 
-    void ShowCellSelectLine()
-    {
-        TilemapCellsOutlineDrawer cellOutline = GroundTileMap.GetComponent<TilemapCellsOutlineDrawer>();
-        cellOutline.ClearOutline();
-
-        Vector3 centerPos = Camera.main.ViewportToWorldPoint(new Vector3(_curSnapCenter.x, _curSnapCenter.y, Camera.main.nearClipPlane));
-        Vector3Int bgCenterCell = GetCellAtPosition(BgTileMap, centerPos);
-        List<SnapPos> cellList = GetSnapShotPos(bgCenterCell);
-        // Convert List<SnapPos> to IEnumerable<Vector3Int>
-        IEnumerable<Vector3Int> cellPositions = cellList.Select(snap => snap.cell);
-        cellOutline.DrawOutline(cellPositions);
-
-    }
-
     void OnGamePadSnapMove(object data)
     {
         CardinalDir dir = (CardinalDir)data;
@@ -530,8 +487,6 @@ public class SnapShotManager : MonoBehaviour
         if (InSnaping)
         {
             Debug.Log("保存当前截取内容！");
-            TilemapCellsOutlineDrawer cellOutline = GroundTileMap.GetComponent<TilemapCellsOutlineDrawer>();
-            cellOutline.ClearOutline();
             for (int i = 0; i < ElementsInSnapFully.Count; i++)
             {
                 ElementSnapBound esb = ElementsInSnapFully[i];
