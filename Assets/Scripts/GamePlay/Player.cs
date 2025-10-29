@@ -66,6 +66,10 @@ public class Player : MonoBehaviour
     public LayerMask groundMask;
 
     private bool isDead = false;
+    
+    [Header("游戏状态")]
+    [Tooltip("玩家是否拥有钥匙")]
+    public bool hasKey = false;
 
     private float rayLength = 0.2f;
 
