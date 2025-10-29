@@ -207,7 +207,8 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnActionStart(InputAction.CallbackContext value)
     {
-        EventManager.Instance.TriggerEvent(EventType.Action);
+        // 注释掉J键攻击输入
+        // EventManager.Instance.TriggerEvent(EventType.Action);
     }
 
     void OnAction(InputAction.CallbackContext value)
@@ -222,7 +223,8 @@ public class InputManager : MonoSingleton<InputManager>
 
     void OnSpecialStart(InputAction.CallbackContext value)
     {
-        EventManager.Instance.TriggerEvent(EventType.Special);
+        // 注释掉Special输入
+        // EventManager.Instance.TriggerEvent(EventType.Special);
     }
 
     void OnSpecial(InputAction.CallbackContext value)
