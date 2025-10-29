@@ -208,7 +208,7 @@ MonoBehaviour:
   maxFallSpeed: -30
   inAir: 0
   inAirTouchWall: 0
-  groundJumpGracePeriod: 0.15
+  groundJumpGracePeriod: 0.05
   maxAirJumpCount: 1
   AirJumpSpeed: 13
   rb: {fileID: 0}
@@ -218,6 +218,7 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 64
+  hasKey: 0
   StopSpeed: 0
   maxSlopeAngle: 55
   slopeSpeedMultiplier: 1.4
