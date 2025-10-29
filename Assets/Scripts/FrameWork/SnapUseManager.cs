@@ -531,7 +531,7 @@ public class SnapUseManager : MonoBehaviour
             InputManager inputManager = InputManager.Instance;
             if (inputManager != null)
             {
-                inputManager.LockPlayerInput(0.3f);
+                inputManager.LockPlayerInput(0.2f);
             }
             
             // 恢复透明度（防止未触发 MoveEnd 的情况）
@@ -548,6 +548,14 @@ public class SnapUseManager : MonoBehaviour
             if (_shotManager.curSnapshotTiles.Count > 0)
             {
                 _shotManager.PauseGame();
+                
+                // 进入贴图模式，锁定玩家输入
+                InputManager inputManager = InputManager.Instance;
+                if (inputManager != null)
+                {
+                    inputManager.LockPlayerInput(999f); // 使用一个很大的值，在确认时会手动解锁
+                }
+                
                 ShowTileCopy();
                 if (SnapCopy != null)
                 {
