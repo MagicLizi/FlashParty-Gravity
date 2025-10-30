@@ -24707,7 +24707,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2264733011150818541, guid: ee6ecd95a0ed57c4e88cd575d5d71d7e, type: 3}
       propertyPath: launchPower
-      value: 100
+      value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 2596324799874531981, guid: ee6ecd95a0ed57c4e88cd575d5d71d7e, type: 3}
       propertyPath: m_Name
